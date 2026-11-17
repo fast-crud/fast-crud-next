@@ -44,12 +44,42 @@ threshold: {
 ## 表格和分页
 
 ```ts
-table: { rowKey: "id", minWidth: 800 },
+table: { rowKey: "id", minWidth: 800, size: 14, density: "comfort" },
 pagination: { pageSize: 20, pageSizeOptions: ["20", "50"] },
 rowHandle: { width: 140 },
 ```
 
 `rowKey` 应稳定且唯一。列较多时设置 `minWidth`，避免操作列和字段内容互相挤压。
+
+常规 CRUD 配置由 `crudState` 持有，调用 `useFnCrud(crudState)` 后，`table` 和 `pagination` 的更新回调会自动写回 state，并保留用户传入的回调。列设置、`pageSize` 和 `density` 的用户偏好由 `FnCrud` 内部状态单独保存，再通过 computed 与开发者配置合并；用户交互会触发对应的 `update` 回调并保存偏好。列设置偏好与开发者配置的 `columns[key].cell` 分开存储，用户偏好优先；用户没有调整宽度时不保存宽度覆盖，继续使用开发者的 `cell.width`。列设置中的显隐优先级高于开发者的 `column.show` 和 `cell.show`。
+
+`cell.setting` 可控制列设置面板中的该列控件是否显示或禁用，默认显示且可用。动态 `cell: compute(...)` 列会保留在面板中，但控件禁用。
+
+```ts
+columns: {
+  environment: {
+    key: "environment",
+    title: "环境",
+    cell: { width: 120, setting: { show: false } },
+  },
+  status: {
+    key: "status",
+    title: "状态",
+    cell: { width: 120, setting: { disabled: true } },
+  },
+}
+```
+
+```ts
+const crudState = reactive<FnCrudState<Row>>({
+  columns: {
+    name: { key: "name", title: "名称", cell: { width: 220 } },
+  },
+  table: { density: "compact", size: 14 },
+  request: { pageRequest },
+});
+useFnCrud(crudState);
+```
 
 ## 工具栏职责
 

@@ -1,6 +1,6 @@
 # fn-admin shared 包
 
-`@fast-crud/fn-admin-shared` 是 monorepo 内供三个 admin 示例共用的 workspace 包，源码位于 `packages/fn-admin/shared`。admin 应用通过 `workspace:*` 依赖它，Vite 直接编译包内 TypeScript 和 Vue 源码。
+`@fast-crud/fn-admin-shared` 是 monorepo 内供三个 admin 示例共用的 workspace 包，源码位于 `packages/fn-admin/fn-admin-shared/src`。admin 应用通过 `workspace:*` 依赖它，Vite 直接编译包内 TypeScript 和 Vue 源码。
 
 ## 集成
 

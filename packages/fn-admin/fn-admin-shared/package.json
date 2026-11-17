@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    "./preferences": "./preferences.ts",
-    "./components/*": "./components/*",
-    "./mock": "./mock/index.ts",
-    "./mock/*": "./mock/*.ts",
-    "./views/*": "./views/*"
+    "./preferences": "./src/preferences.ts",
+    "./components/*": "./src/components/*",
+    "./mock": "./src/mock/index.ts",
+    "./mock/*": "./src/mock/*.ts",
+    "./views/*": "./src/views/*"
   },
   "dependencies": {
     "@fast-crud/fn-crud": "workspace:*",

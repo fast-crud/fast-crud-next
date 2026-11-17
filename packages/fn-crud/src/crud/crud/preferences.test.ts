@@ -1,5 +1,7 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences, type FnCrudPreferences } from "./preferences";
+import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./preferences";
+import type { FnCrudPreferences } from "../types/index";
+import { compute, resolveComputedValue } from "./compute";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -33,21 +35,47 @@ it("merges saved columns with current defaults and ignores removed columns", () 
   });
 });
 
-it("stores column state, resized widths, page size, and density in one snapshot", () => {
+it("用户显隐偏好覆盖开发者的 column.show 和 cell.show", () => {
+  const columns = {
+    visible: { key: "visible", title: "显示", show: false, cell: { show: false } },
+    hidden: { key: "hidden", title: "隐藏", show: true, cell: { show: true } },
+  };
+  const preferences: FnCrudPreferences = {
+    columns: { visible: { show: true }, hidden: { show: false } },
+    pageSize: 10,
+    density: "comfort",
+  };
+
+  expect(mergeFnCrudPreferences(columns, preferences)).toMatchObject({
+    visible: { show: true, cell: { show: true } },
+    hidden: { show: false, cell: { show: false } },
+  });
+});
+
+it("用户宽度覆盖动态 cell，但保留开发者的动态配置", () => {
+  const columns = {
+    amount: { key: "amount", title: "金额", cell: compute(({ row }) => ({ width: row?.width || 120, align: "right" as const })) },
+  };
+  const preferences: FnCrudPreferences = { columns: { amount: { width: 200 } }, pageSize: 10, density: "comfort" };
+  const merged = mergeFnCrudPreferences(columns, preferences);
+
+  expect(resolveComputedValue(merged.amount.cell!, { type: "row", row: { width: 150 } })).toMatchObject({ width: 200, align: "right" });
+});
+
+it("只保存用户列覆盖，未调整宽度时保留 undefined", () => {
   const snapshot = createFnCrudPreferenceSnapshot(
     {
-      id: { key: "id", title: "ID", cell: { order: 2, fixed: "left" } },
-      name: { key: "name", title: "名称", show: false, cell: { order: 1 } },
+      id: { order: 2, fixed: "left", width: 96 },
+      name: { show: false },
     },
-    { id: 96 },
     50,
     "compact"
   );
 
   expect(snapshot).toEqual({
     columns: {
-      id: { order: 2, show: true, fixed: "left", width: 96 },
-      name: { order: 1, show: false, fixed: null, width: undefined },
+      id: { order: 2, fixed: "left", width: 96 },
+      name: { show: false },
     },
     pageSize: 50,
     density: "compact",

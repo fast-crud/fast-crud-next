@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { ArrowDown, ArrowUp } from "@lucide/vue";
-import { computed, inject, provide, reactive, ref, watch, type CSSProperties } from "vue";
+import { computed, inject, provide, ref, type CSSProperties } from "vue";
 import FnTableCell from "./fn-table-cell.vue";
 import FnRender from "../components/fn-render";
 import { isFnComputeValue } from "../crud/compute";
@@ -87,7 +87,7 @@ const columns = computed(() => {
   for (const [key, column] of Object.entries(props.columns || {})) {
     // 行组件依赖实际 row，必须留到 FnTable 渲染每一行时解析。
     const cell = column.cell && !isFnComputeValue(column.cell) ? column.cell : {};
-    if (column.show === false || cell.show === false) {
+    if (column.show === false || (column.show === undefined && cell.show === false)) {
       continue;
     }
     result.push({ ...cell, key, title: cell.title ?? column.title });
@@ -111,17 +111,6 @@ const emit = defineEmits<{
   "column-resize": [value: { key: string; width: number }];
 }>();
 const resizing = ref(false);
-const columnWidths = reactive<Record<string, number>>({});
-watch(
-  () => props.columnWidths,
-  widths => {
-    for (const key of Object.keys(columnWidths)) {
-      delete columnWidths[key];
-    }
-    Object.assign(columnWidths, widths || {});
-  },
-  { immediate: true, deep: true }
-);
 const cellComponentRefs = new Map<string, unknown>();
 const selectedRowKeys = computed(() => (selection?.selectedRowKeys.value || []).map(String));
 const rowSelection = computed(() => (selection ? { title: selection.title, type: selection.type ?? "multiple" } : undefined));
@@ -141,7 +130,7 @@ const tableStyle = computed(() => {
 });
 function columnStyle(column: FnTableColumnConfig, key: string): CSSProperties {
   const style: CSSProperties = {};
-  const width = columnWidths[key] || column.width;
+  const width = column.width;
   if (width) {
     style.width = typeof width === "number" ? `${width}px` : width;
   }
@@ -173,7 +162,7 @@ function columnStyle(column: FnTableColumnConfig, key: string): CSSProperties {
 }
 
 function getFixedColumnWidth(column: FnTableColumnConfig): number {
-  const width = columnWidths[column.key] ?? column.width;
+  const width = column.width;
   if (typeof width === "number") {
     return width;
   }
@@ -197,15 +186,15 @@ function sortColumn(prop: string): void {
 function startResize(event: PointerEvent, column: FnTableColumnConfig) {
   resizing.value = true;
   const startX = event.clientX;
-  const initialWidth = getColumnWidth(columnWidths[column.key] || column.width);
+  const initialWidth = getColumnWidth(column.width);
+  let width = initialWidth;
   const onPointerMove = (moveEvent: PointerEvent) => {
-    const width = Math.max(50, initialWidth + moveEvent.clientX - startX);
-    columnWidths[column.key] = width;
+    width = Math.max(50, initialWidth + moveEvent.clientX - startX);
   };
   const onPointerUp = () => {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", onPointerUp);
-    emit("column-resize", { key: column.key, width: columnWidths[column.key] || initialWidth });
+    emit("column-resize", { key: column.key, width });
     window.setTimeout(() => {
       resizing.value = false;
     });

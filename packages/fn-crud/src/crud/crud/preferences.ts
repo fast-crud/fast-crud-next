@@ -1,4 +1,4 @@
-import type { FnCrudColumn, FnCrudPreferenceStorage, FnCrudPreferences } from "../types/index";
+import type { FnCrudColumn, FnCrudPreferenceStorage, FnCrudPreferences, FnTableColumn } from "../types/index";
 import { compute, isFnComputeValue, resolveComputedValue } from "./compute";
 
 const storagePrefix = "fn-crud:";
@@ -65,33 +65,25 @@ export function mergeFnCrudPreferences<Row>(columns: Record<string, FnCrudColumn
       continue;
     }
 
-    const baseCell = column.cell && typeof column.cell === "object" && !isFnComputeValue(column.cell) ? column.cell : {};
-    const mergeCell = (cell: Record<string, unknown>) => {
+    const mergeCell = (cell: FnTableColumn<Row>) => {
       const nextCell = { ...cell };
       if (saved.order !== undefined) nextCell.order = saved.order;
-      if (saved.fixed !== undefined) nextCell.fixed = saved.fixed;
-      if (saved.fixed === null) delete nextCell.fixed;
+      if (saved.fixed !== undefined) {
+        if (saved.fixed === null) delete nextCell.fixed;
+        else nextCell.fixed = saved.fixed;
+      }
       if (saved.show !== undefined) nextCell.show = saved.show;
       if (saved.width !== undefined) nextCell.width = saved.width;
       return nextCell;
     };
-    const cell = isFnComputeValue(column.cell) ? compute(context => mergeCell(resolveComputedValue(column.cell!, context))) : mergeCell(baseCell);
+    const sourceCell = column.cell;
+    const cell = isFnComputeValue(sourceCell) ? compute(context => mergeCell(resolveComputedValue(sourceCell, context))) : mergeCell(sourceCell || {});
     result[key] = { ...column, show: saved.show ?? column.show, cell };
   }
 
   return result;
 }
 
-export function createFnCrudPreferenceSnapshot<Row>(columns: Record<string, FnCrudColumn<Row>>, columnWidths: Record<string, number>, pageSize: number, density: "compact" | "comfort"): FnCrudPreferences {
-  const savedColumns: FnCrudPreferences["columns"] = {};
-  for (const [index, [key, column]] of Object.entries(columns).entries()) {
-    const cell = column.cell && typeof column.cell === "object" && !("__fnCompute" in column.cell) ? column.cell : {};
-    savedColumns[key] = {
-      order: typeof cell.order === "number" && Number.isFinite(cell.order) ? cell.order : index,
-      show: column.show !== false && cell.show !== false,
-      fixed: cell.fixed ?? null,
-      width: columnWidths[key] ?? (typeof cell.width === "number" ? cell.width : undefined),
-    };
-  }
-  return { columns: savedColumns, pageSize, density };
+export function createFnCrudPreferenceSnapshot(columns: FnCrudPreferences["columns"], pageSize?: number, density?: "compact" | "comfort"): FnCrudPreferences {
+  return { columns: { ...columns }, pageSize, density };
 }

@@ -20,6 +20,10 @@
 - 组件样式使用 `<style lang="less">`，选择器放在组件根 class 下组织；可复用组件需要保留日间和夜间主题表现。
 - CRUD state 使用单一数据源：通过 `reactive<FnCrudState>()` 创建，调用 `useFnCrud(state)` 初始化，并将同一份 state 通过 `v-bind` 传给 FnCrud。
 - 使用 `installFnCrud({ commonOptions: () => options })` 注册全局默认项；不要为每个列表复制一份可变用户 state。
+- 可被用户或内部组件修改的配置通常由 `crudState` 持有，并由 `useFnCrud(state)` 安装写回回调；组件通过语义明确的更新事件或回调表达修改，不要求强行使用 `v-model`。
+- 列设置偏好（显隐、固定、顺序和用户调整后的宽度）是独立于开发者 `columns[key].cell` 的用户数据源，由 `FnCrud` 内部 `ref` 持有并持久化。表格列由开发者配置与用户偏好合并，用户偏好优先；不要通过 `useFnCrud` 改写开发者列配置，也不要在未调整宽度时保存宽度覆盖。
+- `pageSize` 和 `density` 的用户偏好同样由 `FnCrud` 内部状态持有，通过 computed 与开发者配置合并。用户修改时触发 `pagination` / `table` 的 `update` 回调并保存偏好；`useFnCrud` 的自动写回应保留并调用使用者传入的回调。
+- 更新事件应贴合数据结构。列设置事件由 `FnCrud` 内部处理；列宽通过 `FnTable` 的 `column-resize({ key, width })` 事件更新内部用户偏好。其他用户可修改配置仍按其领域的单一数据源处理，避免把事件逐层转发到 FnCrud 再中转写入。
 - 行为变更应添加聚焦测试；测试文件放在被测实现附近。
 - 开发新功能后，必须在仓库根目录 `docs/` 对应模块补充该功能的集成方式、配置项和使用示例；README 只保留入口和简要说明。
 

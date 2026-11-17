@@ -37,6 +37,21 @@ it("未指定 order 的列保持在明确排序列之后", () => {
   expect(setup.columns.value.map(column => column.key)).toEqual(["name", "actions"]);
 });
 
+it("column.show 的显式值优先于 cell.show", () => {
+  const setup = module.exports.default.setup(
+    {
+      columns: {
+        visible: { key: "visible", title: "显示", show: true, cell: { show: false } },
+        hidden: { key: "hidden", title: "隐藏", show: false, cell: { show: true } },
+      },
+      data: [],
+    },
+    { expose: () => {}, emit: () => {} }
+  );
+
+  expect(setup.columns.value.map((column: { key: string }) => column.key)).toEqual(["visible"]);
+});
+
 it("每组固定列只在滚动边界列添加阴影", () => {
   const setup = module.exports.default.setup(
     {
@@ -138,5 +153,6 @@ it("调整列宽时在拖动结束后只发出一次宽度变更", () => {
   listeners.get("pointerup")?.({} as PointerEvent);
 
   expect(emitted).toEqual([["column-resize", { key: "name", width: 165 }]]);
+  expect(setup).not.toHaveProperty("columnWidths");
   vi.unstubAllGlobals();
 });

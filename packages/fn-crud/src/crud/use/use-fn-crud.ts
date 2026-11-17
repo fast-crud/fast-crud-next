@@ -13,14 +13,27 @@ export type FnCrudReactiveState<Row = any> = FnCrudState<Row>;
 
 export function useFnCrud<Row = any>(state: FnCrudReactiveState<Row>): FnCrudReactiveState<Row>;
 export function useFnCrud<Row = any>(state: FnCrudReactiveState<Row>): FnCrudReactiveState<Row> {
+  state.table ||= {};
+  const onUpdateDensity = state.table["onUpdate:density"];
+  const onUpdateSize = state.table["onUpdate:size"];
+  state.table["onUpdate:density"] = density => {
+    state.table!.density = density;
+    onUpdateDensity?.(density);
+  };
+  state.table["onUpdate:size"] = size => {
+    state.table!.size = size;
+    onUpdateSize?.(size);
+  };
+  state.pagination ||= {};
+  const onUpdatePageSize = state.pagination["onUpdate:pageSize"];
+  state.pagination["onUpdate:pageSize"] = pageSize => {
+    state.pagination!.pageSize = pageSize;
+    onUpdatePageSize?.(pageSize);
+  };
   state.onToggleDensity = () => {
     const currentDensity = state.table?.density || "comfort";
     const nextDensity = currentDensity === "comfort" ? "compact" : "comfort";
-    if (!state.table) {
-      state.table = { density: nextDensity };
-    } else {
-      state.table.density = nextDensity;
-    }
+    state.table?.["onUpdate:density"]?.(nextDensity);
   };
   return state;
 }

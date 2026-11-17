@@ -251,14 +251,20 @@ export interface FnTableColumn<Row = any> {
   fixed?: "left" | "right";
   dict?: FnDictStore;
   order?: number;
+  setting?: FnColumnSettingControl;
   component?: Record<string, any>;
   render?: (ctx: FnTableRowContext<Row>) => VNodeChild;
   slots?: FnSlots;
 }
 
+export interface FnColumnSettingControl {
+  show?: boolean;
+  disabled?: boolean;
+}
+
 export interface FnCrudColumnPreference {
-  order: number;
-  show: boolean;
+  order?: number;
+  show?: boolean;
   fixed?: "left" | "right" | null;
   width?: number;
 }
@@ -268,12 +274,14 @@ export interface FnColumnSettingsColumn {
   title: string;
   show: boolean;
   fixed?: "left" | "right";
+  setting?: FnColumnSettingControl;
+  dynamic?: boolean;
 }
 
 export interface FnCrudPreferences {
   columns: Record<string, FnCrudColumnPreference>;
-  pageSize: number;
-  density: "compact" | "comfort";
+  pageSize?: number;
+  density?: "compact" | "comfort";
 }
 
 export interface FnCrudPreferenceStorage {
@@ -333,7 +341,6 @@ export interface FnRowSelectOptions<Row = FnTableRow> {
 
 export interface FnTableProps {
   columns?: Record<string, FnCrudColumn<FnTableRow>>;
-  columnWidths?: Record<string, number>;
   data: FnTableRow[];
   size?: number;
   density?: "compact" | "comfort";
@@ -344,6 +351,15 @@ export interface FnTableProps {
   rowKey?: string | ((row: FnTableRow) => string | number);
   emptyText?: string;
   slots?: FnSlots;
+}
+
+export interface FnCrudTableOptions extends Omit<FnTableProps, "columns" | "data" | "sort"> {
+  "onUpdate:density"?: (density: "compact" | "comfort") => void;
+  "onUpdate:size"?: (size: number) => void;
+}
+
+export interface FnCrudPaginationOptions extends FnPaginationProps {
+  "onUpdate:pageSize"?: (pageSize: number) => void;
 }
 
 export interface FnTableSelectionContext {
@@ -387,8 +403,8 @@ export interface FnCrudOptions<Row = any> {
     delRequest?: (id: string | number) => Promise<any>;
     infoRequest?: (id: string | number) => Promise<Record<string, any>>;
   };
-  table?: Omit<FnTableProps, "columns" | "columnWidths" | "data" | "sort">;
-  pagination?: FnPaginationProps;
+  table?: FnCrudTableOptions;
+  pagination?: FnCrudPaginationOptions;
   slots?: FnSlots;
 }
 

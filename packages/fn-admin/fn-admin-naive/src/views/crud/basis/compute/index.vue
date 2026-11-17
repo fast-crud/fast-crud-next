@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { markRaw, reactive } from "vue";
 import { NInput, NSelect } from "naive-ui";
-import { FnCrud, FnInput, compute, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, compute, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "../../../../../../../fn-crud/src/crud";
 interface RuleRecord { id: number; name: string; scope: string; mode: string; threshold: number; enabled: boolean; }
 const records = reactive<RuleRecord[]>([{ id: 1, name: "生产证书临期提醒", scope: "生产", mode: "邮件", threshold: 14, enabled: true }, { id: 2, name: "预发布域名巡检", scope: "预发布", mode: "Webhook", threshold: 30, enabled: true }, { id: 3, name: "测试环境清理", scope: "测试", mode: "站内信", threshold: 7, enabled: false }]);
 const scopeOptions = [{ label: "生产", value: "生产" }, { label: "预发布", value: "预发布" }, { label: "测试", value: "测试" }];

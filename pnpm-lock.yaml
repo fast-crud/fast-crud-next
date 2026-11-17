@@ -59,7 +59,7 @@ importers:
     dependencies:
       '@fast-crud/fn-admin-shared':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../fn-admin-shared
       '@lucide/vue':
         specifier: ^1.66.0
         version: 1.73.0(vue@3.5.45(typescript@6.0.3))
@@ -96,7 +96,7 @@ importers:
     dependencies:
       '@fast-crud/fn-admin-shared':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../fn-admin-shared
       '@lucide/vue':
         specifier: ^1.66.0
         version: 1.73.0(vue@3.5.45(typescript@6.0.3))
@@ -133,7 +133,7 @@ importers:
     dependencies:
       '@fast-crud/fn-admin-shared':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../fn-admin-shared
       '@lucide/vue':
         specifier: ^1.66.0
         version: 1.73.0(vue@3.5.45(typescript@6.0.3))
@@ -166,7 +166,7 @@ importers:
         specifier: ^3.3.14
         version: 3.3.14(typescript@6.0.3)
 
-  packages/fn-admin/shared:
+  packages/fn-admin/fn-admin-shared:
     dependencies:
       '@fast-crud/fn-crud':
         specifier: workspace:*

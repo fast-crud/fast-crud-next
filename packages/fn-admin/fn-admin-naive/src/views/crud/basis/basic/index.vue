@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { markRaw, reactive } from "vue";
 import { NSelect } from "naive-ui";
-import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "../../../../../../../fn-crud/src/crud";
 interface ServiceRecord { id: number; name: string; owner: string; environment: string; status: string; updatedAt: string; }
 const records = reactive<ServiceRecord[]>([
   { id: 1042, name: "证书自动续期", owner: "平台组", environment: "生产", status: "运行中", updatedAt: "2026-11-16 10:42" },

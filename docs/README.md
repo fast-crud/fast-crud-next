@@ -20,7 +20,7 @@
 - [`demos/admin-examples.md`](demos/admin-examples.md)：三套 admin 的启动地址、路由和示例用途。
 - [`demos/antdv4-page-organization.md`](demos/antdv4-page-organization.md)：Ant Design Vue admin CRUD 页面分类和目录职责。
 - [`demos/fn-admin-shared-package.md`](demos/fn-admin-shared-package.md)：共享 admin 代码的 workspace 包接入方式和导出路径。
-- 请求式 CRUD Mock：见 [`demos/admin-examples.md`](demos/admin-examples.md) 的 `/crud/mock`；API handler 位于 `packages/fn-admin/shared/mock/services.ts`。
+- 请求式 CRUD Mock：见 [`demos/admin-examples.md`](demos/admin-examples.md) 的 `/crud/mock`；API handler 位于 `packages/fn-admin/fn-admin-shared/src/mock/services.mock.ts`。
 
 ## 组件
 

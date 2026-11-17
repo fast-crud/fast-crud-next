@@ -18,25 +18,26 @@
           @drop.prevent="dropColumn(column.key)"
         >
           <label class="fn-column-settings-name">
-            <input v-model="column.show" type="checkbox" @change="emitChange" />
+            <input v-if="column.setting?.show !== false" v-model="column.show" type="checkbox" :disabled="isDisabled(column)" @change="emitChange" />
             <span :title="column.title">{{ column.title }}</span>
           </label>
-          <div class="fn-column-settings-actions">
+          <div v-if="column.setting?.show !== false" class="fn-column-settings-actions">
             <div class="fn-column-settings-fixed" role="group" :aria-label="`${column.title}固定位置`">
-              <button type="button" :class="{ active: column.fixed === 'left' }" :aria-label="`${column.title}固定到左侧`" :aria-pressed="column.fixed === 'left'" title="固定到左侧" @click="setFixed(column, 'left')">
+              <button type="button" :disabled="isDisabled(column)" :class="{ active: column.fixed === 'left' }" :aria-label="`${column.title}固定到左侧`" :aria-pressed="column.fixed === 'left'" title="固定到左侧" @click="setFixed(column, 'left')">
                 <ChevronLeft :size="16" />
               </button>
-              <button type="button" :class="{ active: !column.fixed }" :aria-label="`${column.title}取消固定`" :aria-pressed="!column.fixed" title="取消固定" @click="setFixed(column, undefined)">
+              <button type="button" :disabled="isDisabled(column)" :class="{ active: !column.fixed }" :aria-label="`${column.title}取消固定`" :aria-pressed="!column.fixed" title="取消固定" @click="setFixed(column, undefined)">
                 <X :size="16" />
               </button>
-              <button type="button" :class="{ active: column.fixed === 'right' }" :aria-label="`${column.title}固定到右侧`" :aria-pressed="column.fixed === 'right'" title="固定到右侧" @click="setFixed(column, 'right')">
+              <button type="button" :disabled="isDisabled(column)" :class="{ active: column.fixed === 'right' }" :aria-label="`${column.title}固定到右侧`" :aria-pressed="column.fixed === 'right'" title="固定到右侧" @click="setFixed(column, 'right')">
                 <ChevronRight :size="16" />
               </button>
             </div>
             <button
               class="fn-column-settings-grip"
               type="button"
-              draggable="true"
+              :disabled="isDisabled(column)"
+              :draggable="!isDisabled(column)"
               :aria-label="`拖动排序：${column.title}`"
               title="拖动排序"
               @dragstart="startDrag($event, column.key)"
@@ -66,7 +67,7 @@ import FnDrawer from "./fn-drawer.vue";
 import type { FnColumnSettingsColumn } from "../types/index";
 
 const props = defineProps<{ modelValue: boolean; columns: FnColumnSettingsColumn[] }>();
-const emit = defineEmits<{ "update:modelValue": [value: boolean]; change: [columns: FnColumnSettingsColumn[]]; reset: [] }>();
+const emit = defineEmits<{ "update:modelValue": [value: boolean]; "update:columns": [columns: FnColumnSettingsColumn[]]; reset: [] }>();
 const open = computed({ get: () => props.modelValue, set: value => emit("update:modelValue", value) });
 const rows = ref<FnColumnSettingsColumn[]>([]);
 const draggingKey = ref<string>();
@@ -98,20 +99,22 @@ function setSelectAllRef(element: Element | null): void {
 }
 
 function emitChange(): void {
-  emit(
-    "change",
-    rows.value.map(column => ({ ...column }))
-  );
+  emit("update:columns", rows.value.map(column => ({ ...column })));
+}
+
+function isDisabled(column: FnColumnSettingsColumn): boolean {
+  return column.dynamic === true || column.setting?.disabled === true || column.setting?.show === false;
 }
 
 function toggleAll(visible: boolean): void {
   for (const column of rows.value) {
-    column.show = visible;
+    if (!isDisabled(column) && column.setting?.show !== false) column.show = visible;
   }
   emitChange();
 }
 
 function setFixed(column: FnColumnSettingsColumn, fixed: "left" | "right" | undefined): void {
+  if (isDisabled(column)) return;
   const oldFixed = column.fixed;
   const oldIndex = rows.value.findIndex(item => item.key === column.key);
   column.fixed = fixed;
@@ -133,6 +136,11 @@ function setFixed(column: FnColumnSettingsColumn, fixed: "left" | "right" | unde
 }
 
 function startDrag(event: DragEvent, key: string): void {
+  const column = rows.value.find(item => item.key === key);
+  if (!column || isDisabled(column)) {
+    event.preventDefault();
+    return;
+  }
   draggingKey.value = key;
   event.dataTransfer?.setData("text/plain", key);
   if (event.dataTransfer) {
@@ -154,6 +162,12 @@ function dropColumn(targetKey: string): void {
   }
   const sourceColumn = rows.value[sourceIndex];
   const targetColumn = rows.value[targetIndex];
+  const start = Math.min(sourceIndex, targetIndex);
+  const end = Math.max(sourceIndex, targetIndex);
+  if (isDisabled(sourceColumn) || isDisabled(targetColumn) || rows.value.slice(start, end + 1).some(isDisabled)) {
+    clearDrag();
+    return;
+  }
 
   if ((sourceColumn.fixed === "right" || targetColumn.fixed === "right") && (sourceColumn.fixed !== "right" || targetColumn.fixed !== "right")) {
     clearDrag();
@@ -197,7 +211,7 @@ function moveWithKeyboard(event: KeyboardEvent, index: number): void {
   }
   event.preventDefault();
   const targetIndex = event.key === "ArrowUp" ? index - 1 : index + 1;
-  if (targetIndex < 0 || targetIndex >= rows.value.length) {
+  if (targetIndex < 0 || targetIndex >= rows.value.length || isDisabled(rows.value[index]) || isDisabled(rows.value[targetIndex])) {
     return;
   }
   const [column] = rows.value.splice(index, 1);

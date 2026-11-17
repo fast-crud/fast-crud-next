@@ -1,6 +1,6 @@
 # Admin 示例
 
-三套 admin 共用 `packages/fn-admin/shared` 中的字典、跨页选择和条件表单页面；基础列表和动态计算页面保留各自 UI 框架的入口配置。
+三套 admin 共用 `packages/fn-admin/fn-admin-shared/src` 中的字典、跨页选择和条件表单页面；基础列表和动态计算页面保留各自 UI 框架的入口配置。
 
 ## 启动地址
 
@@ -29,4 +29,4 @@
 
 除请求 Mock 示例外，其他示例数据由页面内存维护，用于展示 FnCrud 配置和交互。请求 Mock 示例使用 `axios-mock-adapter` 在浏览器端拦截 Axios 请求，开发和部署后的静态构建均可使用；页面刷新后数据恢复初始值。接入后端时，可将该页 `request` 替换为实际 API 调用，保留 FnCrud state 和模板结构。
 
-Mock 路由沿用 `packages/fn-admin/shared/mock/base.ts` 的 `buildMock()`，CRUD 数据定义在 `services.mock.ts`；`index.ts` 使用 `axios-mock-adapter` 加载 common 与 CRUD mock handlers。CRUD 请求分别访问 `GET /mock/FnCrudServices/page`、`POST /mock/FnCrudServices/add`、`POST /mock/FnCrudServices/update` 和 `POST /mock/FnCrudServices/delete?id={id}`。三套 admin 从入口加载同一份 adapter，因此请求行为一致。
+Mock 路由沿用 `packages/fn-admin/fn-admin-shared/src/mock/base.ts` 的 `buildMock()`，CRUD 数据定义在 `services.mock.ts`；`index.ts` 使用 `axios-mock-adapter` 加载 common 与 CRUD mock handlers。CRUD 请求分别访问 `GET /mock/FnCrudServices/page`、`POST /mock/FnCrudServices/add`、`POST /mock/FnCrudServices/update` 和 `POST /mock/FnCrudServices/delete?id={id}`。三套 admin 从入口加载同一份 adapter，因此请求行为一致。

@@ -23,22 +23,22 @@
             <template v-for="(button, key) in actionbarProps.buttons" :key="key"><FnButton v-if="button.show !== false" v-bind="button" /></template>
           </div>
           <div v-else-if="col.type === 'toolbar' && toolbarProps.show !== false" class="fn-crud-buttons">
-            <FnToolbar :density="density" :disabled="!preferencesLoaded" @toggle-density="toggleDensity" @open-column-settings="columnSettingsOpen = true" />
+            <FnToolbar :density="density" :disabled="!preferencesLoaded" v-bind="toolbarDensityProps" @open-column-settings="columnSettingsOpen = true" />
             <FnRender v-if="toolbarProps.slots?.default" :render="toolbarProps.slots.default" :ctx="{ selectedRowKeys: getSelectedRowKeys(), selectedRows: getSelectedRows() }" />
             <FnButton v-for="(button, key) in toolbarProps.buttons" :key="key" v-bind="button" />
           </div>
         </div>
       </div>
     </header>
-    <FnTable v-if="tableProps.show !== false" v-bind="tableProps" :size="size" :density="density" :column-widths="columnWidths" :slots="tableProps.slots" @sort="changeSort" @column-resize="saveColumnWidth" />
+    <FnTable v-if="tableProps.show !== false" v-bind="tableProps" :size="size" :density="density" :slots="tableProps.slots" @sort="changeSort" @column-resize="saveColumnWidth" />
     <FnFormDialog ref="FnFormDialogRef" />
-    <FnColumnSettings v-model="columnSettingsOpen" :columns="columnSettingsColumns" @change="changeColumnSettings" @reset="resetColumnSettings" />
+    <FnColumnSettings v-bind="columnSettingsProps" @reset="resetColumnSettings" />
     <footer v-if="pagination && pagination.show !== false" class="fn-crud-footer"><FnPagination v-bind="paginationProps" @change="changePage" /></footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, provide, reactive, ref } from "vue";
+import { computed, getCurrentInstance, onMounted, provide, reactive, ref, watch } from "vue";
 import FnTable from "../table/fn-table.vue";
 import FnPagination from "../table/fn-pagination.vue";
 import FnSearch from "../search/index.vue";
@@ -80,19 +80,19 @@ const { notification } = uiContext.getServices();
 const FnFormDialogRef = ref<InstanceType<typeof FnFormDialog>>();
 const data = ref<FnTableRow[]>([]);
 const columnSettingsOpen = ref(false);
-const columnWidths = reactive<Record<string, number>>({});
+const columnPreferences = ref<FnCrudPreferences["columns"]>({});
+const pageSizePreference = ref<number>();
+const densityPreference = ref<"compact" | "comfort">();
 const preferencesLoaded = ref(false);
 const preferencesKey = ref("");
 const preferencesStorage = computed(() => createFnCrudPreferenceStorage(props.preferenceStorage));
-const savedPreferences = ref<FnCrudPreferences>();
-const defaultPageSize = props.pagination?.pageSize || 10;
 const size = computed(() => props.table?.size ?? 14);
-const densityOverride = ref<"compact" | "comfort">();
-const density = computed(() => densityOverride.value || props.table?.density || "comfort");
+const pageSize = computed(() => pageSizePreference.value ?? props.pagination?.pageSize ?? 10);
+const density = computed(() => densityPreference.value ?? props.table?.density ?? "comfort");
 const loading = ref(false);
 const searchForm = reactive<Record<string, any>>({});
 provide(fnCrudSearchKey, { form: searchForm, search: applySearch });
-const page = reactive({ current: props.pagination?.current || 1, pageSize: defaultPageSize, total: 0 });
+const page = reactive({ current: props.pagination?.current || 1, get pageSize() { return pageSize.value; }, total: 0 });
 const sort = ref({ prop: "", asc: true });
 const tabsCounts = ref<Record<string, number>>({});
 const selectedRowKeys = ref((props.rowSelect?.initialSelectedKeys || []).map(String));
@@ -110,25 +110,45 @@ let requestId = 0;
 const searchProps = useSearchProps(props);
 const rowHandleProps = useRowHandleProps(props, editRow, openDeleteDialog);
 const baseTableColumns = useTableColumns(props, rowHandleProps);
-const tableColumns = computed(() => mergeFnCrudPreferences(baseTableColumns.value, savedPreferences.value));
+const tableColumns = computed(() => mergeFnCrudPreferences(baseTableColumns.value, { columns: columnPreferences.value, pageSize: pageSize.value, density: density.value }));
 const columnSettingsColumns = computed<FnColumnSettingsColumn[]>(() =>
   Object.entries(tableColumns.value)
     .filter(([key]) => key !== "rowHandle")
     .map(([key, column]) => {
-      const cell = column.cell && typeof column.cell === "object" && !isFnComputeValue(column.cell) ? column.cell : {};
-      const saved = savedPreferences.value?.columns[key];
+      const dynamic = isFnComputeValue(column.cell);
+      const cell = isFnComputeValue(column.cell) ? undefined : column.cell;
       return {
         key,
         title: column.title,
-        show: saved?.show ?? (column.show !== false && cell.show !== false),
-        fixed: saved?.fixed === null ? undefined : (saved?.fixed ?? cell.fixed),
-        order: saved?.order ?? cell.order,
+        show: column.show ?? cell?.show ?? true,
+        fixed: cell?.fixed,
+        order: cell?.order,
+        setting: cell?.setting,
+        dynamic,
       };
     })
     .sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER))
-    .map(({ key, title, show, fixed }) => ({ key, title, show, fixed }))
+    .map(({ key, title, show, fixed, setting, dynamic }) => ({ key, title, show, fixed, setting, dynamic }))
+);
+const defaultColumnSettings = computed<FnColumnSettingsColumn[]>(() =>
+  Object.entries(baseTableColumns.value)
+    .filter(([key]) => key !== "rowHandle")
+    .map(([key, column]) => {
+      const dynamic = isFnComputeValue(column.cell);
+      const cell = isFnComputeValue(column.cell) ? undefined : column.cell;
+      return { key, title: column.title, show: column.show ?? cell?.show ?? true, fixed: cell?.fixed, order: cell?.order, setting: cell?.setting, dynamic };
+    })
+    .sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER))
+    .map(({ key, title, show, fixed, setting, dynamic }) => ({ key, title, show, fixed, setting, dynamic }))
 );
 const tableProps = useTableProps(props, tableColumns, data, loading, sort);
+const toolbarDensityProps = computed(() => ({ "onUpdate:density": changeDensity }));
+const columnSettingsProps = computed(() => ({
+  modelValue: columnSettingsOpen.value,
+  columns: columnSettingsColumns.value,
+  "onUpdate:modelValue": (value: boolean) => (columnSettingsOpen.value = value),
+  "onUpdate:columns": updateColumnSettings,
+}));
 function getSelectedRowKeys(): string[] {
   return [...selectedRowKeys.value];
 }
@@ -225,17 +245,7 @@ const formProps = useFormProps(props);
 let preferenceSaveQueue: Promise<void> = Promise.resolve();
 
 function createCurrentPreferenceSnapshot(): FnCrudPreferences {
-  const snapshot = createFnCrudPreferenceSnapshot(tableColumns.value, columnWidths, page.pageSize, density.value);
-  for (const [key, column] of Object.entries(tableColumns.value)) {
-    if (!isFnComputeValue(column.cell)) {
-      continue;
-    }
-    const saved = savedPreferences.value?.columns[key];
-    if (saved) {
-      snapshot.columns[key] = { ...saved, width: columnWidths[key] ?? saved.width };
-    }
-  }
-  return snapshot;
+  return createFnCrudPreferenceSnapshot(columnPreferences.value, pageSizePreference.value, densityPreference.value);
 }
 
 function savePreferences(): void {
@@ -243,48 +253,10 @@ function savePreferences(): void {
     return;
   }
   const snapshot = createCurrentPreferenceSnapshot();
-  savedPreferences.value = snapshot;
   const save = preferenceSaveQueue.then(() => preferencesStorage.value.set(preferencesKey.value, snapshot));
   preferenceSaveQueue = save.catch(error => {
     notification.error({ message: "列表偏好保存失败", description: String(error) });
   });
-}
-
-function changeColumnSettings(columns: FnColumnSettingsColumn[]): void {
-  const snapshot = createCurrentPreferenceSnapshot();
-  for (const [order, column] of columns.entries()) {
-    const current = snapshot.columns[column.key];
-    if (!current) {
-      continue;
-    }
-    snapshot.columns[column.key] = { ...current, order, show: column.show, fixed: column.fixed ?? null };
-  }
-  savedPreferences.value = snapshot;
-  savePreferences();
-}
-
-function toggleDensity(): void {
-  densityOverride.value = density.value === "compact" ? "comfort" : "compact";
-  props.onToggleDensity?.();
-  savePreferences();
-}
-
-function saveColumnWidth({ key, width }: { key: string; width: number }): void {
-  columnWidths[key] = width;
-  const snapshot = createCurrentPreferenceSnapshot();
-  if (!snapshot.columns[key]) {
-    return;
-  }
-  snapshot.columns[key].width = width;
-  savedPreferences.value = snapshot;
-  savePreferences();
-}
-
-async function resetColumnSettings(): Promise<void> {
-  const defaults = createFnCrudPreferenceSnapshot(baseTableColumns.value, columnWidths, page.pageSize, density.value);
-  savedPreferences.value = defaults;
-  savePreferences();
-  await preferenceSaveQueue;
 }
 
 async function initializePreferences(): Promise<void> {
@@ -293,17 +265,12 @@ async function initializePreferences(): Promise<void> {
     const preferences = await preferencesStorage.value.get(preferencesKey.value);
     if (preferences) {
       const savedColumns = preferences.columns && typeof preferences.columns === "object" ? preferences.columns : {};
-      savedPreferences.value = { ...preferences, columns: savedColumns };
-      for (const [key, column] of Object.entries(savedColumns)) {
-        if (column.width !== undefined) {
-          columnWidths[key] = column.width;
-        }
-      }
-      if (Number.isFinite(preferences.pageSize) && preferences.pageSize > 0) {
-        page.pageSize = preferences.pageSize;
+      columnPreferences.value = normalizeColumnPreferences(savedColumns);
+      if (typeof preferences.pageSize === "number" && Number.isFinite(preferences.pageSize) && preferences.pageSize > 0) {
+        pageSizePreference.value = preferences.pageSize;
       }
       if (preferences.density === "compact" || preferences.density === "comfort") {
-        densityOverride.value = preferences.density;
+        densityPreference.value = preferences.density;
       }
     }
   } catch (error) {
@@ -312,6 +279,70 @@ async function initializePreferences(): Promise<void> {
     preferencesLoaded.value = true;
   }
   await refresh();
+}
+
+function normalizeColumnPreferences(savedColumns: FnCrudPreferences["columns"]): FnCrudPreferences["columns"] {
+  const defaults = new Map(defaultColumnSettings.value.map((column, order) => [column.key, { column, order }]));
+  const result: FnCrudPreferences["columns"] = {};
+
+  for (const [key, saved] of Object.entries(savedColumns)) {
+    const base = baseTableColumns.value[key];
+    const defaultSetting = defaults.get(key);
+    if (!base || key === "rowHandle" || !defaultSetting) continue;
+    const cell = isFnComputeValue(base.cell) ? undefined : base.cell;
+    const preference = { ...saved };
+    if (preference.show === (base.show ?? cell?.show ?? true)) delete preference.show;
+    if (preference.fixed === (cell?.fixed ?? null)) delete preference.fixed;
+    if (preference.order === cell?.order || preference.order === defaultSetting.order) delete preference.order;
+    if (preference.width === cell?.width) delete preference.width;
+    if (Object.keys(preference).length) result[key] = preference;
+  }
+
+  return result;
+}
+
+function changeDensity(value: "compact" | "comfort"): void {
+  densityPreference.value = value;
+  props.table?.["onUpdate:density"]?.(value);
+  savePreferences();
+}
+
+function updateColumnSettings(columns: FnColumnSettingsColumn[]): void {
+  const defaults = defaultColumnSettings.value;
+  const defaultByKey = new Map(defaults.map((column, order) => [column.key, { column, order }]));
+  const next = { ...columnPreferences.value };
+
+  for (const [order, setting] of columns.entries()) {
+    const base = baseTableColumns.value[setting.key];
+    const defaultSetting = defaultByKey.get(setting.key);
+    if (!base || !defaultSetting || isFnComputeValue(base.cell) || setting.setting?.show === false || setting.setting?.disabled) continue;
+
+    const preference = { ...next[setting.key] };
+    const baseCell = base.cell || {};
+    if (setting.show === (base.show ?? baseCell.show ?? true)) delete preference.show;
+    else preference.show = setting.show;
+    if (setting.fixed === baseCell.fixed) delete preference.fixed;
+    else preference.fixed = setting.fixed ?? null;
+    if (order === defaultSetting.order) delete preference.order;
+    else preference.order = order;
+
+    if (Object.keys(preference).length) next[setting.key] = preference;
+    else delete next[setting.key];
+  }
+
+  columnPreferences.value = next;
+  savePreferences();
+}
+
+function saveColumnWidth({ key, width }: { key: string; width: number }): void {
+  if (!baseTableColumns.value[key] || key === "rowHandle") return;
+  columnPreferences.value = { ...columnPreferences.value, [key]: { ...columnPreferences.value[key], width } };
+  savePreferences();
+}
+
+function resetColumnSettings(): void {
+  columnPreferences.value = {};
+  savePreferences();
 }
 
 async function refresh(): Promise<void> {
@@ -356,8 +387,9 @@ function changeSort(value: { prop: string; asc: boolean }): void {
 async function turnPage({ current, pageSize }: FnPaginationTarget): Promise<void> {
   const pageSizeChanged = page.pageSize !== pageSize;
   page.current = current;
-  page.pageSize = pageSize;
   if (pageSizeChanged) {
+    pageSizePreference.value = pageSize;
+    props.pagination?.["onUpdate:pageSize"]?.(pageSize);
     savePreferences();
   }
   await refresh();

@@ -42,7 +42,10 @@ export function useTableColumns(props: FnCrudOptions, rowHandleProps: Ref<Record
 }
 
 export function useTableProps(props: FnCrudOptions, columns: Ref<Record<string, any>>, data: Ref<FnTableRow[]>, loading: Ref<boolean>, sort: Ref<{ prop: string; asc: boolean }>): Ref<FnTableProps> {
-  return computed(() => ({ ...props.table, columns: columns.value, data: data.value, loading: loading.value || props.table?.loading, sort: sort.value }));
+  return computed(() => {
+    const { "onUpdate:density": _onUpdateDensity, "onUpdate:size": _onUpdateSize, ...table } = props.table || {};
+    return { ...table, columns: columns.value, data: data.value, loading: loading.value || props.table?.loading, sort: sort.value };
+  });
 }
 
 export function useActionbarProps(props: FnCrudOptions, openAddForm: () => unknown) {
@@ -80,7 +83,7 @@ export function useTabsProps(props: FnCrudOptions, searchForm: Record<string, an
 
 export function usePaginationProps(props: FnCrudOptions, page: { current: number; pageSize: number; total: number }) {
   return computed(() => ({
-    ...props.pagination,
+    ...(({ "onUpdate:pageSize": _onUpdatePageSize, ...pagination }) => pagination)(props.pagination || {}),
     current: page.current,
     pageSize: page.pageSize,
     total: page.total,

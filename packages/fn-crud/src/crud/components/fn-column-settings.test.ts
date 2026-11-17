@@ -36,6 +36,44 @@ it("右固定列只能在右固定列之间拖动排序", () => {
   expect(reorder([{ key: "normal" }, { key: "rightA", fixed: "right" }, { key: "rightB", fixed: "right" }], "rightB", "normal")).toEqual(["normal", "rightA", "rightB"]);
 });
 
+it("列设置通过 update:columns 发出完整配置", () => {
+  const emitted: Array<[string, unknown]> = [];
+  const columns = [{ key: "name", title: "名称", show: true }];
+  const setup = module.exports.default.setup({ modelValue: true, columns }, { emit: (name: string, value: unknown) => emitted.push([name, value]), expose: () => {} });
+
+  setup.toggleAll(false);
+
+  expect(emitted).toEqual([["update:columns", [{ key: "name", title: "名称", show: false }]]]);
+});
+
+it("还原通过 reset 事件清除用户偏好", () => {
+  const emitted: Array<[string, unknown]> = [];
+  const columns = [{ key: "name", title: "名称", show: true }];
+  const setup = module.exports.default.setup({ modelValue: true, columns }, { emit: (name: string, value: unknown) => emitted.push([name, value]), expose: () => {} });
+
+  setup.emit("reset");
+
+  expect(emitted).toEqual([["reset", undefined]]);
+});
+
+it("按 FnColumnSettingControl 隐藏或禁用列设置控件", () => {
+  const setup = module.exports.default.setup(
+    {
+      modelValue: true,
+      columns: [
+        { key: "hidden", title: "隐藏控件", show: true, setting: { show: false } },
+        { key: "locked", title: "禁用控件", show: true, setting: { disabled: true } },
+        { key: "dynamic", title: "动态列", show: true, dynamic: true },
+      ],
+    },
+    { emit: vi.fn(), expose: () => {} }
+  );
+
+  expect(setup.isDisabled(setup.rows.value[0])).toBe(true);
+  expect(setup.isDisabled(setup.rows.value[1])).toBe(true);
+  expect(setup.isDisabled(setup.rows.value[2])).toBe(true);
+});
+
 it("点击右固定将列插入首个右固定列之前", () => {
   expect(setFixed([{ key: "rightA", fixed: "right" }, { key: "rightB", fixed: "right" }, { key: "normal" }], "normal", "right")).toEqual([
     { key: "normal", fixed: "right" },

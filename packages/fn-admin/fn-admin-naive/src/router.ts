@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import Overview from "./views/Overview.vue";
-import BasicCrud from "./views/BasicCrud.vue";
-import ComputeCrud from "./views/ComputeCrud.vue";
+import BasicCrud from "./views/crud/basis/basic/index.vue";
+import ComputeCrud from "./views/crud/basis/compute/index.vue";
 import NaiveDictionaryCrud from "./views/NaiveDictionaryCrud.vue";
 import SelectionCrud from "@fast-crud/fn-admin-shared/views/SelectionCrud.vue";
 import ConditionalFormCrud from "@fast-crud/fn-admin-shared/views/ConditionalFormCrud.vue";
