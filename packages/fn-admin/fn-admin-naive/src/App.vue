@@ -3,7 +3,7 @@ import { computed, h, ref, watch } from "vue";
 import { RouterView, useRoute, useRouter } from "vue-router";
 import { createDiscreteApi, darkTheme, NAvatar, NButton, NConfigProvider, NDropdown, NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, NSpace, NTag, NMessageProvider } from "naive-ui";
 import { ChevronDown, Database, Languages, LayoutDashboard, Moon, PanelLeftClose, PanelLeftOpen, Settings, Sun } from "@lucide/vue";
-import { FnConfigProvider } from "../../../fn-crud/src/crud";
+import { FnConfigProvider } from "@fast-crud/fast-crud-next";
 import NaiveThemeBridge from "./components/NaiveThemeBridge.vue";
 import { adminPreferences, adminText, toggleAdminLanguage, toggleAdminTheme } from "@fast-crud/fn-admin-shared/preferences";
 

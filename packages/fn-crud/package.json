@@ -1,15 +1,16 @@
 {
-  "name": "@fast-crud/fn-crud",
+  "name": "@fast-crud/fast-crud-next",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    "./crud": "./src/crud/index.ts"
+    ".": "./src/index.ts",
+    "./theme/tokens.css": "./src/theme/tokens.css",
+    "./theme/antdv": "./src/theme/antdv/index.ts",
+    "./theme/naive": "./src/theme/naive/index.ts"
   },
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "vue-tsc -b"
   },

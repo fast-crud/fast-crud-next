@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, markRaw, reactive } from "vue";
 import { Tag } from "ant-design-vue";
-import { FnCrud, FnInput, DictStore, type FnCrudState, type FnTableRowContext, useFnCrud } from "../../../../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, DictStore, type FnCrudState, type FnTableRowContext, useFnCrud } from "@fast-crud/fast-crud-next";
 import DemoSelect from "@fast-crud/fn-admin-shared/components/DemoSelect.vue";
 import { api, type Credential } from "./api";
 const statusDict = markRaw(new DictStore({ data: [

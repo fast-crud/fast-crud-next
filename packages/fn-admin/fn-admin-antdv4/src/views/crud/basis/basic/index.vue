@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { markRaw, reactive } from "vue";
-import { FnCrud, FnInput, type FnCrudState, useFnCrud } from "../../../../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type ServiceRecord } from "./api";
 const crudState = reactive<FnCrudState<ServiceRecord>>({
   id: "antdv-basic-services", heading: { title: "服务目录", description: "支持搜索、分页、新增、编辑和删除。" }, table: { rowKey: "id", minWidth: 820 }, rowHandle: { width: 150 }, rowSelect: { crossPage: true },

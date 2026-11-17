@@ -1,6 +1,6 @@
 # 主题适配
 
-FnCrud 组件通过 `--fn-*` CSS 变量读取主题。默认 token 位于 `packages/fn-crud/src/crud/theme/tokens.css`，应用可以直接覆盖这些变量，也可以使用已有适配器。
+FnCrud 组件通过 `--fn-*` CSS 变量读取主题。默认 token 位于 `packages/fn-crud/src/theme/tokens.css`，应用可以直接覆盖这些变量，也可以使用已有适配器。
 
 ## 直接覆盖 token
 
@@ -23,7 +23,7 @@ Naive 适配器会把 `common.borderRadius` 映射为 `--fn-border-radius`；FnC
 ```vue
 <script setup lang="ts">
 import { useThemeVars } from "naive-ui";
-import { useNaiveTheme, type NaiveThemeTokens } from "@fn-crud/index";
+import { useNaiveTheme, type NaiveThemeTokens } from "@fast-crud/fast-crud-next";
 
 const themeVars = useThemeVars();
 useNaiveTheme(() => themeVars.value as unknown as NaiveThemeTokens);
@@ -74,7 +74,7 @@ FnCrud 核心包不依赖 Element Plus。Element Plus 应用可在入口加载 E
 
 ```ts
 import { theme } from "ant-design-vue";
-import { useAntdvTheme } from "@fn-crud/index";
+import { useAntdvTheme } from "@fast-crud/fast-crud-next";
 
 const { token } = theme.useToken();
 useAntdvTheme(token);

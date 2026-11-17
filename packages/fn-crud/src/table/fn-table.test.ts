@@ -5,7 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { getFnTableRowKey } from "./row-key";
-import { isFnComputeValue } from "../crud/compute";
+import { isFnComputeValue } from "../compute";
 import type { FnTableSelectionContext } from "../types/index";
 
 const filename = fileURLToPath(new URL("./fn-table.vue", import.meta.url));
@@ -18,7 +18,7 @@ let selectionContext: FnTableSelectionContext | undefined;
 const loadDependency = (name: string) => {
   if (name === "@lucide/vue" || name === "./fn-table-cell.vue" || name === "../components/fn-render") return {};
   if (name === "./row-key") return { getFnTableRowKey };
-  if (name === "../crud/compute") return { isFnComputeValue };
+  if (name === "../compute") return { isFnComputeValue };
   if (name === "../provider/context") return { fnCrudTableSelectionKey: "selection" };
   if (name === "vue") return { ...require(name), inject: () => selectionContext };
   return require(name);

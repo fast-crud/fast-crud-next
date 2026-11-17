@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, markRaw, reactive, ref } from "vue";
 import type { Component } from "vue";
-import { FnCrud, FnInput, DictStore, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, useFnCrud } from "@fast-crud/fn-crud/crud";
+import { FnCrud, FnInput, DictStore, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, useFnCrud } from "@fast-crud/fast-crud-next";
 import DemoSelect from "../components/DemoSelect.vue";
 
 interface Credential { id: number; name: string; owner: string; scope: string; status: string; expiresAt: string }

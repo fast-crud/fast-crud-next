@@ -1,4 +1,6 @@
-export { default as FnCrud } from "./crud/fn-crud.vue";
+import "./theme/tokens.css";
+
+export { default as FnCrud } from "./fn-crud.vue";
 export { default as FnTable } from "./table/fn-table.vue";
 export { default as FnTableSelect } from "./table/fn-table-select.vue";
 import FnModalComponent from "./modal/fn-modal.vue";
@@ -21,10 +23,10 @@ export { default as FnNotificationHost } from "./notification/fn-notification-ho
 export type * from "./types/index";
 export { default as FnTabs } from "./tabs/index.vue";
 export * from "./theme";
-export { DictStore } from "./crud/dict";
-export { compute, resolveComputed, resolveComputedValue } from "./crud/compute";
-export { deepClone, deepMerge } from "./crud/merge";
-export { createFnCrudPreferenceStorage, createFnCrudPreferenceSnapshot, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./crud/preferences";
+export { DictStore } from "./dict";
+export { compute, resolveComputed, resolveComputedValue } from "./compute";
+export { deepClone, deepMerge } from "./merge";
+export { createFnCrudPreferenceStorage, createFnCrudPreferenceSnapshot, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./preferences";
 export { model, useFnDialog } from "./modal/dialog";
 export { UiContext, FnCrudContext, uiContext, fnCrudContext, type FnUiServices, type FnFeedbackApi } from "./provider/context";
-export { installFnCrud, useFnCrud, useFnUiServices, type FnCrudOptionsInput, type FnCrudReactiveState, type FnCrudState } from "./use";
+export { installFnCrud, useFnCrud, useFnUiServices, type FnCrudOptionsInput, type FnCrudReactiveState, type FnCrudState } from "./use/index";

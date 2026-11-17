@@ -19,8 +19,8 @@
 </template>
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref } from "vue";
-import { useFnUiServices } from "../use";
-import { resolveComputedValue } from "../crud/compute";
+import { useFnUiServices } from "../use/use-fn-ui-services";
+import { resolveComputedValue } from "../compute";
 import FnModal from "../modal/fn-modal.vue";
 import FnForm from "./fn-form.vue";
 import type { FnFormProps, FnFormDialogOptions, FnFormInstance, FnFormContext, FnComputeContext, FnModalInstance, FnFormDialogInstance, FnDialogContext, FnComputeValue } from "../types/index";

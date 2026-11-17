@@ -1,6 +1,6 @@
 import { computed, type Ref } from "vue";
 import { compute, isFnComputeValue, resolveComputedValue } from "./compute";
-import type { DictOption, FnCrudOptions, FnDynamic, FnFormColumn, FnFormContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../types/index";
+import type { DictOption, FnCrudOptions, FnDynamic, FnFormColumn, FnFormContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "./types/index";
 
 export function useSearchProps(props: FnCrudOptions): Ref<FnSearchProps> {
   return computed(() => {

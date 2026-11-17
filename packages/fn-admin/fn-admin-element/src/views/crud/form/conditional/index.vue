@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { markRaw, reactive } from "vue";
-import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "../../../../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import DemoSelect from "@fast-crud/fn-admin-shared/components/DemoSelect.vue";
 import { api, type Rotation } from "./api";
 const state = reactive({

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { markRaw, reactive, ref } from "vue";
-import { FnCrud, FnInput, type FnCrudExpose, type FnCrudState, useFnCrud } from "../../../../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, type FnCrudExpose, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type ChangeRequest } from "./api";
 const selectedKeys = ref<Array<string | number>>([]);
 const crud = ref<FnCrudExpose<ChangeRequest>>();

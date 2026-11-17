@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fast-crud/fast-crud-next": "workspace:*",
     "@fast-crud/fn-admin-shared": "workspace:*",
     "@lucide/vue": "^1.66.0",
     "ant-design-vue": "^4.2.6",

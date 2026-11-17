@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { h, reactive, ref } from 'vue'
 import { ElTag } from 'element-plus'
-import { FnCrud, FnInput, compute, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from '@fn-crud/index'
+import { FnCrud, FnInput, compute, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from '@fast-crud/fast-crud-next'
 
 interface TaskRecord { id: number; task: string; owner: string; priority: 'P0' | 'P1' | 'P2'; budget: number; progress: number; status: 'running' | 'blocked' | 'done' }
 const rows = ref<TaskRecord[]>([

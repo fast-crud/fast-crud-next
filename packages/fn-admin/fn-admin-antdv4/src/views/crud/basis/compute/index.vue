@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { markRaw, reactive, ref } from "vue";
-import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "../../../../../../../fn-crud/src/crud";
+import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type Order } from "./api";
 const tier = ref("标准");
 const crudState = reactive<FnCrudState<Order>>({

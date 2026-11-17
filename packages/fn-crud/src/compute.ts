@@ -1,5 +1,5 @@
 import { computed, type ComputedRef } from "vue";
-import type { FnComputeContext, FnComputeValue } from "../types/index";
+import type { FnComputeContext, FnComputeValue } from "./types/index";
 
 export function compute<T>(computeFn: (context: FnComputeContext) => T): FnComputeValue<T> {
   return { __fnCompute: true, computeFn };

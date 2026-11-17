@@ -5,13 +5,13 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { reactive } from "vue";
-import { getFnTableRowKey } from "../table/row-key";
+import { getFnTableRowKey } from "./table/row-key";
 import { compute, isFnComputeValue, resolveComputedValue } from "./compute";
 import { deepMerge } from "./merge";
-import * as crudUse from "./use";
-import { fnCrudContext, uiContext } from "../provider/context";
-import { useFnCrud } from "../use/use-fn-crud";
-import type { FnCrudExpose } from "../types/index";
+import * as crudUse from "./use.tsx";
+import { fnCrudContext, uiContext } from "./provider/context";
+import { useFnCrud } from "./use/use-fn-crud";
+import type { FnCrudExpose } from "./types/index";
 import * as preferences from "./preferences";
 import { mergeFnCrudPreferences } from "./preferences";
 
@@ -24,20 +24,20 @@ const module = { exports: {} as any };
 const loadDependency = (name: string) => {
   if (
     [
-      "../table/fn-table.vue",
-      "../table/fn-pagination.vue",
-      "../search/index.vue",
-      "../tabs/index.vue",
-      "../components/fn-button.vue",
-      "../components/fn-toolbar.vue",
-      "../components/fn-column-settings.vue",
-      "../form/fn-form-dialog.vue",
-      "../components/fn-render",
+      "./table/fn-table.vue",
+      "./table/fn-pagination.vue",
+      "./search/index.vue",
+      "./tabs/index.vue",
+      "./components/fn-button.vue",
+      "./components/fn-toolbar.vue",
+      "./components/fn-column-settings.vue",
+      "./form/fn-form-dialog.vue",
+      "./components/fn-render",
     ].includes(name)
   )
     return {};
   if (name === "./compute") return { compute, isFnComputeValue, resolveComputedValue };
-  if (name === "../provider/context")
+  if (name === "./provider/context")
     return {
       fnCrudSearchKey: "search",
       fnCrudTableSelectionKey: "selection",
@@ -45,10 +45,10 @@ const loadDependency = (name: string) => {
       uiContext,
     };
   if (name === "./merge") return { deepMerge };
-  if (name === "./use") return crudUse;
+  if (name === "./use.tsx") return crudUse;
   if (name === "./preferences") return { ...preferences, mergeFnCrudPreferences };
-  if (name === "../table/row-key") return { getFnTableRowKey };
-  if (name === "../modal/dialog") return { model: { confirm: vi.fn() } };
+  if (name === "./table/row-key") return { getFnTableRowKey };
+  if (name === "./modal/dialog") return { model: { confirm: vi.fn() } };
   if (name === "ant-design-vue") return { notification: { success: vi.fn(), error: vi.fn() } };
   return require(name);
 };

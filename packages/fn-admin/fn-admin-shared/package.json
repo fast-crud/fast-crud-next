@@ -11,7 +11,7 @@
     "./views/*": "./src/views/*"
   },
   "dependencies": {
-    "@fast-crud/fn-crud": "workspace:*",
+    "@fast-crud/fast-crud-next": "workspace:*",
     "axios": "^1.21.1",
     "axios-mock-adapter": "^1.21.2",
     "lodash-es": "^4.18.1"

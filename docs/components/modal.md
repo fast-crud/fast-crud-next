@@ -5,7 +5,7 @@
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-import { FnModal } from "@fn-crud/index";
+import { FnModal } from "@fast-crud/fast-crud-next";
 
 const open = ref(false);
 function onAfterClose() {

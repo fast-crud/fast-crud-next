@@ -1,36 +1,31 @@
 # Fast Crud Next
 
-Fast Crud Next 是基于 Vue 3 和 TypeScript 的 FnCrud 开发与演示项目。组件源码位于 `src/crud`。当前 demo 是本地服务目录，包含搜索、状态标签、分页、行选择、新增、编辑、删除、密度切换和列设置。项目不依赖 Ant Design Vue。
+Fast Crud Next 是基于 Vue 3 和 TypeScript 的 FnCrud 组件库。源码位于 `src/`，项目不依赖 Ant Design Vue。
 
 ## 环境要求
 
 - Node.js 22.12 或更高版本
 - npm 10 或更高版本
 
-## 启动项目
+## 开发与构建
 
 ```sh
 npm install
-npm run dev
 ```
 
-Vite 启动后会输出本地访问地址。生产打包和预览命令如下：
-
-```sh
-npm run build
-npm run preview
-```
-
-`npm run build` 执行 Vite 生产打包。`npm run typecheck` 单独运行 Vue 和 TypeScript 类型检查，`npm test` 运行 Vitest 测试。
+`npm run build` 打包组件库，`npm run typecheck` 运行 Vue 和 TypeScript 类型检查，`npm test` 运行 Vitest 测试。
 
 ## 目录结构
 
 ```text
 src/
-  App.vue              FnCrud 交互示例和本地内存数据
-  crud/                FnCrud、FnTable、表单、弹窗、通知、主题和组合式函数
-  main.ts              Vue 应用入口
-  style.css            demo 全局基础样式
+  index.ts             组件库公开入口
+  fn-crud.vue          FnCrud 核心组件
+  compute.ts / use.tsx 配置计算和组合式函数
+  dict.tsx / *.ts      字典、配置合并和偏好
+  components/          基础 UI 组件
+  form/ modal/ table/  表单、弹窗和表格
+  theme/               主题 token 和适配器
 ```
 
 ## 使用 FnCrud
@@ -39,7 +34,7 @@ src/
 
 ```ts
 import { reactive } from "vue";
-import { type FnCrudState, useFnCrud } from "./crud";
+import { type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 
 const crudState = reactive<FnCrudState>({
   columns: {},
@@ -60,7 +55,7 @@ useFnCrud(crudState);
 
 ## UI 和主题
 
-FnCrud 提供自己的表格、弹窗、表单、通知和按钮基础组件，图标由 Lucide Vue 提供。主题默认值位于 `src/crud/theme/tokens.css`，可直接覆盖 `--fn-*` CSS 变量。Naive UI 主题适配器独立放在对应目录中，demo 使用独立默认主题，不需要安装 UI 框架。
+FnCrud 提供自己的表格、弹窗、表单、通知和按钮基础组件，图标由 Lucide Vue 提供。主题默认值位于 `src/theme/tokens.css`，可直接覆盖 `--fn-*` CSS 变量。Naive UI 主题适配器独立放在对应目录中，不需要安装 UI 框架。
 
 ## 测试
 

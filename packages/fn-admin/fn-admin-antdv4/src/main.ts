@@ -1,8 +1,8 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { installFnCrud, uiContext } from "../../../fn-crud/src/crud";
+import { installFnCrud, uiContext } from "@fast-crud/fast-crud-next";
 import "ant-design-vue/dist/reset.css";
-import "../../../fn-crud/src/crud/theme/tokens.css";
+import "@fast-crud/fast-crud-next/theme/tokens.css";
 import "./style.css";
 import App from "./App.vue";
 import DashboardView from "./views/DashboardView.vue";

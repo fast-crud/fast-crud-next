@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { markRaw, reactive, ref } from "vue";
-import { FnCrud, FnInput, compute, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "@fast-crud/fn-crud/crud";
+import { FnCrud, FnInput, compute, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "@fast-crud/fast-crud-next";
 import DemoSelect from "../components/DemoSelect.vue";
 
 interface Rotation { id: number; name: string; owner: string; strategy: string; graceDays: number; target: string; status: string }

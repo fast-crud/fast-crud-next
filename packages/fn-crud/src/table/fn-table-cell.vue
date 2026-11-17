@@ -13,7 +13,7 @@ import { computed } from "vue";
 import FnTableCellRender from "./cell-render";
 import FnComponentRender from "../components/fn-component-render";
 import FnButton from "../components/fn-button.vue";
-import { resolveComputedValue } from "../crud/compute";
+import { resolveComputedValue } from "../compute";
 import type { FnDynamic, FnTableColumn, FnTableRow, FnTableRowContext } from "../types/index";
 const props = defineProps<{ column: FnDynamic<FnTableColumn<FnTableRow>>; context: FnTableRowContext; value: unknown }>();
 const emit = defineEmits<{ componentRef: [instance: object | null] }>();

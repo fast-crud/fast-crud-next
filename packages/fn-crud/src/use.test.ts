@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ref } from "vue";
-import { useTabsProps } from "./use";
-import type { FnCrudOptions } from "../types/index";
+import { useTabsProps } from "./use.tsx";
+import type { FnCrudOptions } from "./types/index";
 
 describe("useTabsProps", () => {
   it("treats unloaded dictionary options as an empty list", () => {

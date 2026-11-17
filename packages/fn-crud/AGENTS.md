@@ -8,9 +8,9 @@
 
 - 本仓库是 Fast Crud Next 当前的开发工作区。除非任务明确要求，否则所有实现都留在本仓库。
 - 项目是独立的 Vue 3 + TypeScript CRUD 组件开发与演示项目。
-- `src/crud` 维护 FnCrud 及其本地 UI 基础组件。不要依赖 Fast Crud 或 `@certd/ui-client`。
+- FnCrud 核心源码、表单、表格、provider、主题和 UI 基础组件按领域直接放在 `src/` 下。不要依赖 Fast Crud 或 `@certd/ui-client`。
 - 不添加 Ant Design Vue。基础表格、表单、搜索、弹窗和工具栏应使用本地 Fn 组件或原生 HTML 控件；可选主题适配器必须保持独立，不得由基础入口加载。
-- demo 数据和页面展示放在 `src/App.vue`；可复用的组件行为放在 `src/crud`。
+- 本包只维护可复用组件，不在包内保留 demo 应用入口。
 
 ## 实现约定
 
@@ -29,10 +29,8 @@
 
 ## 常用命令
 
-- `npm run dev`：启动 Vite 开发服务器。
 - `npm test`：运行 Vitest 测试。
 - `npm run build`：执行 Vite 生产打包。
 - `npm run typecheck`：运行 Vue 和 TypeScript 类型检查。
-- `npm run preview`：本地预览生产打包结果。
 
 针对改动运行相应测试和构建。不要通过关闭检查或弱化组件类型约束来掩盖错误。

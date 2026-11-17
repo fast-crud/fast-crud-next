@@ -39,24 +39,24 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance, onMounted, provide, reactive, ref, watch } from "vue";
-import FnTable from "../table/fn-table.vue";
-import FnPagination from "../table/fn-pagination.vue";
-import FnSearch from "../search/index.vue";
-import FnTabs from "../tabs/index.vue";
-import FnButton from "../components/fn-button.vue";
-import FnToolbar from "../components/fn-toolbar.vue";
-import FnColumnSettings from "../components/fn-column-settings.vue";
-import FnFormDialog from "../form/fn-form-dialog.vue";
-import FnRender from "../components/fn-render";
-import { model } from "../modal/dialog";
-import { fnCrudContext, fnCrudSearchKey, fnCrudTableSelectionKey, uiContext } from "../provider/context";
+import FnTable from "./table/fn-table.vue";
+import FnPagination from "./table/fn-pagination.vue";
+import FnSearch from "./search/index.vue";
+import FnTabs from "./tabs/index.vue";
+import FnButton from "./components/fn-button.vue";
+import FnToolbar from "./components/fn-toolbar.vue";
+import FnColumnSettings from "./components/fn-column-settings.vue";
+import FnFormDialog from "./form/fn-form-dialog.vue";
+import FnRender from "./components/fn-render";
+import { model } from "./modal/dialog";
+import { fnCrudContext, fnCrudSearchKey, fnCrudTableSelectionKey, uiContext } from "./provider/context";
 import { deepMerge } from "./merge";
 import { compute, isFnComputeValue, resolveComputedValue } from "./compute";
-import { useActionbarProps, useFormProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableColumns, useTableProps, useTabsProps, useToolbarProps } from "./use";
-import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnTableRow, FnTableRowSelectionChange, FnPaginationTarget, FnComputeContext } from "../types/index";
-import { getFnTableRowKey } from "../table/row-key";
+import { useActionbarProps, useFormProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableColumns, useTableProps, useTabsProps, useToolbarProps } from "./use.tsx";
+import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnTableRow, FnTableRowSelectionChange, FnPaginationTarget, FnComputeContext } from "./types/index";
+import { getFnTableRowKey } from "./table/row-key";
 import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./preferences";
-import type { FnColumnSettingsColumn, FnCrudPreferences } from "../types/index";
+import type { FnColumnSettingsColumn, FnCrudPreferences } from "./types/index";
 
 const rawProps = defineProps<FnCrudOptions & { rowHandle?: any; columns: Record<string, any> }>();
 const instance = getCurrentInstance();

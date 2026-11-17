@@ -71,7 +71,7 @@ docs/
 
 ```ts
 import { reactive } from "vue";
-import { type FnCrudState, useFnCrud } from "@fn-crud/index";
+import { type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 
 interface User { id: number; name: string }
 const users: User[] = [{ id: 1, name: "林晓" }, { id: 2, name: "周宁" }];
@@ -116,7 +116,7 @@ useFnCrud(crudState);
 
 ## UI 和主题
 
-FnCrud 提供自己的表格、弹窗、表单、通知和按钮基础组件，图标由 Lucide Vue 提供。主题默认值位于 `packages/fn-crud/src/crud/theme/tokens.css`，可直接覆盖 `--fn-*` CSS 变量。Naive UI 和 Ant Design Vue 主题适配器独立放在对应目录中，应用按需调用。
+FnCrud 提供自己的表格、弹窗、表单、通知和按钮基础组件，图标由 Lucide Vue 提供。主题默认值位于 `packages/fn-crud/src/theme/tokens.css`，可直接覆盖 `--fn-*` CSS 变量。Naive UI 和 Ant Design Vue 主题适配器独立放在对应目录中，应用按需调用。
 
 主题和三套 admin 的差异说明见 [`docs/themes/overview.md`](docs/themes/overview.md)。
 

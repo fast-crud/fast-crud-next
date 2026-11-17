@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h, markRaw, reactive } from 'vue'
-import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, useFnCrud } from '@fast-crud/fn-crud/crud'
+import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, useFnCrud } from '@fast-crud/fast-crud-next'
 import DemoSelect from '../components/DemoSelect.vue'
 import type { ServiceRecord } from '../mock/types'
 import { requestMock } from '../mock/http'

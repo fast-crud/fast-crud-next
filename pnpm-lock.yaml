@@ -57,6 +57,9 @@ importers:
 
   packages/fn-admin/fn-admin-antdv4:
     dependencies:
+      '@fast-crud/fast-crud-next':
+        specifier: workspace:*
+        version: link:../../fn-crud
       '@fast-crud/fn-admin-shared':
         specifier: workspace:*
         version: link:../fn-admin-shared
@@ -94,6 +97,9 @@ importers:
 
   packages/fn-admin/fn-admin-element:
     dependencies:
+      '@fast-crud/fast-crud-next':
+        specifier: workspace:*
+        version: link:../../fn-crud
       '@fast-crud/fn-admin-shared':
         specifier: workspace:*
         version: link:../fn-admin-shared
@@ -131,6 +137,9 @@ importers:
 
   packages/fn-admin/fn-admin-naive:
     dependencies:
+      '@fast-crud/fast-crud-next':
+        specifier: workspace:*
+        version: link:../../fn-crud
       '@fast-crud/fn-admin-shared':
         specifier: workspace:*
         version: link:../fn-admin-shared
@@ -168,7 +177,7 @@ importers:
 
   packages/fn-admin/fn-admin-shared:
     dependencies:
-      '@fast-crud/fn-crud':
+      '@fast-crud/fast-crud-next':
         specifier: workspace:*
         version: link:../../fn-crud
       axios:

@@ -1,4 +1,4 @@
-import type { FnTablePageQuery, FnTablePageResult } from '@fast-crud/fn-crud/crud'
+import type { FnTablePageQuery, FnTablePageResult } from '@fast-crud/fast-crud-next'
 import { requestMock } from './http'
 
 export function createCrudApi<Row>(name: string) {

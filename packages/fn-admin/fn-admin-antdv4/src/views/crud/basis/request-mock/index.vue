@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h, markRaw, reactive } from 'vue'
-import { FnCrud, FnInput, type FnCrudState, type FnTableRowContext, useFnCrud } from '../../../../../../../fn-crud/src/crud'
+import { FnCrud, FnInput, type FnCrudState, type FnTableRowContext, useFnCrud } from '@fast-crud/fast-crud-next'
 import DemoSelect from '@fast-crud/fn-admin-shared/components/DemoSelect.vue'
 import { api, type ServiceRecord } from './api'
 

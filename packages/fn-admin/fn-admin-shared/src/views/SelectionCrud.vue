@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { markRaw, reactive, ref } from "vue";
-import { FnCrud, FnInput, type FnCrudExpose, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "@fast-crud/fn-crud/crud";
+import { FnCrud, FnInput, type FnCrudExpose, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "@fast-crud/fast-crud-next";
 
 interface ChangeRequest { id: number; title: string; requester: string; environment: string; status: string; createdAt: string }
 const records = ref<ChangeRequest[]>([

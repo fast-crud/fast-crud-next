@@ -22,7 +22,7 @@ import FnComponentRender from "../components/fn-component-render";
 import FnButton from "../components/fn-button.vue";
 import FnRender from "../components/fn-render";
 import type { FnSearchProps, FnSearchColumn, FnSearchColumnResolved, FnComputeContext } from "../types/index";
-import { resolveComputedValue } from "../crud/compute";
+import { resolveComputedValue } from "../compute";
 import { fnCrudSearchKey } from "../provider/context";
 const props = defineProps<FnSearchProps>();
 const searchState = inject(fnCrudSearchKey);

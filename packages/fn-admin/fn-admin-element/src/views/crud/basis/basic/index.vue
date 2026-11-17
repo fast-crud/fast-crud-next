@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { h, markRaw, reactive, ref } from 'vue'
 import { ElTag } from 'element-plus'
-import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, DictStore, useFnCrud } from '@fn-crud/index'
+import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, DictStore, useFnCrud } from '@fast-crud/fast-crud-next'
 import DemoSelect from '@fast-crud/fn-admin-shared/components/DemoSelect.vue'
 
 interface ServiceRecord { id: number; name: string; owner: string; environment: string; status: string; updatedAt: string }

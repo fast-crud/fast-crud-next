@@ -32,4 +32,4 @@ import SelectionCrud from '@fast-crud/fn-admin-shared/views/SelectionCrud.vue'
 - `@fast-crud/fn-admin-shared/components/*`：共享演示组件。
 - `@fast-crud/fn-admin-shared/views/*`：共享 CRUD 演示页面。
 
-包通过 workspace 依赖 `@fast-crud/fn-crud`，并将 Vue 声明为 peer dependency，保证共享页面与宿主使用同一 Vue 实例。
+包通过 workspace 依赖 `@fast-crud/fast-crud-next`，并将 Vue 声明为 peer dependency，保证共享页面与宿主使用同一 Vue 实例。

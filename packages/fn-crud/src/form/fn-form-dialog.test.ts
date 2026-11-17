@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
-import { compute, resolveComputedValue } from "../crud/compute";
+import { compute, resolveComputedValue } from "../compute";
 
 const filename = fileURLToPath(new URL("./fn-form-dialog.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -14,8 +14,8 @@ const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
 const loadDependency = (name: string) => {
   if (name === "../modal/fn-modal.vue" || name === "./fn-form.vue") return {};
-  if (name === "../crud/compute") return { resolveComputedValue };
-  if (name === "../use") return { useFnUiServices: () => ({ notification: { error: vi.fn() }, message: { error: vi.fn() } }) };
+  if (name === "../compute") return { resolveComputedValue };
+  if (name === "../use/use-fn-ui-services") return { useFnUiServices: () => ({ notification: { error: vi.fn() }, message: { error: vi.fn() } }) };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);

@@ -1,7 +1,7 @@
 import { ref } from "vue";
-import type { DictOption, DictOptionsRef, FnDictStore, FnTableRow } from "../types/index";
+import type { DictOption, DictOptionsRef, FnDictStore, FnTableRow } from "./types/index";
 
-export type { DictComponentType, DictOption, DictOptionsRef as DictPropsRef, DictValue, GetDictOptionsRef as GetDictPropsRef } from "../types/index";
+export type { DictComponentType, DictOption, DictOptionsRef as DictPropsRef, DictValue, GetDictOptionsRef as GetDictPropsRef } from "./types/index";
 
 export class DictStore implements FnDictStore {
   __options: DictOptionsRef = ref([]);

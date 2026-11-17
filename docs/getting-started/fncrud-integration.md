@@ -11,22 +11,30 @@ FnCrud 是 Vue 3 组件。它自己提供表格、搜索、表单、弹窗、分
 在当前 workspace 中安装依赖：
 
 ```sh
-npm install
+pnpm install
 ```
 
 ## 配置入口
 
-当前仓库的 FnCrud 包是 workspace 内部包，尚未作为公共 npm 包发布。admin 项目通过 Vite alias 指向 `packages/fn-crud/src/crud`：
+FnCrud 通过 `@fast-crud/fast-crud-next` 包入口引入。当前 workspace 中，admin 和共享模块在 `package.json` 声明依赖：
 
-```ts
-resolve: {
-  alias: {
-    "@fn-crud": fileURLToPath(new URL("../../fn-crud/src/crud", import.meta.url)),
-  },
+```json
+{
+  "dependencies": {
+    "@fast-crud/fast-crud-next": "workspace:*"
+  }
 }
 ```
 
-接入自己的应用时，可以暂时使用相同的 alias，或者将 `packages/fn-crud` 作为 workspace 依赖。正式发布包之前，不要假设存在可直接安装的公开版本号。
+在仓库根目录执行 `pnpm install` 后，包管理器会链接 `packages/fn-crud` 的公开入口，无需配置 Vite alias 或 TypeScript paths，也不要通过相对路径引用包内源码。当前包尚未作为公共 npm 包发布，仓库外应用需要自行接入该 workspace 包。
+
+基础入口自动加载默认主题 token；需要单独加载样式或主题适配器时，使用公开子路径：
+
+```ts
+import "@fast-crud/fast-crud-next/theme/tokens.css";
+import { useNaiveTheme } from "@fast-crud/fast-crud-next/theme/naive";
+import { useFnAntdvUi } from "@fast-crud/fast-crud-next/theme/antdv";
+```
 
 ## 根组件
 
@@ -34,7 +42,7 @@ resolve: {
 
 ```vue
 <script setup lang="ts">
-import { FnConfigProvider } from "@fn-crud/index";
+import { FnConfigProvider } from "@fast-crud/fast-crud-next";
 </script>
 
 <template>
@@ -62,7 +70,7 @@ import { FnConfigProvider } from "@fn-crud/index";
 ```vue
 <script setup lang="ts">
 import { reactive } from "vue";
-import { FnCrud, FnInput, type FnCrudOptionsInput, useFnCrud } from "@fn-crud/index";
+import { FnCrud, FnInput, type FnCrudOptionsInput, useFnCrud } from "@fast-crud/fast-crud-next";
 
 interface User {
   id: number;
@@ -135,7 +143,7 @@ request: {
 在应用入口调用 `installFnCrud` 注册默认项。使用工厂函数，避免多个列表共享一份可变 state：
 
 ```ts
-import { installFnCrud } from "@fn-crud/index";
+import { installFnCrud } from "@fast-crud/fast-crud-next";
 
 installFnCrud({
   commonOptions: () => ({

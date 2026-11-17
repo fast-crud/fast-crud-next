@@ -66,7 +66,7 @@ import { ArrowDown, ArrowUp } from "@lucide/vue";
 import { computed, inject, provide, ref, type CSSProperties } from "vue";
 import FnTableCell from "./fn-table-cell.vue";
 import FnRender from "../components/fn-render";
-import { isFnComputeValue } from "../crud/compute";
+import { isFnComputeValue } from "../compute";
 import type { FnDynamic, FnTableColumn, FnTableProps, FnTableRow, FnTableRowContext } from "../types/index";
 import { getFnTableRowKey } from "./row-key";
 import { fnCrudTableSelectionKey, fnTableSizeKey } from "../provider/context";
