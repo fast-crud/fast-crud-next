@@ -1,0 +1,34 @@
+<script setup lang="ts">
+import { markRaw, reactive } from "vue";
+import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "../../../../../../../fn-crud/src/crud";
+import DemoSelect from "@fast-crud/fn-admin-shared/components/DemoSelect.vue";
+import { api, type Rotation } from "./api";
+const state = reactive({
+  id: "shared-conditional-form-rotation",
+  heading: { title: "密钥轮换策略", description: "表单字段与当前轮换策略联动。" },
+  columns: {
+    id: { key: "id", title: "编号", cell: { width: 78 } },
+    name: { key: "name", title: "策略名称", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索策略名称" }, width: 220 }, form: { rules: [{ required: true, message: "请输入策略名称" }] }, cell: { order: 1 } },
+    owner: { key: "owner", title: "负责人", form: { rules: [{ required: true, message: "请输入负责人" }] }, cell: { order: 2, width: 110 } },
+    strategy: { key: "strategy", title: "轮换方式", form: { value: "自动轮换", component: { name: markRaw(DemoSelect) as any, vModel: "modelValue", options: [{ label: "自动轮换", value: "自动轮换" }, { label: "人工审批", value: "人工审批" }] }, rules: [{ required: true, message: "请选择轮换方式" }] }, cell: { order: 3, width: 110 } },
+    graceDays: { key: "graceDays", title: "宽限天数", form: compute(({ form }) => ({ show: form?.strategy !== "人工审批", value: 14, component: { name: markRaw(FnInput) as any, vModel: "modelValue", type: "number", min: 1 } })), cell: { order: 4, width: 100 } },
+    target: { key: "target", title: "目标系统", form: { rules: [{ required: true, message: "请输入目标系统" }] }, cell: { order: 5 } },
+    status: { key: "status", title: "状态", form: { value: "待启用" }, cell: { order: 6, width: 100 } },
+  },
+  table: { rowKey: "id", minWidth: 800 },
+  rowHandle: { width: 140 },
+  pagination: { pageSize: 5, pageSizeOptions: ["5", "10"] },
+  request: {
+    ...api,
+  },
+}) as unknown as FnCrudState<Rotation>;
+useFnCrud(state);
+</script>
+
+<template>
+  <div class="showcase-page"><section class="showcase-panel"><FnCrud v-bind="state" /></section></div>
+</template>
+
+<style scoped>
+.showcase-page{display:flex;flex:1;min-height:0}.showcase-panel{flex:1;min-height:0;overflow:hidden;border:1px solid var(--fn-color-border,#e1e7ef);border-radius:0;background:var(--fn-color-bg-container,#fff)}
+</style>

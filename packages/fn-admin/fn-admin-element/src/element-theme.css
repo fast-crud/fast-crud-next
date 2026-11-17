@@ -1,0 +1,20 @@
+:root {
+  --fn-color-primary: var(--el-color-primary);
+  --fn-color-text: var(--el-text-color-primary);
+  --fn-color-text-secondary: var(--el-text-color-regular);
+  --fn-color-text-tertiary: var(--el-text-color-secondary);
+  --fn-color-text-quaternary: var(--el-text-color-placeholder);
+  --fn-color-bg-base: var(--el-bg-color-page);
+  --fn-color-bg-container: var(--el-bg-color);
+  --fn-color-bg-elevated: var(--el-bg-color-overlay);
+  --fn-color-fill-alter: var(--el-fill-color-light);
+  --fn-color-fill-secondary: var(--el-fill-color);
+  --fn-color-border: var(--el-border-color);
+  --fn-color-border-secondary: var(--el-border-color-light);
+  --fn-color-error: var(--el-color-danger);
+  --fn-border-radius: var(--el-border-radius-base);
+  --fn-control-height: var(--el-component-size);
+  --fn-button-shadow: none;
+  --fn-button-hover-shadow: none;
+  --fn-button-hover-filter: none;
+}
