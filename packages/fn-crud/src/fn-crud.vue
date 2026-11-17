@@ -371,7 +371,7 @@ async function refresh(): Promise<void> {
   }
 }
 function applySearch(): void {
-  page.current = 1;
+  updateCurrentPage(1);
   void refresh();
 }
 function changeTab(value: string): void {
@@ -386,13 +386,18 @@ function changeSort(value: { prop: string; asc: boolean }): void {
 }
 async function turnPage({ current, pageSize }: FnPaginationTarget): Promise<void> {
   const pageSizeChanged = page.pageSize !== pageSize;
-  page.current = current;
+  updateCurrentPage(current);
   if (pageSizeChanged) {
     pageSizePreference.value = pageSize;
     props.pagination?.["onUpdate:pageSize"]?.(pageSize);
     savePreferences();
   }
   await refresh();
+}
+function updateCurrentPage(current: number): void {
+  if (page.current === current) return;
+  page.current = current;
+  props.pagination?.["onUpdate:current"]?.(current);
 }
 function changePage(current: number, pageSize: number): void {
   if (!preferencesLoaded.value) {

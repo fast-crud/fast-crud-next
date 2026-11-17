@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import { reactive } from "vue";
 import { useFnCrud } from "./use-fn-crud";
 
-it("useFnCrud 只为 table 的 density 和 size 安装写回回调", () => {
+it("useFnCrud 为 table 和 pagination 可变配置安装写回回调", () => {
   const state = reactive({
     columns: { name: { key: "name", title: "名称", show: true, cell: { width: 120, fixed: "left" as const, order: 7 } } },
     request: { pageRequest: vi.fn() },
@@ -21,4 +21,6 @@ it("useFnCrud 只为 table 的 density 和 size 安装写回回调", () => {
   expect(state.pagination).not.toHaveProperty("pageSize");
   state.pagination["onUpdate:pageSize"](25);
   expect(state.pagination.pageSize).toBe(25);
+  state.pagination["onUpdate:current"](3);
+  expect(state.pagination.current).toBe(3);
 });

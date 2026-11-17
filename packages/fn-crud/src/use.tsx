@@ -83,7 +83,7 @@ export function useTabsProps(props: FnCrudOptions, searchForm: Record<string, an
 
 export function usePaginationProps(props: FnCrudOptions, page: { current: number; pageSize: number; total: number }) {
   return computed(() => ({
-    ...(({ "onUpdate:pageSize": _onUpdatePageSize, ...pagination }) => pagination)(props.pagination || {}),
+    ...(({ "onUpdate:current": _onUpdateCurrent, "onUpdate:pageSize": _onUpdatePageSize, ...pagination }) => pagination)(props.pagination || {}),
     current: page.current,
     pageSize: page.pageSize,
     total: page.total,

@@ -65,8 +65,9 @@ it("FnCrud 将 provider 公共配置与显式 props 深度合并", () => {
 
 it("table.turnPage 使用当前搜索和排序条件并请求指定分页", async () => {
   const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
+  const onUpdateCurrent = vi.fn();
   let exposed!: FnCrudExpose;
-  const setup = module.exports.default.setup({ columns: {}, request: { pageRequest }, pagination: { current: 1, pageSize: 10 } }, { emit: () => {}, expose: (value: FnCrudExpose) => (exposed = value) });
+  const setup = module.exports.default.setup({ columns: {}, request: { pageRequest }, pagination: { current: 1, pageSize: 10, "onUpdate:current": onUpdateCurrent } }, { emit: () => {}, expose: (value: FnCrudExpose) => (exposed = value) });
   setup.searchForm.keyword = "cert";
   setup.sort.value = { prop: "id", asc: false };
 
@@ -77,7 +78,17 @@ it("table.turnPage 使用当前搜索和排序条件并请求指定分页", asyn
     query: { keyword: "cert" },
     sort: { prop: "id", asc: false },
   });
+  expect(onUpdateCurrent).toHaveBeenCalledWith(3);
   expect(Object.keys(exposed)).toEqual(["search", "form", "table"]);
+});
+
+it("搜索重置当前页时发出 current 更新", () => {
+  const onUpdateCurrent = vi.fn();
+  const setup = module.exports.default.setup({ columns: {}, request: { pageRequest: vi.fn(async () => ({ records: [], total: 0 })) }, pagination: { current: 3, "onUpdate:current": onUpdateCurrent } }, { emit: () => {}, expose: () => {} });
+
+  setup.applySearch();
+
+  expect(onUpdateCurrent).toHaveBeenCalledWith(1);
 });
 
 it("FnCrud 维护跨页选择并从 table expose 提供选择操作", () => {

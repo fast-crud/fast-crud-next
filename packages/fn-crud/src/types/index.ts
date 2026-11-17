@@ -359,6 +359,7 @@ export interface FnCrudTableOptions extends Omit<FnTableProps, "columns" | "data
 }
 
 export interface FnCrudPaginationOptions extends FnPaginationProps {
+  "onUpdate:current"?: (current: number) => void;
   "onUpdate:pageSize"?: (pageSize: number) => void;
 }
 

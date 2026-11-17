@@ -2,27 +2,32 @@
 import { computed, h, ref } from "vue";
 import { RouterView, useRoute, useRouter } from "vue-router";
 import { Avatar, Breadcrumb, Button, Layout, Menu, Space, Tag } from "ant-design-vue";
-import { Bell, Database, Languages, LayoutDashboard, Moon, PanelLeftClose, PanelLeftOpen, Settings, Sun } from "@lucide/vue";
+import type { VNode } from "vue";
+import { Bell, Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "@lucide/vue";
 import { adminPreferences, adminText, toggleAdminLanguage, toggleAdminTheme } from "@fast-crud/fn-admin-shared/preferences";
+import { adminMenuConfig, type AdminPageConfig } from "../router/config";
 
 const route = useRoute();
 const router = useRouter();
 const collapsed = ref(false);
 const selectedKeys = computed(() => [route.path]);
 const openKeys = computed(() => route.path.startsWith("/crud/") ? ["crud"] : []);
-const menuItems = computed(() => [
-  { key: "/dashboard", label: adminText("工作台", "Dashboard"), icon: LayoutDashboard },
-  { key: "crud", label: adminText("CRUD 示例", "CRUD examples"), icon: Database, children: [
-    { key: "/crud/basis/basic", label: adminText("基础列表", "Basic list") }, { key: "/crud/basis/request-mock", label: adminText("请求 Mock", "Request mock") }, { key: "/crud/basis/compute", label: adminText("动态计算", "Dynamic calculations") },
-    { key: "/crud/dict/credentials", label: adminText("字典与筛选", "Dictionary and filters") }, { key: "/crud/feature/selection", label: adminText("跨页批量操作", "Cross-page batch actions") },
-    { key: "/crud/form/conditional", label: adminText("条件表单", "Conditional forms") },
-  ] },
-  { key: "/components/table-buttons", label: adminText("组件对比", "Component comparison"), icon: Settings },
-  { key: "settings", label: adminText("系统设置", "Settings"), icon: Settings, disabled: true },
-]);
-const items = computed(() => menuItems.value.map(item => ({ ...item, icon: item.icon ? () => h(item.icon, { size: 16 }) : undefined })));
-const titleKeys: Record<string, [string, string]> = { "/dashboard": ["工作台", "Dashboard"], "/crud/basis/basic": ["基础列表", "Basic list"], "/crud/basis/request-mock": ["请求 Mock", "Request mock"], "/crud/basis/compute": ["动态计算", "Dynamic calculations"], "/crud/dict/credentials": ["字典与筛选", "Dictionary and filters"], "/crud/feature/selection": ["跨页批量操作", "Cross-page batch actions"], "/crud/form/conditional": ["条件表单", "Conditional forms"], "/components/table-buttons": ["组件对比", "Component comparison"] };
-const currentTitle = computed(() => { const [zh, en] = titleKeys[route.path] || titleKeys["/dashboard"]; return adminText(zh, en); });
+type AdminMenuItem = { key: string; label: string; disabled?: boolean; icon?: () => VNode; children?: AdminMenuItem[] };
+function toMenuItems(config: AdminPageConfig[]): AdminMenuItem[] {
+  return config.map(({ key, title, icon, disabled, children }) => ({
+    key,
+    label: adminText(...title),
+    disabled,
+    icon: icon ? () => h(icon, { size: 16 }) : undefined,
+    children: children ? toMenuItems(children) : undefined,
+  }));
+}
+const items = computed(() => toMenuItems(adminMenuConfig));
+const currentTitle = computed(() => {
+  const title = route.meta.title as [string, string] | undefined;
+  const [zh, en] = title || ["工作台", "Dashboard"];
+  return adminText(zh, en);
+});
 function onMenuClick({ key }: { key: string | number }): void { const path = String(key); if (path.startsWith("/")) void router.push(path); }
 </script>
 

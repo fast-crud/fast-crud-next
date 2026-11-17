@@ -25,6 +25,11 @@ export function useFnCrud<Row = any>(state: FnCrudReactiveState<Row>): FnCrudRea
     onUpdateSize?.(size);
   };
   state.pagination ||= {};
+  const onUpdateCurrent = state.pagination["onUpdate:current"];
+  state.pagination["onUpdate:current"] = current => {
+    state.pagination!.current = current;
+    onUpdateCurrent?.(current);
+  };
   const onUpdatePageSize = state.pagination["onUpdate:pageSize"];
   state.pagination["onUpdate:pageSize"] = pageSize => {
     state.pagination!.pageSize = pageSize;
