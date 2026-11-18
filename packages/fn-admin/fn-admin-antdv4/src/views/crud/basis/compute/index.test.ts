@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { computed, createSSRApp, reactive } from "vue";
 import { renderToString } from "vue/server-renderer";
-import { resolveComputedValue, type FnCrudOptions } from "@fast-crud/fast-crud-next";
+import { resolveComputedValue, type FnCrudOptions, type FnTableColumn } from "@fast-crud/fast-crud-next";
 import ComputeView from "./index.vue";
 
 let options: Pick<FnCrudOptions, "columns" | "actionbar">;
@@ -26,15 +26,15 @@ beforeEach(async () => {
 it("切换表格开关只禁用或启用本行的单价输入", () => {
   const first = reactive({ customPrice: false, unitPrice: 680 });
   const second = reactive({ customPrice: true, unitPrice: 120 });
-  const cell = (field: string, row: typeof first) => resolveComputedValue(options.columns[field]?.cell, { type: "row", row });
+  const cell = (field: string, row: typeof first) => resolveComputedValue(options.columns[field].cell, { type: "row", row }) as FnTableColumn;
   const firstPrice = computed(() => cell("unitPrice", first));
   const secondPrice = computed(() => cell("unitPrice", second));
   const toggle = () => cell("customPrice", first);
 
   expect(firstPrice.value).toMatchObject({ component: { disabled: true, modelValue: 680 } });
-  toggle()!.component!["onUpdate:modelValue"](true);
+  toggle().component!["onUpdate:modelValue"](true);
   expect(firstPrice.value).toMatchObject({ component: { disabled: false, modelValue: 680 } });
-  toggle()!.component!["onUpdate:modelValue"](false);
+  toggle().component!["onUpdate:modelValue"](false);
   expect(firstPrice.value).toMatchObject({ component: { disabled: true, modelValue: 680 } });
   expect(secondPrice.value).toMatchObject({ component: { disabled: false, modelValue: 120 } });
 });

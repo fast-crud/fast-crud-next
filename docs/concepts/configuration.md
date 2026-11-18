@@ -41,6 +41,41 @@ threshold: {
 
 常见用途包括条件显示、选项联动、状态文案和行级派生值。动态字段隐藏后，表单校验也应同步确认是否仍需要该字段。
 
+当列的宽度和顺序固定时，可以只计算 `cell.component`。同一行的开关通过 `onUpdate:modelValue` 写回行数据，单价组件读取 `row.customPrice`。整列开关可以读取组件外部的 `ref`，再通过 `actionbar.buttons` 切换。
+
+```ts
+const disabledRef = ref(false);
+const crudState = reactive<FnCrudState>({
+  columns: {
+    quantity: {
+      key: "quantity",
+      title: "数量",
+      cell: {
+        width: 90,
+        component: compute(({ row }) => ({
+          name: FnInput,
+          type: "number",
+          modelValue: row?.quantity,
+          disabled: disabledRef.value,
+        })),
+      },
+    },
+  },
+  actionbar: {
+    buttons: {
+      toggleQuantity: {
+        text: "切换数量输入状态",
+        onClick: () => { disabledRef.value = !disabledRef.value; },
+      },
+    },
+  },
+  request: { pageRequest },
+});
+useFnCrud(crudState);
+```
+
+表单中的开关组件通过 `vModel` 写回字段值，关联字段使用 `form: compute(({ form }) => ({ show: Boolean(form?.customPrice) }))` 控制显隐。完整示例见 [Admin 示例](../demos/admin-examples.md#ant-design-vue-动态计价)。
+
 ## 表格和分页
 
 ```ts
