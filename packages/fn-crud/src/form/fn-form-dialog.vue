@@ -23,10 +23,9 @@ import { useFnUiServices } from "../use/use-fn-ui-services";
 import { resolveComputedValue } from "../use/compute";
 import FnModal from "../modal/fn-modal.vue";
 import FnForm from "./fn-form.vue";
-import type { FnFormProps, FnFormDialogOptions, FnFormInstance, FnFormContext, FnModalInstance, FnFormDialogInstance, FnDialogContext, FnComputeValue } from "../types/index";
+import type { FnFormProps, FnFormDialogOptions, FnFormInstance, FnFormContext, FnModalInstance, FnFormDialogInstance, FnDialogContext } from "../types/index";
 const activeForm = ref<FnFormDialogOptions>();
 const { notification } = useFnUiServices();
-const computedOptions = ref<FnComputeValue<Partial<Omit<FnFormDialogOptions, "columns">>>>();
 const formRef = ref<FnFormInstance>();
 const modalRef = ref<FnModalInstance>();
 const formLoading = ref(false);
@@ -53,15 +52,17 @@ const resolvedForm = computed(() => {
   if (!activeForm.value) {
     return undefined;
   }
-  const dynamicOptions = computedOptions.value?.computeFn(formContext.value) || {};
-  const formOptions = { ...dynamicOptions, ...activeForm.value };
+  const formOptions = activeForm.value;
   const dialog = {
     title: formOptions.title || "",
     width: formOptions.width,
     draggable: formOptions.draggable,
     ...formOptions.dialog,
   };
-  return resolveComputedValue({ ...formOptions, dialog }, formContext.value) as FnFormProps;
+  return resolveComputedValue({
+    ...formOptions,
+    dialog,
+  }, formContext.value) as FnFormProps;
 });
 const dialogSlots = computed(() =>
   Object.fromEntries(
@@ -92,8 +93,7 @@ function getDialogContext(): FnDialogContext {
     loading: formLoading,
   };
 }
-function open(options: FnFormDialogOptions, dynamicOptions?: FnComputeValue<Partial<Omit<FnFormDialogOptions, "columns">>>): Promise<Record<string, any> | undefined> {
-  computedOptions.value = dynamicOptions;
+function open(options: FnFormDialogOptions): Promise<Record<string, any> | undefined> {
   return openForm(options);
 }
 function openForm(options: FnFormDialogOptions): Promise<Record<string, any> | undefined> {
@@ -161,7 +161,6 @@ function finishForm(): void {
   resolveForm?.(formResult);
   resolveForm = undefined;
   activeForm.value = undefined;
-  computedOptions.value = undefined;
 }
 function getFormData(): Record<string, any> | undefined {
   return formRef.value?.getForm();

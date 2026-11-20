@@ -33,10 +33,9 @@ import FnFormDialog from "./form/fn-form-dialog.vue";
 import FnRender from "./components/fn-render";
 import { model } from "./modal/dialog";
 import { fnCrudSearchKey, uiContext } from "./provider/context";
-import { compute, resolveComputedValue } from "./use/compute";
 import { useActionbarProps, useFormProps, useHeadingProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableRenderProps, useTabsProps, useToolbarProps } from "./use.tsx";
 import { useTable } from "./use/use-table";
-import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnRowContext, FnTableRow, FnComputeContext } from "./types/index";
+import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnRowContext, FnTableRow } from "./types/index";
 
 const rawProps = defineProps<FnCrudOptions & { rowHandle?: any; columns: Record<string, any> }>();
 const props = rawProps as FnCrudOptions;
@@ -164,34 +163,26 @@ async function openEditForm(row: FnTableRow, initialForm: Record<string, any> = 
 }
 async function openForm(mode: "add" | "edit", initialForm: Record<string, any> = {}): Promise<Record<string, any> | undefined> {
   const modeOptions = mode === "add" ? props.addForm : props.editForm;
-  const dynamicOptions = compute((context: FnComputeContext) => {
-    const common = resolveComputedValue(props.form || {}, context) as Omit<FnFormDialogOptions, "columns">;
-    const specific = resolveComputedValue(modeOptions || {}, context) as Omit<FnFormDialogOptions, "columns">;
-    const options = { ...common, ...specific };
-    return {
-      ...options,
-      onSubmit: async (ctx: FnFormContext) => {
-        if (options.onSubmit) {
-          await options.onSubmit(ctx);
-        } else if (mode === "add" && props.request.addRequest) {
-          await props.request.addRequest(ctx.form || {});
-        } else if (mode === "edit" && props.request.editRequest) {
-          await props.request.editRequest(ctx.form || {});
-        } else {
-          throw new Error(`当前${mode === "add" ? "新增" : "编辑"}表单未配置提交请求`);
-        }
-        await refresh();
-      },
-    };
-  });
-  return FnFormDialogRef.value!.open(
-    {
-      ...formProps.value,
-      mode,
-      initialForm,
+  const formOptions = {
+    onSubmit: async (ctx: FnFormContext) => {
+      if (mode === "add" && props.request.addRequest) {
+        await props.request.addRequest(ctx.form || {});
+      } else if (mode === "edit" && props.request.editRequest) {
+        await props.request.editRequest(ctx.form || {});
+      } else {
+        throw new Error(`当前${mode === "add" ? "新增" : "编辑"}表单未配置提交请求`);
+      }
+      await refresh();
     },
-    dynamicOptions
-  );
+    ...props.form,
+    ...modeOptions,
+  };
+  return FnFormDialogRef.value!.open({
+    ...formProps.value,
+    ...formOptions,
+    mode,
+    initialForm,
+  });
 }
 const exposed: FnCrudExpose = {
   search: { getSearchForm: () => ({ ...searchForm }) },

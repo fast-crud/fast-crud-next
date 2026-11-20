@@ -25,6 +25,10 @@ describe("FnButton", () => {
     expect(template).toContain("<FnButtonBase");
   });
 
+  it("默认显示按钮", () => {
+    expect(module.exports.default.props.show.default).toBe(true);
+  });
+
   it("剥离 wrapper 配置并调用业务闭包，不生成 CRUD context", () => {
     const click = vi.fn();
     const setup = module.exports.default.setup(

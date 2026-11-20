@@ -99,10 +99,8 @@ export function useActionbarProps(
   onSelect: (buttonKey: string, itemKey: string) => void
 ) {
   return computed(() => {
-    const buttons = {
-      ...Object.fromEntries(Object.entries(props.actionbar?.buttons || {}).map(([key, button]) => [key, { show: true, ...button }])),
-      add: { text: "添加", type: "primary", show: Boolean(props.request.addRequest || props.addForm || props.form), click: () => openAddForm(), ...props.actionbar?.buttons?.add },
-    };
+    const buttons = { ...props.actionbar?.buttons };
+    buttons.add = { click: openAddForm, ...buttons.add };
     return {
       ...props.actionbar,
       buttons: Object.fromEntries(Object.entries(buttons).sort(([, left], [, right]) => (left.order ?? Infinity) - (right.order ?? Infinity))),

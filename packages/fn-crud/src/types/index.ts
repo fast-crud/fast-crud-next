@@ -40,7 +40,7 @@ export interface FnFormInstance<Form = Record<string, any>> {
 }
 
 export interface FnFormDialogInstance<Form = Record<string, any>> {
-  open: (options: FnFormDialogOptions<Form>, computeOptions?: FnComputeValue<Partial<Omit<FnFormDialogOptions<Form>, "columns">>>) => Promise<Form | undefined>;
+  open: (options: FnFormDialogOptions<Form>) => Promise<Form | undefined>;
   close: () => void;
   getFormData: () => Form | undefined;
 }

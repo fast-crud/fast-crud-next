@@ -1,6 +1,7 @@
 import { expect, it, vi } from "vitest";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { FN_CRUD_BLANK_COLUMN_KEY, installFnCrud, useFnCrud } from "./use-fn-crud";
+import { useActionbarProps } from "../use.tsx";
 
 it("useFnCrud 初始化 actionbar 和 rowSelect 默认值并写回可变配置", () => {
   const state = reactive({
@@ -22,14 +23,32 @@ it("useFnCrud 初始化 actionbar 和 rowSelect 默认值并写回可变配置",
   expect(state.pagination).not.toHaveProperty("pageSize");
   expect(state.actionbar.buttons.batch).toMatchObject({
     text: "批量操作",
+    show: true,
     buttonType: "dropdown",
     items: [{ key: "delete", label: "批量删除", danger: true }],
   });
+  expect(state.actionbar.buttons.add).toMatchObject({ text: "添加", type: "primary", show: true });
   expect(state.rowSelect.selectedRowKeys).toEqual([]);
   state.pagination["onUpdate:pageSize"](25);
   expect(state.pagination.pageSize).toBe(25);
   state.pagination["onUpdate:current"](3);
   expect(state.pagination.current).toBe(3);
+});
+
+it("useFnCrud 保留用户 actionbar 按钮并补齐默认按钮", () => {
+  const state = reactive({
+    columns: {},
+    request: { pageRequest: vi.fn() },
+    actionbar: { buttons: { custom: { text: "自定义" } } },
+  }) as any;
+  useFnCrud({ state });
+
+  const props = useActionbarProps(state, vi.fn(), ref(false), vi.fn()).value;
+
+  expect(Object.keys(props.buttons)).toEqual(["add", "batch", "custom"]);
+  expect(props.buttons.add).toMatchObject({ text: "添加", type: "primary", show: true, order: -10 });
+  expect(props.buttons.batch).toMatchObject({ text: "批量操作", show: true, order: -10, buttonType: "dropdown" });
+  expect(props.buttons.custom).toMatchObject({ text: "自定义" });
 });
 
 it("useFnCrud 在 crudState.rowSelect 持有选择 keys 并保留 onChange 回调", () => {

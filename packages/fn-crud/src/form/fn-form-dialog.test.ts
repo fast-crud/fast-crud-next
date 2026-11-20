@@ -85,16 +85,14 @@ it("弹窗 ref 创建前调用 close 会结束当前表单流程", async () => {
   await expect(result).resolves.toBeUndefined();
 });
 
-it("在 FnFormDialog context 中计算 FnCrud 的动态表单选项", async () => {
+it("在 FnFormDialog context 中计算合并后的动态表单选项", async () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
-  const result = setup.open(
-    {
-      columns: {},
-      mode: "edit",
-      initialForm: { name: "certd" },
-    },
-    compute(({ form, mode }) => ({ title: `${mode}:${form?.name}` }))
-  );
+  const result = setup.open({
+    columns: {},
+    mode: "edit",
+    initialForm: { name: "certd" },
+    title: compute(({ form, mode }) => `${mode}:${form?.name}`),
+  });
 
   expect(setup.resolvedForm.value.title).toBe("edit:certd");
   expect(setup.resolvedForm.value.dialog.title).toBe("edit:certd");
@@ -106,7 +104,7 @@ it("提交时执行动态解析后的 onSubmit 回调", async () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
   const submit = vi.fn();
   const form = { name: "new-service" };
-  setup.open({ columns: {} }, compute(() => ({ onSubmit: submit })));
+  setup.open({ columns: {}, onSubmit: submit });
   setup.formRef.value = {
     save: async () => form,
     getContext: () => ({ type: "form", form, columns: {} }),
@@ -125,14 +123,12 @@ it("动态表单配置只依赖公开的表单数据接口", () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
   const form = { name: "certd" };
 
-  setup.open(
-    {
-      columns: {
-        name: compute(({ form: values }) => ({ title: values?.name })),
-      },
+  setup.open({
+    columns: {
+      name: compute(({ form: values }) => ({ title: values?.name })),
     },
-    compute(({ form: values }) => ({ title: values?.name }))
-  );
+    title: compute(({ form: values }) => values?.name),
+  });
   setup.formRef.value = {
     getForm: () => form,
     validate: async () => true,

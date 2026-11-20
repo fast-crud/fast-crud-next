@@ -35,11 +35,19 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
       },
     },
     actionbar: {
+      show: true,
       buttons: {
-        add:{},
+        add: {
+          text: "添加",
+          type: "primary",
+          show: true,
+          order: -10,
+        },
         batch: {
           text: "批量操作",
           type: "default",
+          show: true,
+          order: -10,
           buttonType: "dropdown",
           items: [{ key: "delete", label: "批量删除", danger: true }],
         },

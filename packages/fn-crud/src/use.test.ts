@@ -129,7 +129,7 @@ it("默认行操作按钮和未显式隐藏的自定义按钮保持可见", () =
   const actionbarButtons = (useActionbarProps(props, vi.fn(), ref(false), vi.fn()) as any).value.buttons;
 
   expect(rowButtons.map((button: any) => button.props.show)).toEqual([true, true, true, false]);
-  expect(actionbarButtons.custom.show).toBe(true);
+  expect(actionbarButtons.custom.show).toBeUndefined();
   expect(actionbarButtons.hidden.show).toBe(false);
 });
 

@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
-import { reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 import { getFnTableRowKey } from "./table/row-key";
 import { compute, isFnComputeValue, resolveComputedValue } from "./use/compute";
 import * as crudUse from "./use.tsx";
@@ -111,6 +111,58 @@ it("FnCrud 将 provider 公共配置与显式 props 深度合并", () => {
   });
   expect(setup.table.page.pageSize).toBe(50);
   fnCrudContext.configure({ commonOptions: () => ({}) });
+});
+
+it("FnCrud 合并公共与新增表单配置后交给 FnFormDialog，并提供默认提交请求", async () => {
+  const title = compute(({ form }) => `公共:${form?.name}`);
+  const common = { title, width: 500 };
+  const specific = { width: 640 };
+  const addRequest = vi.fn(async () => undefined);
+  const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
+  let exposed!: FnCrudExpose;
+  const setup = module.exports.default.setup({
+    columns: {},
+    form: common,
+    addForm: specific,
+    request: { pageRequest, addRequest },
+  }, { emit: () => {}, expose: (value: FnCrudExpose) => (exposed = value) });
+  const open = vi.fn(async (..._args: any[]) => undefined);
+  setup.FnFormDialogRef.value = { open };
+  pageRequest.mockClear();
+
+  await exposed.form.openAddForm();
+
+  const [options] = open.mock.calls[0];
+  expect(options).toMatchObject({ mode: "add", columns: {}, width: 640 });
+  expect(options.title).toBe(title);
+  expect(options).not.toHaveProperty("commonOptions");
+  expect(options).not.toHaveProperty("modeOptions");
+  expect(options.onSubmit).toBeTypeOf("function");
+
+  const form = { name: "certd" };
+  await options.onSubmit({ form });
+  expect(addRequest).toHaveBeenCalledWith(form);
+  expect(pageRequest).toHaveBeenCalledOnce();
+});
+
+it("FnCrud 允许表单配置覆盖默认提交请求", async () => {
+  const onSubmit = vi.fn(async () => undefined);
+  const addRequest = vi.fn(async () => undefined);
+  let exposed!: FnCrudExpose;
+  const setup = module.exports.default.setup({
+    columns: {},
+    addForm: { onSubmit },
+    request: { pageRequest: vi.fn(async () => ({ records: [], total: 0 })), addRequest },
+  }, { emit: () => {}, expose: (value: FnCrudExpose) => (exposed = value) });
+  const open = vi.fn(async (..._args: any[]) => undefined);
+  setup.FnFormDialogRef.value = { open };
+
+  await exposed.form.openAddForm();
+
+  expect(open.mock.calls[0][0].onSubmit).toBe(onSubmit);
+  await open.mock.calls[0][0].onSubmit({ form: { name: "certd" } });
+  expect(onSubmit).toHaveBeenCalledOnce();
+  expect(addRequest).not.toHaveBeenCalled();
 });
 
 it("table.turnPage 使用当前搜索和排序条件并请求指定分页", async () => {
@@ -251,6 +303,22 @@ it("actionbar 批量删除确认后按全部选中 keys 删除、清空选择并
   expect(delRequest.mock.calls).toEqual([["12"], ["13"]]);
   expect(setup.getSelectedRowKeys()).toEqual([]);
   expect(pageRequest).toHaveBeenCalledTimes(1);
+});
+
+it("FnCrud 保留带 computed 文案的用户 actionbar 按钮", () => {
+  const click = vi.fn();
+  const label = ref("禁用数量输入");
+  const state = reactive({
+    columns: {},
+    request: { pageRequest: vi.fn() },
+    actionbar: { buttons: { toggleQuantity: { text: computed(() => label.value), order: 10, click } } },
+  }) as any;
+  useFnCrud({ state });
+  const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
+
+  expect(setup.actionbarProps.value.buttons.toggleQuantity).toMatchObject({ text: "禁用数量输入", order: 10, click });
+  label.value = "启用数量输入";
+  expect(setup.actionbarProps.value.buttons.toggleQuantity.text).toBe("启用数量输入");
 });
 
 it("批量选择复用行索引，不重复查找行位置", () => {

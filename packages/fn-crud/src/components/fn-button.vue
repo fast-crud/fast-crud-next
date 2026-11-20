@@ -11,7 +11,7 @@ import type { FnButtonProps } from "../types/index";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<FnButtonProps<void>>(), { type: "primary", shape: "default", buttonType: "button", loading: false, disabled: false, danger: false, items: () => [] });
+const props = withDefaults(defineProps<FnButtonProps<void>>(), { show: true, type: "primary", shape: "default", buttonType: "button", loading: false, disabled: false, danger: false, items: () => [] });
 const emit = defineEmits<{ select: [key: string] }>();
 const buttonType = computed(() => props.buttonType);
 const buttonProps = computed(() => ({
