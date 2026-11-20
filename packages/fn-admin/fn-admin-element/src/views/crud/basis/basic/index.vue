@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { h, markRaw, reactive, ref } from 'vue'
 import { ElTag } from 'element-plus'
-import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, DictStore, useFnCrud } from '@fast-crud/fast-crud-next'
+import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnRowContext, DictStore, useFnCrud } from '@fast-crud/fast-crud-next'
 import DemoSelect from '@fast-crud/fn-admin-shared/components/DemoSelect.vue'
 
 interface ServiceRecord { id: number; name: string; owner: string; environment: string; status: string; updatedAt: string }
@@ -25,13 +25,13 @@ const rows = ref<ServiceRecord[]>([
 ])
 const crudState = reactive({
   id: 'element-basic-crud',
-  heading: { title: '服务目录', description: '支持搜索、分页、新增、编辑和删除。' },
+  heading: { title: '基础列表示例', description: '通过服务数据演示搜索、分页和增删改查。' },
   columns: {
     id: { key: 'id', title: '编号', cell: { width: 84 } },
     name: { key: 'name', title: '服务名称', search: { order: 1, component: { name: FnInput, vModel: 'modelValue', placeholder: '搜索服务名称或负责人' }, width: 240 }, form: { order: 1, rules: [{ required: true, message: '请输入服务名称' }] }, cell: { order: 1 } },
     owner: { key: 'owner', title: '负责人', form: { order: 2, rules: [{ required: true, message: '请输入负责人' }] }, cell: { order: 2, width: 120 } },
     environment: { key: 'environment', title: '环境', form: { order: 3, value: '测试', component: { name: markRaw(DemoSelect), vModel: 'modelValue', options: environmentOptions } }, cell: { order: 3, width: 110 } },
-    status: { key: 'status', title: '状态', form: { order: 4, value: 'staged', component: { name: markRaw(DemoSelect), vModel: 'modelValue', options: statusDict.__options.value } }, cell: { order: 4, width: 110, dict: statusDict, render: ({ row }: FnTableRowContext<ServiceRecord>) => {
+    status: { key: 'status', title: '状态', form: { order: 4, value: 'staged', component: { name: markRaw(DemoSelect), vModel: 'modelValue', options: statusDict.__options.value } }, cell: { order: 4, width: 110, dict: statusDict, render: ({ row }: FnRowContext<ServiceRecord>) => {
       const option = statusDict.__options.value.find((item) => item.value === row.status)
       return h(ElTag, { type: option?.color === 'success' ? 'success' : option?.color === 'warning' ? 'warning' : 'info', effect: 'light' }, () => option?.label || '—')
     } } },
@@ -52,10 +52,10 @@ const crudState = reactive({
     delRequest: async (id: string | number) => { rows.value = rows.value.filter((row) => row.id !== Number(id)) },
   },
 }) as unknown as FnCrudState<ServiceRecord>
-useFnCrud(crudState)
+useFnCrud({ state: crudState })
 function now(): string { return new Intl.DateTimeFormat('zh-CN', { dateStyle: 'short', timeStyle: 'short', hour12: false }).format(new Date()) }
 </script>
 
-<style scoped>
-.crud-frame{flex:1;min-height:0;overflow:hidden;border:1px solid var(--fn-color-border,#e1e7ef);border-radius:0;background:var(--fn-color-bg-container,#fff)}
+<style lang="less">
+.crud-frame { flex: 1; min-height: 0; overflow: hidden; border: 1px solid var(--fn-color-border, #e1e7ef); border-radius: 0; background: var(--fn-color-bg-container, #fff); }
 </style>

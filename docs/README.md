@@ -24,6 +24,7 @@
 
 ## 组件
 
+- [`components/basic-controls.md`](components/basic-controls.md)：FnCheckbox、FnRadio 和 FnButtonGroup 的用法。
 - [`components/modal.md`](components/modal.md)：FnModal 的使用方式和开关过渡行为。
 
 ## 开发

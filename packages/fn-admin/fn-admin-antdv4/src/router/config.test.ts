@@ -13,7 +13,7 @@ describe("Ant Design Vue admin route configuration", () => {
     const routes = new Map(adminRouteRecords.map(route => [route.path, route]));
     const paths = menuPaths(adminMenuConfig);
 
-    expect(paths).toHaveLength(8);
+    expect(paths).toHaveLength(9);
     expect(new Set(paths).size).toBe(paths.length);
     expect(paths.every(path => routes.get(path)?.component)).toBe(true);
     expect(routes.get("/crud/basic")?.redirect).toBe("/crud/basis/basic");

@@ -1,5 +1,6 @@
 <template>
-  <form class="fn-search" v-bind="resolvedProps.formProps" @submit.prevent="submit">
+  <FnRender v-if="props.slots?.default" :render="props.slots.default" :ctx="context" />
+  <form v-else class="fn-search" v-bind="resolvedProps.formProps" @submit.prevent="submit">
     <FnRender v-if="props.slots?.before" :render="props.slots.before" :ctx="context" />
     <FnComponentRender
       v-for="column in searchColumns"
@@ -11,7 +12,7 @@
       @press-enter="submit"
     />
     <FnRender v-if="props.slots?.buttons" :render="props.slots.buttons" :ctx="{ ...context, buttons: buttonProps }" />
-    <template v-else><FnButton v-for="(button, key) in buttonProps" :key="key" v-bind="button" :context="context" /></template>
+    <template v-else><FnButton v-for="(button, key) in contextualButtonProps" :key="key" v-bind="button" /></template>
     <FnRender v-if="props.slots?.after" :render="props.slots.after" :ctx="context" />
   </form>
 </template>
@@ -21,15 +22,15 @@ import { RotateCcw, Search } from "@lucide/vue";
 import FnComponentRender from "../components/fn-component-render";
 import FnButton from "../components/fn-button.vue";
 import FnRender from "../components/fn-render";
-import type { FnSearchProps, FnSearchColumn, FnSearchColumnResolved, FnComputeContext } from "../types/index";
-import { resolveComputedValue } from "../compute";
+import type { FnButtonItem, FnSearchProps, FnSearchColumn, FnSearchColumnResolved, FnSearchContext } from "../types/index";
+import { resolveComputedValue } from "../use/compute";
 import { fnCrudSearchKey } from "../provider/context";
 const props = defineProps<FnSearchProps>();
 const searchState = inject(fnCrudSearchKey);
 if (!searchState) {
   throw new Error("FnSearch 必须在 FnCrud 内使用");
 }
-const context = computed<FnComputeContext>(() => ({ type: "search", form: searchState.form, columns: props.columns, reset, search: searchState.search }));
+const context = computed<FnSearchContext>(() => ({ type: "search", form: searchState.form, columns: props.columns, reset, search: searchState.search }));
 const resolvedProps = computed(
   () =>
     resolveComputedValue({ columns: props.columns, buttons: props.buttons, formProps: props.formProps }, context.value) as Omit<FnSearchProps, "columns"> & {
@@ -45,10 +46,21 @@ const searchColumns = computed(() =>
 const buttonProps = computed(
   () =>
     resolvedProps.value.buttons || {
-      search: { text: "查询", type: "default", icon: Search, onClick: submit },
-      reset: { text: "重置", type: "default", icon: RotateCcw, onClick: reset },
+      search: { text: "查询", type: "default", icon: Search, click: submit },
+      reset: { text: "重置", type: "default", icon: RotateCcw, click: reset },
     }
 );
+const contextualButtonProps = computed(() => Object.fromEntries(Object.entries(buttonProps.value).map(([key, button]) => [
+  key,
+  {
+    ...button,
+    click: button.click ? () => button.click?.(context.value) : undefined,
+    items: button.items?.map((item: FnButtonItem<FnSearchContext>) => ({
+      ...item,
+      click: item.click ? () => item.click?.(context.value) : undefined,
+    })),
+  },
+])));
 function getComponent(column: FnSearchColumnResolved): Record<string, any> {
   const resolvedComponent = resolveComputedValue(column.component || {}, context.value) as Record<string, any>;
   const component = { ...resolvedComponent };

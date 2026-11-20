@@ -15,51 +15,57 @@ const loadDependency = (name: string) => {
   if (name === "vue") {
     return { ...require(name), inject: (key: string, defaultValue: unknown) => (key === "table-size" ? { value: { size: 12, density: "compact" } } : defaultValue) };
   }
-  if (name === "@lucide/vue" || name === "./fn-icon.vue") return {};
-  if (name === "./use-fn-button-ripple") {
-    return { useFnButtonRipple: () => ({ ripples: require("vue").ref([]), createRipple: vi.fn(), removeRipple: vi.fn() }) };
-  }
-  if (name === "../provider/context") return { fnTableSizeKey: "table-size" };
+  if (name === "@lucide/vue" || name === "./fn-button-base.vue") return {};
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);
 
 describe("FnDropdownButton", () => {
-  it("点击菜单按钮时创建外圈波纹", async () => {
+  it("不依赖 CRUD context 或表格尺寸注入", () => {
+    expect(script.content).not.toContain("fnTableSizeKey");
+    expect(script.content).not.toContain("context.value");
+  });
+
+  it("点击菜单按钮时切换菜单", async () => {
     vi.stubGlobal("window", { innerHeight: 500, innerWidth: 800, addEventListener: vi.fn(), removeEventListener: vi.fn() });
     const setup = module.exports.default.setup({ items: [] }, { emit: vi.fn(), expose: vi.fn() });
-    const button = {};
-
-    setup.toggleMenu({ currentTarget: button });
+    setup.toggleMenu();
     await require("vue").nextTick();
     await new Promise(resolve => setTimeout(resolve, 20));
 
-    expect(setup.createRipple).toHaveBeenCalledWith(button);
+    expect(setup.menuOpen.value).toBe(true);
     vi.unstubAllGlobals();
   });
 
-  it("依据 FnTable 字号计算菜单字号、行高和位置", () => {
+  it("独立于 FnTable 尺寸计算菜单位置", () => {
     vi.stubGlobal("window", { innerHeight: 500, innerWidth: 800 });
     const setup = module.exports.default.setup({ items: [] }, { emit: vi.fn(), expose: vi.fn() });
-    setup.buttonRef.value = { getBoundingClientRect: () => ({ top: 10, bottom: 40, left: 10, right: 100 }) };
+    setup.buttonComponentRef.value = { getElement: () => ({ getBoundingClientRect: () => ({ top: 10, bottom: 40, left: 10, right: 100 }) }) };
 
     setup.updateMenuPosition();
 
-    expect(setup.menuSize.value).toBe("small");
-    expect(setup.menuStyle.value).toMatchObject({ top: "45px", left: "8px", "--fn-button-menu-font-size": "12px", "--fn-button-menu-item-height": "30px" });
+    expect(setup.menuStyle.value).toMatchObject({ top: "45px", left: "8px" });
     vi.unstubAllGlobals();
   });
 
-  it("点击菜单项时传递当前行上下文并发出选择事件", () => {
-    const context = { type: "row", row: { id: 7 } };
-    const onClick = vi.fn();
+  it("点击菜单项时调用无上下文回调并发出选择事件", () => {
+    const click = vi.fn();
     const emit = vi.fn();
-    const setup = module.exports.default.setup({ context }, { emit, expose: vi.fn() });
+    const setup = module.exports.default.setup({}, { emit, expose: vi.fn() });
 
-    setup.handleMenuClick({ key: "edit", label: "编辑", onClick });
+    setup.handleMenuClick({ key: "edit", label: "编辑", click });
 
-    expect(onClick).toHaveBeenCalledWith(context);
+    expect(click).toHaveBeenCalledWith();
     expect(emit).toHaveBeenCalledWith("select", "edit");
     expect(setup.menuOpen.value).toBe(false);
+  });
+
+  it("菜单项只接受 click 回调", () => {
+    const legacyOnClick = vi.fn();
+    const setup = module.exports.default.setup({}, { emit: vi.fn(), expose: vi.fn() });
+
+    setup.handleMenuClick({ key: "edit", label: "编辑", onClick: legacyOnClick });
+
+    expect(legacyOnClick).not.toHaveBeenCalled();
   });
 });

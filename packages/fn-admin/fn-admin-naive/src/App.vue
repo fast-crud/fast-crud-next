@@ -44,7 +44,53 @@ function handleUserAction(key: string) { if (key === "logout") message.info("演
     </NaiveThemeBridge>
   </NConfigProvider>
 </template>
-<style scoped>
-.admin-app{min-height:100vh;color:#1d2a3a;background:#f4f7fb}.admin-app--dark{color:#eef3ff;background:#111827}.admin-layout{height:100vh}.admin-sider{display:flex;flex-direction:column;background:#fff}.admin-app--dark .admin-sider{background:#151f31}.brand{display:flex;align-items:center;gap:11px;height:68px;padding:0 18px;border-bottom:1px solid #e6ebf2;cursor:pointer}.admin-app--dark .brand{border-color:#2b3a53}.brand-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--n-primary-color,#18a058);color:white;font-size:18px;font-weight:800}.brand-copy{display:grid;gap:2px}.brand-copy strong{font-size:15px}.brand-copy span{color:#8a96a8;font-size:11px}.sider-foot{margin-top:auto;padding:16px 20px;border-top:1px solid #e6ebf2;color:#728096;font-size:12px}.status-dot{display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:var(--n-success-color,#20b486)}.admin-main{background:transparent}.admin-header{display:flex;align-items:center;justify-content:space-between;height:68px;padding:0 28px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px)}.admin-app--dark .admin-header{background:rgba(21,31,49,.92)}.header-left,.header-left>div{display:flex;align-items:center}.header-left{gap:12px}.breadcrumb-root{color:#8a96a8}.breadcrumb-separator{padding:0 10px;color:#b4bdca}.user-trigger{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;color:inherit;cursor:pointer;font:inherit}.chevron{color:#8a96a8}.admin-content{min-height:0}@media (max-width:760px){.admin-header{padding:0 14px}.user-trigger span:not(.chevron){display:none}}
-.admin-app--dark :deep(.n-layout-header),.admin-app--dark :deep(.n-layout-sider){color:#eef3ff!important;background:#151f31!important;border-color:#2b3a53!important}.admin-app--dark :deep(.n-layout-sider-scroll-container){background:#151f31!important}.admin-app--dark :deep(.n-layout-content){background:#111827!important}.admin-app--dark :deep(.n-menu){background:transparent!important}
+<style lang="less">
+.admin-app {
+  min-height: 100vh;
+  color: #1d2a3a;
+  background: #f4f7fb;
+
+  &--dark {
+    color: #eef3ff;
+    background: #111827;
+
+    .admin-sider,
+    .n-layout-header {
+      color: #eef3ff !important;
+      border-color: #2b3a53 !important;
+      background: #151f31 !important;
+    }
+
+    .brand { border-color: #2b3a53; }
+    .admin-header { background: rgba(21, 31, 49, .92); }
+    .n-layout-sider-scroll-container { background: #151f31 !important; }
+    .n-layout-content { background: #111827 !important; }
+    .n-menu { background: transparent !important; }
+  }
+
+  .admin-layout { height: 100vh; }
+  .admin-sider { display: flex; flex-direction: column; background: #fff; }
+  .brand { display: flex; align-items: center; gap: 11px; height: 68px; padding: 0 18px; border-bottom: 1px solid #e6ebf2; cursor: pointer; }
+  .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; color: white; background: var(--n-primary-color, #18a058); font-size: 18px; font-weight: 800; }
+  .brand-copy { display: grid; gap: 2px; }
+  .brand-copy strong { font-size: 15px; }
+  .brand-copy span { color: #8a96a8; font-size: 11px; }
+  .sider-foot { margin-top: auto; padding: 16px 20px; border-top: 1px solid #e6ebf2; color: #728096; font-size: 12px; }
+  .status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--n-success-color, #20b486); }
+  .admin-main { background: transparent; }
+  .admin-header { display: flex; height: 68px; align-items: center; justify-content: space-between; padding: 0 28px; background: rgba(255, 255, 255, .9); backdrop-filter: blur(8px); }
+  .header-left,
+  .header-left > div { display: flex; align-items: center; }
+  .header-left { gap: 12px; }
+  .breadcrumb-root { color: #8a96a8; }
+  .breadcrumb-separator { padding: 0 10px; color: #b4bdca; }
+  .user-trigger { display: inline-flex; align-items: center; gap: 8px; border: 0; color: inherit; background: transparent; cursor: pointer; font: inherit; }
+  .chevron { color: #8a96a8; }
+  .admin-content { min-height: 0; }
+
+  @media (max-width: 760px) {
+    .admin-header { padding: 0 14px; }
+    .user-trigger span:not(.chevron) { display: none; }
+  }
+}
 </style>

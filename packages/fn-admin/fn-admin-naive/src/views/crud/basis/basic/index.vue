@@ -12,7 +12,7 @@ const records = reactive<ServiceRecord[]>([
 ]);
 const selectOptions = [{ label: "生产", value: "生产" }, { label: "预发布", value: "预发布" }, { label: "测试", value: "测试" }];
 const statusOptions = [{ label: "运行中", value: "运行中" }, { label: "待发布", value: "待发布" }, { label: "已暂停", value: "已暂停" }];
-const state = reactive<FnCrudState<ServiceRecord>>({ id: "naive-basic-services", heading: { title: "服务目录", description: "支持搜索、分页、新增、编辑和删除。" }, rowSelect: { crossPage: true }, table: { rowKey: "id", minWidth: 760 }, pagination: { pageSize: 5 }, rowHandle: { width: 148 }, columns: {
+const state = reactive<FnCrudState<ServiceRecord>>({ id: "naive-basic-services", heading: { title: "基础列表示例", description: "通过服务数据演示搜索、分页和增删改查。" }, rowSelect: { crossPage: true }, table: { rowKey: "id", minWidth: 760 }, pagination: { pageSize: 5 }, rowHandle: { width: 148 }, columns: {
   id: { key: "id", title: "编号", cell: { width: 90 } },
   name: { key: "name", title: "服务名称", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索名称或负责人" }, width: 220 }, form: { rules: [{ required: true, message: "请输入服务名称" }] }, cell: { order: 1 } },
   owner: { key: "owner", title: "负责人", form: { rules: [{ required: true, message: "请输入负责人" }] }, cell: { width: 120 } },
@@ -25,8 +25,10 @@ const state = reactive<FnCrudState<ServiceRecord>>({ id: "naive-basic-services",
   editRequest: async form => { const item = records.find(row => row.id === Number(form.id)); if (item) Object.assign(item, form); },
   delRequest: async id => { const index = records.findIndex(row => row.id === Number(id)); if (index >= 0) records.splice(index, 1); },
 }});
-useFnCrud(state as any);
+useFnCrud({ state: state as any });
 const crudState = state as any;
 </script>
 <template><section class="crud-panel"><FnCrud v-bind="crudState" /></section></template>
-<style scoped>.crud-panel{flex:1;min-height:0;border:1px solid #e0e6ef;border-radius:0;background:#fff;overflow:hidden}</style>
+<style lang="less">
+.crud-panel { flex: 1; min-height: 0; overflow: hidden; border: 1px solid #e0e6ef; border-radius: 0; background: #fff; }
+</style>

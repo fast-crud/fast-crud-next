@@ -12,6 +12,7 @@ Ant Design Vue admin 的 CRUD 页面按 fast-crud admin 的主题分类放在 `p
 | `dict` | `dict/credentials` | 字典状态、tabs 与筛选 |
 | `feature` | `feature/selection` | 跨页选择与批量发布 |
 | `form` | `form/conditional` | 条件表单 |
+| `form` | `form/slots` | 表单插槽上下文：当前表单值与 dialog 操作 |
 
 每个页面目录包含：
 

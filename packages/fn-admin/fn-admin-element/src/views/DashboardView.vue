@@ -23,15 +23,42 @@ const activity = [
 ]
 </script>
 
-<style scoped>
-.view-page { width: 100%; margin: 0; padding: 24px; }
-.page-intro { display: flex; justify-content: space-between; margin-bottom: 24px; }
-.eyebrow { margin: 0 0 6px; color: #e1782d; font-size: 11px; font-weight: 700; letter-spacing: .14em; }
-h2 { margin: 0 0 6px; color: #19273a; font-size: 25px; }
-.page-intro p:last-child { margin: 0; color: #758397; }
-.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
-.metric-card :deep(.el-card__body) { display: grid; gap: 9px; padding: 20px; }
-.metric-card span { color: #708095; font-size: 13px; }.metric-card strong { color: #19273a; font-size: 28px; font-variant-numeric: tabular-nums; }.metric-card small { color: #a0acba; }
-.activity-card :deep(.el-card__header) { padding: 16px 20px; }.card-title { display:flex; justify-content:space-between; align-items:center; }.card-title span { color:#9aa6b5; font-size:12px; }.activity-row { display:grid; grid-template-columns: 10px 1fr auto; gap:14px; align-items:center; padding:14px 0; border-bottom:1px solid #eef1f5; }.activity-row:last-child { border-bottom:0; }.activity-dot { width:8px; height:8px; border-radius:50%; background:#e1782d; }.activity-row strong { color:#2d3b50; font-size:14px; }.activity-row p { margin:3px 0 0; color:#8794a5; font-size:12px; }.activity-row time { color:#9ca8b6; font-size:12px; }
-@media (max-width: 800px) { .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+<style lang="less">
+.view-page {
+  width: 100%;
+  margin: 0;
+  padding: 24px;
+
+  .page-intro { display: flex; justify-content: space-between; margin-bottom: 24px; }
+  .eyebrow { margin: 0 0 6px; color: #e1782d; font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+  h2 { margin: 0 0 6px; color: #19273a; font-size: 25px; }
+  .page-intro p:last-child { margin: 0; color: #758397; }
+  .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .metric-card {
+    .el-card__body { display: grid; gap: 9px; padding: 20px; }
+    span { color: #708095; font-size: 13px; }
+    strong { color: #19273a; font-size: 28px; font-variant-numeric: tabular-nums; }
+    small { color: #a0acba; }
+  }
+  .activity-card .el-card__header { padding: 16px 20px; }
+  .card-title { display: flex; align-items: center; justify-content: space-between; }
+  .card-title span { color: #9aa6b5; font-size: 12px; }
+  .activity-row {
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #eef1f5;
+    &:last-child { border-bottom: 0; }
+    strong { color: #2d3b50; font-size: 14px; }
+    p { margin: 3px 0 0; color: #8794a5; font-size: 12px; }
+    time { color: #9ca8b6; font-size: 12px; }
+  }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; background: #e1782d; }
+
+  @media (max-width: 800px) {
+    .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+}
 </style>

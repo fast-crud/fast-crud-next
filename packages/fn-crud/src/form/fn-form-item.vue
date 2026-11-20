@@ -2,9 +2,12 @@
   <div class="fn-form-item" :class="{ 'fn-form-item-error': error }">
     <label v-if="label" class="fn-form-item-label" :for="htmlFor">{{ label }}</label>
     <div class="fn-form-item-control">
-      <slot />
-      <div v-if="error" class="fn-form-item-error-message" role="alert">{{ error }}</div>
-      <div v-else-if="help" class="fn-form-item-help">{{ help }}</div>
+      <div class="fn-form-item-field">
+        <slot />
+      </div>
+      <div class="fn-form-item-message" :class="{ 'fn-form-item-error-message': error, 'fn-form-item-help': !error && help }" :role="error ? 'alert' : undefined">
+        {{ error || help }}
+      </div>
     </div>
   </div>
 </template>
@@ -16,13 +19,18 @@ defineProps<{ label?: string; error?: string; help?: string; htmlFor?: string }>
 <style lang="less">
 .fn-form-item {
   display: flex;
+  align-items: flex-start;
   min-width: 0;
-  margin-bottom: 16px;
+  // margin-bottom: 16px;
   gap: 12px;
 
   .fn-form-item-label {
     flex: 0 0 var(--fn-form-label-width, 120px);
-    padding-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: var(--fn-control-height, 32px);
+    padding-top: 0;
     color: #344054;
     text-align: right;
   }
@@ -32,10 +40,17 @@ defineProps<{ label?: string; error?: string; help?: string; htmlFor?: string }>
     min-width: 0;
   }
 
-  .fn-form-item-help,
-  .fn-form-item-error-message {
+  .fn-form-item-field {
+    display: flex;
+    align-items: center;
+    min-height: var(--fn-control-height, 32px);
+  }
+
+  .fn-form-item-message {
     margin-top: 4px;
+    min-height: 16px;
     font-size: 12px;
+    line-height: 16px;
   }
 
   .fn-form-item-help {
@@ -48,6 +63,9 @@ defineProps<{ label?: string; error?: string; help?: string; htmlFor?: string }>
 
   &.fn-form-item-error .fn-input {
     border-color: #dc3545;
+    &:focus {
+      box-shadow: 0 0 0 2px color-mix(in srgb, #dc3545 18%, transparent);
+    }
   }
 
   .dark & {

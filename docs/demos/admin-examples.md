@@ -21,6 +21,8 @@
 - `/crud/feature/selection`（其他 admin：`/crud/selection`）：跨页保留选择和批量发布。
 - `/crud/form/conditional`（其他 admin：`/crud/conditional-form`）：根据轮换方式显示或隐藏表单字段。
 
+Ant Design Vue 另提供 `/crud/form/slots` 表单插槽示例。表单对话框的 `headerRight` 插槽会在标题右侧显示当前输入的流程名称；插槽上下文同时包含表单数据和弹窗操作。
+
 每套 admin 还提供一个普通 UI 组件对比页：
 
 - `/components/table-buttons`：使用对应 UI 框架的普通表格和按钮展示相同的数据与操作，可并排比较 Ant Design Vue、Element Plus 和 Naive UI 的基础样式。

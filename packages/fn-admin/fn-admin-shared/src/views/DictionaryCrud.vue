@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, markRaw, reactive, ref } from "vue";
 import type { Component } from "vue";
-import { FnCrud, FnInput, DictStore, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnTableRowContext, useFnCrud } from "@fast-crud/fast-crud-next";
+import { FnCrud, FnInput, DictStore, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnRowContext, useFnCrud } from "@fast-crud/fast-crud-next";
 import DemoSelect from "../components/DemoSelect.vue";
 
 interface Credential { id: number; name: string; owner: string; scope: string; status: string; expiresAt: string }
@@ -32,8 +32,8 @@ const state = reactive({
     id: { key: "id", title: "编号", cell: { width: 84 } },
     name: { key: "name", title: "凭证名称", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索名称或负责人" }, width: 230 }, form: { rules: [{ required: true, message: "请输入凭证名称" }] }, cell: { order: 1 } },
     owner: { key: "owner", title: "负责人", form: { rules: [{ required: true, message: "请输入负责人" }] }, cell: { order: 2, width: 120 } },
-    scope: { key: "scope", title: "环境", form: { value: "测试", component: { name: markRaw(DemoSelect) as any, vModel: "modelValue", options: scopeDict.__options.value } }, cell: { order: 3, width: 100, dict: scopeDict, render: ({ row }: FnTableRowContext<Credential>) => scopeDict.__options.value.find(option => option.value === row.scope)?.label || "—" } },
-    status: { key: "status", title: "状态", form: { value: "review", component: { name: markRaw(DemoSelect) as any, vModel: "modelValue", options: statusDict.__options.value } }, cell: { order: 4, width: 100, dict: statusDict, render: ({ row }: FnTableRowContext<Credential>) => {
+    scope: { key: "scope", title: "环境", form: { value: "测试", component: { name: markRaw(DemoSelect) as any, vModel: "modelValue", options: scopeDict.__options.value } }, cell: { order: 3, width: 100, dict: scopeDict, render: ({ row }: FnRowContext<Credential>) => scopeDict.__options.value.find(option => option.value === row.scope)?.label || "—" } },
+    status: { key: "status", title: "状态", form: { value: "review", component: { name: markRaw(DemoSelect) as any, vModel: "modelValue", options: statusDict.__options.value } }, cell: { order: 4, width: 100, dict: statusDict, render: ({ row }: FnRowContext<Credential>) => {
       const option = statusDict.__options.value.find(item => item.value === row.status);
       const label = option?.label || "—";
       if (props.tagComponent) {
@@ -57,13 +57,41 @@ const state = reactive({
     delRequest: async (id: string | number) => { records.value = records.value.filter(row => row.id !== Number(id)); },
   },
 }) as unknown as FnCrudState<Credential>;
-useFnCrud(state);
+useFnCrud({ state });
 </script>
 
 <template>
   <div class="showcase-page"><section class="showcase-panel"><FnCrud v-bind="state" /></section></div>
 </template>
 
-<style scoped>
-.showcase-page{display:flex;flex:1;min-height:0;width:100%}.showcase-panel{flex:1;min-height:0;overflow:hidden;border:1px solid var(--fn-color-border,#e1e7ef);border-radius:0;background:var(--fn-color-bg-container,#fff)}.showcase-panel :deep(.status-label){display:inline-flex;min-height:22px;align-items:center;padding:0 8px;border-radius:4px;font-size:12px;line-height:1}.showcase-panel :deep(.status-label--success){color:#087443;background:#e7f6ee}.showcase-panel :deep(.status-label--warning){color:#9a6700;background:#fff4d6}.showcase-panel :deep(.status-label--default){color:#667085;background:#f2f4f7}
+<style lang="less">
+.showcase-page {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+
+  .showcase-panel {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid var(--fn-color-border, #e1e7ef);
+    border-radius: 0;
+    background: var(--fn-color-bg-container, #fff);
+
+    .status-label {
+      display: inline-flex;
+      min-height: 22px;
+      align-items: center;
+      padding: 0 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1;
+
+      &--success { color: #087443; background: #e7f6ee; }
+      &--warning { color: #9a6700; background: #fff4d6; }
+      &--default { color: #667085; background: #f2f4f7; }
+    }
+  }
+}
 </style>

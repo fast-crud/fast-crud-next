@@ -1,27 +1,18 @@
 <template>
-  <span v-if="show !== false" class="fn-button-wrap" :class="{ 'fn-button-open': menuOpen }" :style="buttonStyle">
-    <button
-      ref="buttonRef"
-      class="fn-button"
-      :class="buttonClasses"
-      type="button"
-      :disabled="disabled || loading"
-      :aria-label="!text ? tooltipTitle : undefined"
-      :title="tooltipTitle"
+  <span class="fn-dropdown-button">
+    <FnButtonBase
+      ref="buttonComponentRef"
+      v-bind="buttonProps"
       :aria-expanded="menuOpen"
       aria-haspopup="menu"
       @click="toggleMenu"
     >
-      <span v-for="ripple in ripples" :key="ripple.id" class="fn-button-ripple" :class="{ 'fn-button-ripple-active': ripple.active }" :style="ripple.style" aria-hidden="true" @transitionend.self="handleRippleTransitionEnd($event, ripple.id)"></span>
-      <span v-if="loading" class="fn-button-spinner" aria-hidden="true"></span>
-      <FnIcon v-else-if="icon" :icon="icon" />
-      <span v-if="text" class="fn-button-label">{{ text }}</span>
       <ChevronDown :size="14" />
-    </button>
+    </FnButtonBase>
     <Teleport to="body">
       <template v-if="menuOpen">
         <div class="fn-button-menu-mask" aria-hidden="true" @click="closeMenu"></div>
-        <div ref="menuRef" class="fn-button-menu" :data-size="menuSize" :style="menuStyle" role="menu">
+        <div ref="menuRef" class="fn-button-menu" :style="menuStyle" role="menu">
           <button v-for="item in visibleItems" :key="item.key" class="fn-button-menu-item" :class="{ danger: item.danger }" type="button" role="menuitem" :disabled="item.disabled" @click="handleMenuClick(item)">
             {{ item.label }}
           </button>
@@ -33,55 +24,45 @@
 
 <script setup lang="ts">
 import { ChevronDown } from "@lucide/vue";
-import { computed, getCurrentInstance, inject, nextTick, onBeforeUnmount, ref, watch, type CSSProperties } from "vue";
-import FnIcon from "./fn-icon.vue";
-import { useFnButtonRipple } from "./use-fn-button-ripple";
-import type { FnButtonItem, FnButtonProps } from "../types/index";
-import { fnTableSizeKey } from "../provider/context";
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, ref, toValue, watch, type CSSProperties } from "vue";
+import FnButtonBase from "./fn-button-base.vue";
+import type { FnButtonItem, FnDropdownButtonProps } from "../types/index";
 
-const props = withDefaults(defineProps<FnButtonProps>(), { type: "primary", shape: "default", loading: false, disabled: false, danger: false, items: () => [] });
+defineOptions({ inheritAttrs: false });
+const props = withDefaults(defineProps<FnDropdownButtonProps<void>>(), { type: "primary", shape: "default", loading: false, disabled: false, danger: false });
 const emit = defineEmits<{ select: [key: string] }>();
-const tableSize = inject(fnTableSizeKey, undefined);
-const context = computed(() => props.context || { type: "row" as const });
-const tooltipTitle = computed(() => (typeof props.tooltip === "string" ? props.tooltip : props.tooltip?.title));
+const buttonComponentRef = ref<{ getElement: () => HTMLElement | undefined }>();
 const visibleItems = computed(() => (props.items || []).filter(item => item.show !== false));
 const menuOpen = ref(false);
-const buttonRef = ref<HTMLElement>();
 const menuRef = ref<HTMLElement>();
 const menuStyle = ref<CSSProperties>({});
-const menuSize = ref<"small" | "middle">("middle");
-const { ripples, createRipple, removeRipple } = useFnButtonRipple();
-const buttonClasses = computed(() => ({
-  [`fn-button-${props.type}`]: true,
-  [`fn-button-shape-${props.shape}`]: true,
-  "fn-button-danger": props.danger,
-  "fn-button-disabled": props.disabled || props.loading,
-  "fn-button-icon-only": !props.text && Boolean(props.icon),
+const buttonProps = computed(() => ({
+  type: props.type,
+  text: toValue(props.text),
+  icon: props.icon,
+  shape: props.shape,
+  tooltip: props.tooltip,
+  primaryColor: props.primaryColor,
+  loading: props.loading,
+  disabled: props.disabled,
+  danger: props.danger,
 }));
-const buttonStyle = computed<CSSProperties>(() => (props.primaryColor ? ({ "--fn-button-primary": props.primaryColor } as CSSProperties) : {}));
 
-function toggleMenu(event: MouseEvent): void {
+function toggleMenu(): void {
   if (!props.disabled && !props.loading) {
-    createRipple(event.currentTarget as HTMLElement);
     menuOpen.value = !menuOpen.value;
   }
-}
-function handleRippleTransitionEnd(event: TransitionEvent, id: number): void {
-  if (event.propertyName === "opacity") removeRipple(id);
 }
 function closeMenu(): void {
   menuOpen.value = false;
 }
 function updateMenuPosition(): void {
-  const button = buttonRef.value;
+  const button = buttonComponentRef.value?.getElement();
   if (!button) {
     return;
   }
   const rect = button.getBoundingClientRect();
-  const fontSize = tableSize?.value.size ? `${tableSize.value.size}px` : "";
-  const controlHeight = tableSize?.value.size ? `${tableSize.value.size + 18}px` : "";
-  const itemHeight = Number.parseFloat(controlHeight) || 32;
-  menuSize.value = itemHeight < 32 ? "small" : "middle";
+  const itemHeight = 32;
   const estimatedHeight = Math.max(1, visibleItems.value.length) * itemHeight + 10;
   const opensUpward = rect.bottom + 5 + estimatedHeight > window.innerHeight && rect.top - 5 - estimatedHeight >= 0;
   const top = opensUpward ? rect.top - estimatedHeight - 5 : rect.bottom + 5;
@@ -90,8 +71,6 @@ function updateMenuPosition(): void {
   menuStyle.value = {
     top: `${top}px`,
     left: `${left}px`,
-    ...(fontSize ? { "--fn-button-menu-font-size": fontSize } : {}),
-    ...(controlHeight ? { "--fn-button-menu-item-height": controlHeight } : {}),
   } as CSSProperties;
 }
 function handleViewportChange(): void {
@@ -116,18 +95,22 @@ if (getCurrentInstance()) {
     window.removeEventListener("resize", handleViewportChange);
   });
 }
-function handleMenuClick(item: FnButtonItem): void {
+function handleMenuClick(item: FnButtonItem<void>): void {
   if (item.disabled) {
     return;
   }
   menuOpen.value = false;
-  const onClick = item.click || item.onClick;
-  onClick?.(context.value);
+  item.click?.();
   emit("select", item.key);
 }
 </script>
 
 <style lang="less">
+.fn-dropdown-button {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
 .fn-button-menu {
   position: fixed;
   z-index: 50;
@@ -139,7 +122,6 @@ function handleMenuClick(item: FnButtonItem): void {
   border-radius: 7px;
   background: #fff;
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.14);
-  font-size: var(--fn-button-menu-font-size, inherit);
 }
 .fn-button-menu-mask {
   position: fixed;
@@ -170,10 +152,6 @@ function handleMenuClick(item: FnButtonItem): void {
   &.danger {
     color: #c82333;
   }
-}
-.fn-button-menu[data-size="small"] .fn-button-menu-item {
-  padding-right: 8px;
-  padding-left: 8px;
 }
 body.dark .fn-button-menu {
   border-color: #414a58;

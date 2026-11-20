@@ -63,7 +63,7 @@ function getDialogContext(dialog: FnDialogRecord): FnDialogContext {
   };
 }
 
-function openDialog<Result>(options: FnDialogProps<Result>) {
+function openDialog<Result>(options: FnDialogProps<any>) {
   return new Promise<Result | undefined>(resolve => {
     const dialog = addDialog(resolve);
     // 先挂载关闭状态的实例，再传入配置打开，确保组件能观察到打开状态变化。
@@ -73,10 +73,14 @@ function openDialog<Result>(options: FnDialogProps<Result>) {
 
 function getButtons(dialog: FnDialogRecord) {
   const buttons = dialog.Props.buttons;
+  const bindItems = (key: "reset" | "cancel" | "confirm") => buttons?.[key]?.items?.map(item => ({
+    ...item,
+    click: () => item.click?.({ type: "form", dialog: getDialogContext(dialog) }),
+  }));
   return {
-    reset: { ...buttons?.reset, click: undefined, onClick: () => handleButtonClick(dialog, "reset") },
-    cancel: { ...buttons?.cancel, click: undefined, onClick: () => handleButtonClick(dialog, "cancel") },
-    confirm: { ...buttons?.confirm, click: undefined, onClick: () => confirm(dialog) },
+    reset: { ...buttons?.reset, items: bindItems("reset"), click: () => handleButtonClick(dialog, "reset") },
+    cancel: { ...buttons?.cancel, items: bindItems("cancel"), click: () => handleButtonClick(dialog, "cancel") },
+    confirm: { ...buttons?.confirm, items: bindItems("confirm"), click: () => confirm(dialog) },
   };
 }
 
@@ -87,17 +91,17 @@ async function handleButtonClick(dialog: FnDialogRecord, key: string) {
   }
   if (key === "reset") {
     const button = dialog.Props.buttons?.reset;
-    const callback = button?.click || button?.onClick;
+    const callback = button?.click;
     if (callback) {
-      await callback({ type: "row", dialog: getDialogContext(dialog) });
+      await callback({ type: "form", dialog: getDialogContext(dialog) });
     }
     return;
   }
   if (key === "cancel") {
     const button = dialog.Props.buttons?.cancel;
-    const callback = button?.click || button?.onClick;
+    const callback = button?.click;
     if (callback) {
-      await callback({ type: "row", dialog: getDialogContext(dialog) });
+      await callback({ type: "form", dialog: getDialogContext(dialog) });
     }
     dialog.open = false;
   }
@@ -113,9 +117,9 @@ async function confirm(dialog: FnDialogRecord) {
   dialog.loading = true;
   try {
     const confirmButton = dialog.Props.buttons?.confirm;
-    const callback = confirmButton?.click || confirmButton?.onClick;
+    const callback = confirmButton?.click;
     if (callback) {
-      dialog.result = await callback({ type: "row", dialog: getDialogContext(dialog) });
+      dialog.result = await callback({ type: "form", dialog: getDialogContext(dialog) });
     }
     dialog.open = false;
   } catch (error) {

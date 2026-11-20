@@ -5,7 +5,8 @@
       ref="modalRef"
       v-model:open="modalOpen"
       v-bind="resolvedForm?.dialog"
-      :footer="resolvedForm?.dialog?.footer"
+      :slots="dialogSlots"
+      :footer="resolvedForm?.dialog?.footer ?? true"
       :buttons="dialogButtons"
       :confirm-loading="formLoading"
       @confirm="submitForm"
@@ -13,17 +14,16 @@
       @after-close="finishForm"
     >
       <FnForm ref="formRef" v-bind="resolvedForm" :on-submit="undefined" :on-reset="undefined" />
-      <template v-for="(slot, name) in resolvedForm?.dialog?.slots" :key="name" #[name]><component :is="slot" /></template>
     </FnModal>
   </div>
 </template>
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref } from "vue";
 import { useFnUiServices } from "../use/use-fn-ui-services";
-import { resolveComputedValue } from "../compute";
+import { resolveComputedValue } from "../use/compute";
 import FnModal from "../modal/fn-modal.vue";
 import FnForm from "./fn-form.vue";
-import type { FnFormProps, FnFormDialogOptions, FnFormInstance, FnFormContext, FnComputeContext, FnModalInstance, FnFormDialogInstance, FnDialogContext, FnComputeValue } from "../types/index";
+import type { FnFormProps, FnFormDialogOptions, FnFormInstance, FnFormContext, FnModalInstance, FnFormDialogInstance, FnDialogContext, FnComputeValue } from "../types/index";
 const activeForm = ref<FnFormDialogOptions>();
 const { notification } = useFnUiServices();
 const computedOptions = ref<FnComputeValue<Partial<Omit<FnFormDialogOptions, "columns">>>>();
@@ -33,7 +33,7 @@ const formLoading = ref(false);
 const modalOpen = ref(false);
 let resolveForm: ((form: Record<string, any> | undefined) => void) | undefined;
 let formResult: Record<string, any> | undefined;
-const formContext = computed<FnComputeContext>(() => {
+const formContext = computed<FnFormContext>(() => {
   return {
     type: "form",
     form: formRef.value?.getForm() || activeForm.value?.initialForm || {},
@@ -63,13 +63,24 @@ const resolvedForm = computed(() => {
   };
   return resolveComputedValue({ ...formOptions, dialog }, formContext.value) as FnFormProps;
 });
+const dialogSlots = computed(() =>
+  Object.fromEntries(
+    Object.entries(resolvedForm.value?.dialog?.slots ?? {}).map(([name, render]) => [name, () => render(getFormContext())])
+  )
+);
 const dialogButtons = computed(() => ({
-  reset: { ...resolvedForm.value?.dialog?.buttons?.reset, onClick: resetForm },
-  cancel: { ...resolvedForm.value?.dialog?.buttons?.cancel, onClick: cancelForm },
-  confirm: { ...resolvedForm.value?.dialog?.buttons?.confirm, loading: formLoading.value, onClick: submitForm },
+  reset: { show: true, ...resolvedForm.value?.dialog?.buttons?.reset, items: bindDialogButtonItems("reset"), click: resetForm },
+  cancel: { show: true, ...resolvedForm.value?.dialog?.buttons?.cancel, items: bindDialogButtonItems("cancel"), click: cancelForm },
+  confirm: { show: true, ...resolvedForm.value?.dialog?.buttons?.confirm, items: bindDialogButtonItems("confirm"), loading: formLoading.value, click: submitForm },
 }));
+function bindDialogButtonItems(key: "reset" | "cancel" | "confirm") {
+  return resolvedForm.value?.dialog?.buttons?.[key]?.items?.map(item => ({
+    ...item,
+    click: () => item.click?.(getFormContext()),
+  }));
+}
 function getFormContext(): FnFormContext {
-  return formContext.value as FnFormContext;
+  return formContext.value;
 }
 function getDialogContext(): FnDialogContext {
   return {
@@ -104,13 +115,13 @@ async function resetForm(): Promise<void> {
   formRef.value?.reset();
   const ctx = getFormContext();
   const button = resolvedForm.value?.dialog?.buttons?.reset;
-  const callback = button?.click || button?.onClick;
+  const callback = button?.click;
   await callback?.(ctx);
   await activeForm.value?.onReset?.(ctx);
 }
 async function cancelForm(): Promise<void> {
   const button = resolvedForm.value?.dialog?.buttons?.cancel;
-  const callback = button?.click || button?.onClick;
+  const callback = button?.click;
   await callback?.(getFormContext());
   close();
 }
@@ -130,7 +141,7 @@ async function submitForm(): Promise<void> {
     const ctx = getFormContext();
     await resolvedForm.value?.onSubmit?.(ctx);
     const button = resolvedForm.value?.dialog?.buttons?.confirm;
-    const callback = button?.click || button?.onClick;
+    const callback = button?.click;
     await callback?.(ctx);
     formResult = ctx.form;
     close();

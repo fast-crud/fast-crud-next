@@ -1,41 +1,45 @@
 <template>
   <div class="fn-table-cell">
-    <FnTableCellRender v-if="cell.show !== false && cell.render" :vnode="cell.render(context)" />
-    <div v-else-if="cell.show !== false && cell.buttons" class="fn-table-cell-buttons">
-      <template v-for="(button, key) in cell.buttons" :key="key"><FnButton v-if="button.show !== false" v-bind="button" :context="context" /></template>
-    </div>
-    <FnComponentRender v-else-if="cell.show !== false && cell.component" :ref="instance => emit('componentRef', instance)" v-bind="componentProps" scope="table-cell" />
+    <FnRender v-if="cell.show !== false && cellRender" :render="renderCell" />
+    <FnComponentRender v-else-if="cell.show !== false && cell.component" :name="componentProps.name" :ref="instance => emit('componentRef', instance)" v-bind="componentProps" scope="table-cell" @update:model-value="updateCellValue" />
     <template v-else-if="cell.show !== false">{{ value ?? "—" }}</template>
   </div>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import FnTableCellRender from "./cell-render";
+import FnRender from "../components/fn-render";
 import FnComponentRender from "../components/fn-component-render";
-import FnButton from "../components/fn-button.vue";
-import { resolveComputedValue } from "../compute";
-import type { FnDynamic, FnTableColumn, FnTableRow, FnTableRowContext } from "../types/index";
-const props = defineProps<{ column: FnDynamic<FnTableColumn<FnTableRow>>; context: FnTableRowContext; value: unknown }>();
+import { updateCellValue as writeCellValue } from "./cell-value";
+import type { FnTableColumn, FnTableRow, FnRowContext } from "../types/index";
+const props = defineProps<{ column: FnTableColumn<FnTableRow> & { key: string }; context: FnRowContext; value: unknown }>();
 const emit = defineEmits<{ componentRef: [instance: object | null] }>();
-const cell = computed(() => resolveComputedValue(props.column, props.context) as FnTableColumn<FnTableRow>);
+const cell = computed(() => props.column);
+const cellRender = computed(() => typeof cell.value.render === "function" ? cell.value.render : undefined);
 const componentProps = computed(() => {
   const component = { ...cell.value.component } as Record<string, any>;
-  if (component.modelValue === undefined && component.value === undefined) {
-    component.value = props.value;
+  const modelProp = component.vModel || "modelValue";
+  if (component.modelValue === undefined) {
+    component.modelValue = component[modelProp] ?? props.value;
+  }
+  if (component[modelProp] === undefined) {
+    component[modelProp] = component.modelValue;
   }
   if (cell.value.dict && component.options === undefined) {
     component.options = cell.value.dict.getOptions().value;
   }
   return component;
 });
+
+function renderCell() {
+  return cellRender.value?.(props.context);
+}
+
+function updateCellValue(value: unknown): void {
+  writeCellValue(props.context.row, props.column.key, value);
+}
 </script>
 <style lang="less">
 .fn-table-cell {
   min-width: 0;
-  .fn-table-cell-buttons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
 }
 </style>

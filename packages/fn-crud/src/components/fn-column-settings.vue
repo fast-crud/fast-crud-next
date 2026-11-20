@@ -4,35 +4,32 @@
       <div class="fn-column-settings-list">
         <div class="fn-column-settings-list-header">
           <label class="fn-column-settings-select-all">
-            <input :ref="setSelectAllRef" :checked="allVisible" type="checkbox" @change="toggleAll(($event.target as HTMLInputElement).checked)" />
-            <span>{{ visibleCount }} / {{ rows.length }}</span>
+            <FnCheckbox :model-value="allVisible" :indeterminate="someVisible && !allVisible" :disabled="editableRows.length === 0" aria-label="全选可设置列" @change="toggleAll" />
+            <span>{{ visibleCount }} / {{ visibleRows.length }}</span>
           </label>
           <span class="fn-column-settings-label">固定 / 排序</span>
         </div>
         <div
-          v-for="(column, index) in rows"
+          v-for="column in visibleRows"
           :key="column.key"
           class="fn-column-settings-row"
-          :class="{ 'is-dragging': draggingKey === column.key, 'is-over': overKey === column.key }"
+          :class="{ 'is-dragging': draggingKey === column.key, 'is-over': overKey === column.key, 'is-disabled': isDisabled(column) }"
           @dragover.prevent="overKey = column.key"
           @drop.prevent="dropColumn(column.key)"
         >
           <label class="fn-column-settings-name">
-            <input v-if="column.setting?.show !== false" v-model="column.show" type="checkbox" :disabled="isDisabled(column)" @change="emitChange" />
+            <FnCheckbox v-model="column.show" :disabled="isDisabled(column)" :aria-label="`显示${column.title}`" />
             <span :title="column.title">{{ column.title }}</span>
           </label>
-          <div v-if="column.setting?.show !== false" class="fn-column-settings-actions">
-            <div class="fn-column-settings-fixed" role="group" :aria-label="`${column.title}固定位置`">
-              <button type="button" :disabled="isDisabled(column)" :class="{ active: column.fixed === 'left' }" :aria-label="`${column.title}固定到左侧`" :aria-pressed="column.fixed === 'left'" title="固定到左侧" @click="setFixed(column, 'left')">
-                <ChevronLeft :size="16" />
-              </button>
-              <button type="button" :disabled="isDisabled(column)" :class="{ active: !column.fixed }" :aria-label="`${column.title}取消固定`" :aria-pressed="!column.fixed" title="取消固定" @click="setFixed(column, undefined)">
-                <X :size="16" />
-              </button>
-              <button type="button" :disabled="isDisabled(column)" :class="{ active: column.fixed === 'right' }" :aria-label="`${column.title}固定到右侧`" :aria-pressed="column.fixed === 'right'" title="固定到右侧" @click="setFixed(column, 'right')">
-                <ChevronRight :size="16" />
-              </button>
-            </div>
+          <div class="fn-column-settings-actions">
+            <FnButtonGroup
+              :model-value="column.fixed || ''"
+              class="fn-column-settings-fixed"
+              :label="`${column.title}固定位置`"
+              :disabled="isDisabled(column)"
+              :options="fixedPositionOptions(column.title)"
+              @update:model-value="value => setFixed(column, value === 'left' || value === 'right' ? value : undefined)"
+            />
             <button
               class="fn-column-settings-grip"
               type="button"
@@ -42,18 +39,19 @@
               title="拖动排序"
               @dragstart="startDrag($event, column.key)"
               @dragend="clearDrag"
-              @keydown="moveWithKeyboard($event, index)"
+              @keydown="moveWithKeyboard($event, column.key)"
             >
               <GripVertical :size="16" />
             </button>
           </div>
         </div>
       </div>
+      <div v-if="props.slots?.bodyBottom" class="fn-column-settings-body-bottom"><FnRender :render="props.slots.bodyBottom" /></div>
     </div>
     <template #footer>
       <div class="fn-column-settings-footer">
-        <button class="fn-column-settings-reset" type="button" @click="emit('reset')"><RotateCcw :size="16" />还原</button>
-        <FnButton class="fn-column-settings-confirm" type="primary" text="确定" :icon="Check" @click="open = false" />
+        <button class="fn-column-settings-reset" type="button" @click="reset"><RotateCcw :size="16" />还原</button>
+        <div class="fn-column-settings-confirm"><FnButtonBase type="primary" text="确定" :icon="Check" @click="confirm" /></div>
       </div>
     </template>
   </FnDrawer>
@@ -62,44 +60,67 @@
 <script setup lang="ts">
 import { Check, ChevronLeft, ChevronRight, GripVertical, RotateCcw, X } from "@lucide/vue";
 import { computed, ref, watch } from "vue";
-import FnButton from "./fn-button.vue";
+import FnButtonBase from "./fn-button-base.vue";
+import FnButtonGroup, { type FnButtonGroupOption } from "./fn-button-group.vue";
+import FnCheckbox from "./fn-checkbox.vue";
 import FnDrawer from "./fn-drawer.vue";
-import type { FnColumnSettingsColumn } from "../types/index";
+import FnRender from "./fn-render";
+import type { FnColumnSettingsColumn, FnSlots } from "../types/index";
 
-const props = defineProps<{ modelValue: boolean; columns: FnColumnSettingsColumn[] }>();
+const props = defineProps<{ modelValue: boolean; columns: FnColumnSettingsColumn[]; slots?: FnSlots }>();
 const emit = defineEmits<{ "update:modelValue": [value: boolean]; "update:columns": [columns: FnColumnSettingsColumn[]]; reset: [] }>();
 const open = computed({ get: () => props.modelValue, set: value => emit("update:modelValue", value) });
 const rows = ref<FnColumnSettingsColumn[]>([]);
+const visibleRows = computed(() => rows.value.filter(column => column.setting?.show !== false));
+const editableRows = computed(() => visibleRows.value.filter(column => !isDisabled(column)));
 const draggingKey = ref<string>();
 const overKey = ref<string>();
-const selectAllInput = ref<HTMLInputElement>();
-const visibleCount = computed(() => rows.value.filter(column => column.show).length);
-const allVisible = computed(() => rows.value.length > 0 && visibleCount.value === rows.value.length);
-const someVisible = computed(() => visibleCount.value > 0);
-
-watch(
-  () => props.columns,
-  columns => {
-    rows.value = columns.map(column => ({ ...column }));
-  },
-  { immediate: true, deep: true }
-);
-watch(
-  [allVisible, someVisible],
-  () => {
-    if (selectAllInput.value) {
-      selectAllInput.value.indeterminate = someVisible.value && !allVisible.value;
-    }
-  },
-  { flush: "post", immediate: true }
-);
-
-function setSelectAllRef(element: Element | null): void {
-  selectAllInput.value = (element as HTMLInputElement | null) || undefined;
+const visibleCount = computed(() => visibleRows.value.filter(column => column.show).length);
+const allVisible = computed(() => editableRows.value.length > 0 && editableRows.value.every(column => column.show));
+const someVisible = computed(() => editableRows.value.some(column => column.show));
+const committedRows = computed(() => props.columns.map(column => (column.setting ? { ...column, setting: { ...column.setting } } : { ...column })));
+function fixedPositionOptions(title: string): FnButtonGroupOption[] {
+  return [
+    { value: "left", icon: ChevronLeft, title: "固定到左侧", ariaLabel: `${title}固定到左侧` },
+    { value: "", icon: X, title: "取消固定", ariaLabel: `${title}取消固定` },
+    { value: "right", icon: ChevronRight, title: "固定到右侧", ariaLabel: `${title}固定到右侧` },
+  ];
 }
 
-function emitChange(): void {
+watch(
+  [() => props.modelValue, committedRows],
+  ([isOpen, columns], [wasOpen, previous]) => {
+    if (!isOpen || !wasOpen || !previous || columns.length !== previous.length || columns.some((column, index) => {
+      const old = previous[index];
+      return column.key !== old.key || column.show !== old.show || column.fixed !== old.fixed;
+    })) {
+      copyCommittedRows();
+      clearDrag();
+      return;
+    }
+
+    // 抽屉打开时更新列配置，保留仍可编辑的草稿。
+    const byKey = new Map(columns.map(column => [column.key, column]));
+    rows.value = rows.value.map(draft => {
+      const column = byKey.get(draft.key)!;
+      return isDisabled(column) ? { ...column } : { ...column, show: draft.show, fixed: draft.fixed };
+    });
+  },
+  { immediate: true }
+);
+function copyCommittedRows(): void {
+  rows.value = committedRows.value.map(column => ({ ...column }));
+}
+
+function reset(): void {
+  copyCommittedRows();
+  clearDrag();
+  emit("reset");
+}
+
+function confirm(): void {
   emit("update:columns", rows.value.map(column => ({ ...column })));
+  open.value = false;
 }
 
 function isDisabled(column: FnColumnSettingsColumn): boolean {
@@ -107,10 +128,9 @@ function isDisabled(column: FnColumnSettingsColumn): boolean {
 }
 
 function toggleAll(visible: boolean): void {
-  for (const column of rows.value) {
-    if (!isDisabled(column) && column.setting?.show !== false) column.show = visible;
+  for (const column of editableRows.value) {
+    column.show = visible;
   }
-  emitChange();
 }
 
 function setFixed(column: FnColumnSettingsColumn, fixed: "left" | "right" | undefined): void {
@@ -132,7 +152,6 @@ function setFixed(column: FnColumnSettingsColumn, fixed: "left" | "right" | unde
   } else {
     rows.value.splice(oldIndex, 0, movingColumn);
   }
-  emitChange();
 }
 
 function startDrag(event: DragEvent, key: string): void {
@@ -187,7 +206,6 @@ function dropColumn(targetKey: string): void {
     }
     rows.value = reorderedRows;
     clearDrag();
-    emitChange();
     return;
   }
 
@@ -202,21 +220,21 @@ function dropColumn(targetKey: string): void {
   }
   rows.value.splice(insertIndex, 0, sourceColumn);
   clearDrag();
-  emitChange();
 }
 
-function moveWithKeyboard(event: KeyboardEvent, index: number): void {
+function moveWithKeyboard(event: KeyboardEvent, key: string): void {
   if (!event.altKey || !["ArrowUp", "ArrowDown"].includes(event.key)) {
     return;
   }
   event.preventDefault();
+  const index = rows.value.findIndex(column => column.key === key);
+  if (index < 0) return;
   const targetIndex = event.key === "ArrowUp" ? index - 1 : index + 1;
   if (targetIndex < 0 || targetIndex >= rows.value.length || isDisabled(rows.value[index]) || isDisabled(rows.value[targetIndex])) {
     return;
   }
   const [column] = rows.value.splice(index, 1);
   rows.value.splice(targetIndex, 0, column);
-  emitChange();
 }
 
 function clearDrag(): void {
@@ -229,6 +247,10 @@ function clearDrag(): void {
 .fn-column-settings-content {
   padding: 28px 22px 18px;
   font-size: 14px;
+}
+
+.fn-column-settings-body-bottom {
+  margin-top: 16px;
 }
 
 .fn-column-settings-list {
@@ -259,49 +281,6 @@ function clearDrag(): void {
   min-width: 0;
   align-items: center;
   gap: 10px;
-  input {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    flex: none;
-    appearance: none;
-    border: 1px solid var(--fn-color-border);
-    border-radius: 6px;
-    background: var(--fn-color-bg-container);
-    cursor: pointer;
-    &:checked {
-      border-color: var(--fn-color-primary);
-      background: var(--fn-color-primary);
-    }
-    &:checked::after {
-      position: absolute;
-      top: 2px;
-      left: 5px;
-      width: 5px;
-      height: 9px;
-      border: solid #fff;
-      border-width: 0 2px 2px 0;
-      content: "";
-      transform: rotate(45deg);
-    }
-    &:indeterminate {
-      border-color: var(--fn-color-primary);
-      background: var(--fn-color-primary);
-    }
-    &:indeterminate::after {
-      position: absolute;
-      top: 7px;
-      right: 3px;
-      left: 3px;
-      height: 2px;
-      background: #fff;
-      content: "";
-    }
-    &:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--fn-color-primary) 50%, transparent);
-      outline-offset: 2px;
-    }
-  }
 }
 
 .fn-column-settings-select-all {
@@ -337,6 +316,22 @@ function clearDrag(): void {
   }
 }
 
+.fn-column-settings-select-all .fn-checkbox,
+.fn-column-settings-name .fn-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.fn-column-settings-select-all .fn-checkbox-control,
+.fn-column-settings-name .fn-checkbox-control {
+  width: 18px;
+  height: 18px;
+}
+
+.fn-column-settings-row.is-disabled .fn-column-settings-name span {
+  color: var(--fn-color-text-tertiary);
+}
+
 .fn-column-settings-actions {
   display: flex;
   align-items: center;
@@ -364,12 +359,19 @@ function clearDrag(): void {
     &:last-child {
       border-right: 0;
     }
-    &:hover:not(.active) {
+    &:hover:enabled:not(.active) {
       background: var(--fn-color-fill-secondary);
     }
     &.active {
       color: #fff;
       background: var(--fn-color-primary);
+    }
+    &:disabled {
+      color: var(--fn-color-text-tertiary);
+      cursor: not-allowed;
+      &.active {
+        background: var(--fn-color-fill-secondary);
+      }
     }
     &:focus-visible {
       position: relative;
@@ -392,9 +394,13 @@ function clearDrag(): void {
   color: var(--fn-color-text-tertiary);
   background: transparent;
   cursor: grab;
-  &:hover {
+  &:hover:enabled {
     color: var(--fn-color-text);
     background: var(--fn-color-fill-secondary);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
   }
   &:active {
     cursor: grabbing;
@@ -437,8 +443,13 @@ function clearDrag(): void {
 
 .fn-column-settings-confirm {
   flex: 1;
+  .fn-button-wrap {
+    display: flex;
+    width: 100%;
+  }
   .fn-button {
     width: 100%;
+    height: 40px;
     min-height: 40px;
   }
 }

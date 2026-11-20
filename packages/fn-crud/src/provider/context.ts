@@ -1,6 +1,6 @@
 import type { ComputedRef, InjectionKey } from "vue";
 import { provide } from "vue";
-import type { FnCrudOptions, FnCrudSearchState, FnTableSelectionContext, FnTableProps } from "../types/index";
+import type { FnCrudOptions, FnCrudSearchState, FnTableProps } from "../types/index";
 import { createFnNotification } from "../notification/fn-notification";
 
 export interface FnFeedbackApi {
@@ -55,7 +55,6 @@ export const fnCrudContext = new FnCrudContext();
 export const fnUiServicesKey: InjectionKey<FnUiServices> = Symbol("FnUiServices");
 
 export const fnCrudSearchKey: InjectionKey<FnCrudSearchState> = Symbol("FnCrudSearch");
-export const fnCrudTableSelectionKey: InjectionKey<FnTableSelectionContext> = Symbol("FnCrudTableSelection");
 export const fnTableSizeKey: InjectionKey<ComputedRef<Pick<FnTableProps, "size" | "density">>> = Symbol("FnTableSize");
 export function provideFnUiServices(): void {
   provide(fnUiServicesKey, uiContext.getServices());

@@ -33,6 +33,7 @@ const emit = defineEmits<{
 const open = ref(false);
 const selected = ref<FnTableRow>();
 const draft = ref<FnTableRow>();
+const pageRows = new Map<string, FnTableRow>();
 const hasValue = computed(() => props.modelValue !== undefined && props.modelValue !== null && props.modelValue !== "");
 function getKey(row: FnTableRow): string | number | undefined {
   const value = row[props.dict.value || "id"];
@@ -90,8 +91,8 @@ const tableOptions = computed<FnCrudOptions<FnTableRow>>(() => ({
   rowSelect: {
     type: "single",
     crossPage: false,
-    onChange: (_keys: Array<string | number>, rows: FnTableRow[]) => {
-      draft.value = rows[0];
+    onChange: keys => {
+      draft.value = pageRows.get(String(keys[0]));
     },
   },
   rowHandle: { show: false },
@@ -100,7 +101,13 @@ const tableOptions = computed<FnCrudOptions<FnTableRow>>(() => ({
   request: {
     pageRequest: async (query: FnTablePageQuery): Promise<FnTablePageResult<FnTableRow>> => {
       try {
-        return await props.crudOptions.request.pageRequest(query);
+        const result = await props.crudOptions.request.pageRequest(query);
+        pageRows.clear();
+        for (const row of result.records || []) {
+          const key = getKey(row);
+          if (key !== undefined) pageRows.set(String(key), row);
+        }
+        return result;
       } catch {
         notification.error({ message: "列表加载失败，请重新查询" });
         return { records: [], total: 0 };

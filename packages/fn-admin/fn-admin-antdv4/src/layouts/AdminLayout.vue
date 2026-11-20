@@ -49,7 +49,7 @@ function onMenuClick({ key }: { key: string | number }): void { const path = Str
   </Layout>
 </template>
 
-<style scoped lang="less">
+<style lang="less">
 .admin-shell {
   min-height: 100vh;
   background: #f5f7fb;

@@ -1,9 +1,10 @@
 import { ref } from "vue";
 import type { DictOption, DictOptionsRef, FnDictStore, FnTableRow } from "./types/index";
+import { UnMergeable } from "./use/use-merge";
 
 export type { DictComponentType, DictOption, DictOptionsRef as DictPropsRef, DictValue, GetDictOptionsRef as GetDictPropsRef } from "./types/index";
 
-export class DictStore implements FnDictStore {
+export class DictStore extends UnMergeable implements FnDictStore {
   __options: DictOptionsRef = ref([]);
   value?: string;
   label?: string | ((row: FnTableRow) => string);
@@ -19,6 +20,7 @@ export class DictStore implements FnDictStore {
     getNodesByValues?: (values: Array<string | number>) => Promise<FnTableRow[]>;
     immediate?: boolean;
   }) {
+    super();
     this.__options.value = opts.data;
     this.value = opts.value;
     this.label = opts.label;

@@ -6,6 +6,7 @@ import { api as requestMockApi } from './basis/request-mock/api'
 import { api as credentialsApi } from './dict/credentials/api'
 import { api as selectionApi } from './feature/selection/api'
 import { api as conditionalApi } from './form/conditional/api'
+import { api as formSlotsApi } from './form/slots/api'
 
 registerMockModules(import.meta.glob<{ default?: Array<{ path: string; handle: (request: any) => any }> }>('./**/mock.ts', { eager: true }))
 
@@ -20,9 +21,10 @@ describe('Ant Design Vue CRUD page mocks', () => {
       credentialsApi.pageRequest(query),
       selectionApi.pageRequest(query),
       conditionalApi.pageRequest(query),
+      formSlotsApi.pageRequest(query),
     ])
 
-    expect(results.map((result) => result.total)).toEqual([5, 3, 12, 8, 6, 7])
+    expect(results.map((result) => result.total)).toEqual([5, 3, 12, 8, 6, 7, 4])
     expect(results.every((result) => result.records.length > 0)).toBe(true)
   })
 

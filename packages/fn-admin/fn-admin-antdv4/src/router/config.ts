@@ -8,6 +8,7 @@ import RequestMockCrud from "../views/crud/basis/request-mock/index.vue";
 import DictionaryCrud from "../views/crud/dict/credentials/index.vue";
 import SelectionCrud from "../views/crud/feature/selection/index.vue";
 import ConditionalFormCrud from "../views/crud/form/conditional/index.vue";
+import FormSlotsCrud from "../views/crud/form/slots/index.vue";
 import ComponentComparisonView from "../views/ComponentComparisonView.vue";
 
 export type AdminPageConfig = {
@@ -34,6 +35,7 @@ export const adminPageConfig: AdminPageConfig[] = [
       { key: "/crud/dict/credentials", path: "/crud/dict/credentials", title: ["字典与筛选", "Dictionary and filters"], component: DictionaryCrud },
       { key: "/crud/feature/selection", path: "/crud/feature/selection", title: ["跨页批量操作", "Cross-page batch actions"], component: SelectionCrud },
       { key: "/crud/form/conditional", path: "/crud/form/conditional", title: ["条件表单", "Conditional forms"], component: ConditionalFormCrud },
+      { key: "/crud/form/slots", path: "/crud/form/slots", title: ["表单插槽", "Form slots"], component: FormSlotsCrud },
     ],
   },
   { key: "/components/table-buttons", path: "/components/table-buttons", title: ["组件对比", "Component comparison"], icon: Settings, component: ComponentComparisonView },

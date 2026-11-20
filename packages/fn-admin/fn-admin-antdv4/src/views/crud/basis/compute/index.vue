@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, h, markRaw, reactive, ref } from "vue";
+import { computed, defineComponent, h, markRaw, reactive, ref } from "vue";
 import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type Order } from "./api";
 
@@ -22,7 +22,7 @@ const numberInput = { name: inputComponent, vModel: "modelValue", type: "number"
 
 const crudState = reactive<FnCrudState<Order>>({
   id: "antdv-compute-orders",
-  heading: { title: "套餐动态计价", description: "切换自定义单价可编辑本行单价，总价随数量和单价实时更新。" },
+  heading: { title: "动态计算示例", description: "切换自定义单价并调整数量，查看订单总价实时计算。" },
   table: { rowKey: "id", minWidth: 920 },
   rowHandle: { width: 140 },
   columns: {
@@ -35,15 +35,11 @@ const crudState = reactive<FnCrudState<Order>>({
       cell: {
         order: 2,
         width: 90,
-        component: compute(({ row }: { row?: Order }) => ({
+        component: {
           ...numberInput,
-          modelValue: row?.quantity,
           "aria-label": "数量",
-          disabled: disabledRef.value,
-          "onUpdate:modelValue": (value: string) => {
-            if (row) row.quantity = Number(value);
-          },
-        })),
+          disabled: disabledRef,
+        },
       },
     },
     customPrice: {
@@ -53,38 +49,28 @@ const crudState = reactive<FnCrudState<Order>>({
       cell: {
         order: 3,
         width: 110,
-        component: compute(({ row }: { row?: Order }) => ({
-          name: PriceSwitch,
-          modelValue: Boolean(row?.customPrice),
-          "onUpdate:modelValue": (value: boolean) => {
-            if (row) row.customPrice = value;
-          },
-        })),
+        component: { name: PriceSwitch },
       },
     },
     unitPrice: {
       key: "unitPrice",
       title: "单价",
-      form: compute(({ form }) => ({
-        show: Boolean(form?.customPrice),
+      form: {
+        show: compute(({ form }) => Boolean(form?.customPrice)),
         value: 100,
         component: { ...numberInput, id: "unitPrice" },
-      })),
+      },
       cell: {
         order: 4,
         width: 100,
-        component: compute(({ row }: { row?: Order }) => ({
+        component: {
           ...numberInput,
-          modelValue: row?.unitPrice,
           "aria-label": "单价",
-          disabled: !row?.customPrice,
-          "onUpdate:modelValue": (value: string) => {
-            if (row) row.unitPrice = Number(value);
-          },
-        })),
+          disabled: compute(({ row }: { row?: Order }) => !row?.customPrice),
+        },
       },
     },
-    tier: { key: "tier", title: "计价层级", form: compute(() => ({ value: tier.value })), cell: { order: 5, width: 110 } },
+    tier: { key: "tier", title: "计价层级", form: { value: computed(() => tier.value) }, cell: { order: 5, width: 110 } },
     total: {
       key: "total",
       title: "动态总价",
@@ -98,11 +84,12 @@ const crudState = reactive<FnCrudState<Order>>({
   actionbar: {
     buttons: {
       toggleQuantity: {
-        get text() {
+        text: computed(() => {
           return disabledRef.value ? "启用数量输入" : "禁用数量输入";
-        },
+        }),
         type: "default",
-        onClick: () => {
+        order: 10,
+        click: () => {
           disabledRef.value = !disabledRef.value;
         },
       },
@@ -112,7 +99,7 @@ const crudState = reactive<FnCrudState<Order>>({
   pagination: { pageSize: 5 },
   request: api,
 });
-useFnCrud(crudState);
+useFnCrud({ state: crudState });
 </script>
 
 <template>
@@ -129,7 +116,7 @@ useFnCrud(crudState);
   </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="less">
 .compute-page {
   .tier-switch {
     display: flex;
@@ -150,7 +137,7 @@ useFnCrud(crudState);
     }
   }
 
-  :deep(.compute-price-switch) {
+  .compute-price-switch {
     appearance: none;
     display: inline-flex;
     align-items: center;

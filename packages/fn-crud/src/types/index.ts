@@ -35,7 +35,7 @@ export interface FnFormInstance<Form = Record<string, any>> {
   save: () => Promise<any>;
   reset: () => Form;
   getForm: () => Form;
-  getContext: () => FnFormContext;
+  getContext: () => FnFormContext<Form>;
   validate: () => Promise<boolean>;
 }
 
@@ -55,7 +55,7 @@ export interface FnSearchColumnResolved extends FnSearchColumn {
 }
 
 export interface FnModalService {
-  openDialog<Result = unknown>(Props: FnDialogProps<Result>): Promise<Result | undefined>;
+  openDialog<Result = unknown>(Props: FnDialogProps<any>): Promise<Result | undefined>;
 }
 export interface FnModalProps {
   open?: boolean;
@@ -63,7 +63,7 @@ export interface FnModalProps {
   width?: number | string;
   draggable?: boolean;
   confirmLoading?: boolean;
-  buttons?: Partial<Record<"reset" | "cancel" | "confirm", FnButtonProps>>;
+  buttons?: Partial<Record<"reset" | "cancel" | "confirm", FnButtonProps<void>>>;
   footer?: boolean | null;
   slots?: FnSlots;
 }
@@ -74,7 +74,7 @@ export interface FnModalInstance {
   setFullscreen: (value: boolean) => void;
 }
 export type FnRenderSlot = (ctx?: Record<string, any>) => VNodeChild;
-export type FnSlots = Record<string, FnRenderSlot>;
+export type FnSlots = Partial<Record<string, FnRenderSlot>>;
 export interface FnDialogRecord {
   id: number;
   open: boolean;
@@ -84,50 +84,54 @@ export interface FnDialogRecord {
   result?: any;
 }
 
-export interface FnFormContext {
-  type: "form" | "row" | "search";
-  form?: Record<string, any>; //添加、编辑、search表单数据 /行数据
-  row?: Record<string, any>; //行数据
-  formRef?: any;
-  mode?: string; //add ,edit
-  columns?: Record<string, any>; //表单列配置
-  index?: number;
-  getComponentRef?: (key?: string) => any; //字段组件ref
-  validate?: () => Promise<boolean>;
-  reset?: () => void;
-  [key: string]: any;
-}
-
-export interface FnComputeContext<Row = any, Form = Record<string, any>> {
-  type: "row" | "search" | "form";
-  row?: Row;
-  index?: number;
-  getComponentRef?: (key?: string) => any;
+export interface FnFormContext<Form = Record<string, any>> {
+  type: "form";
   form?: Form;
-  formRef?: FnFormInstance<Form>;
+  formRef?: FnFormContextRef;
   mode?: string;
+  columns?: Record<string, FnDynamic<FnFormColumn>>;
   validate?: () => Promise<boolean>;
   reset?: () => void;
-  columns?: Record<string, any>;
-  dialog?: FnDialogContext;
+  dialog?: FnDialogContext<Form>;
   submit?: () => Promise<void>;
   close?: () => void;
-  [key: string]: any;
 }
 
-export interface FnTableRowContext<Row = FnTableRow> extends FnComputeContext<Row, Row> {
+export interface FnFormContextRef {
+  validate: () => Promise<boolean>;
+  clearValidate?: () => void;
+}
+
+export interface FnRowContext<Row = FnTableRow> {
   type: "row";
   row: Row;
   form: Row;
   index: number;
+  getComponentRef?: (key?: string) => unknown;
 }
 
-export interface FnSearchContext {
+export interface FnSearchContext<Form = Record<string, any>> {
   type: "search";
-  form: Record<string, any>;
-  columns: Record<string, FnSearchColumn>;
+  form: Form;
+  columns: Record<string, FnDynamic<FnSearchColumn>>;
   reset: () => void;
   search: () => void;
+}
+
+export interface FnComputeContext<Row = any, Form = Record<string, any>, SearchForm = Record<string, any>> {
+  type: "row" | "search" | "form";
+  row?: Row;
+  index?: number;
+  getComponentRef?: (key?: string) => unknown;
+  form?: Row | Form | SearchForm;
+  formRef?: FnFormContextRef;
+  mode?: string;
+  validate?: () => Promise<boolean>;
+  reset?: () => void;
+  columns?: Record<string, any>;
+  dialog?: FnDialogContext<Form>;
+  submit?: () => Promise<void>;
+  close?: () => void;
 }
 
 export interface FnCrudSearchState {
@@ -140,24 +144,24 @@ export interface FnComputeValue<T = any> {
   readonly computeFn: (context: FnComputeContext) => T;
 }
 
-export type FnDialogContext = {
+export type FnDialogContext<Form = Record<string, any>> = {
   close: () => void;
   confirm: () => void;
   loading: Ref<boolean>;
   open: Ref<boolean>;
-  formCtx?: FnFormContext;
+  formCtx?: FnFormContext<Form>;
 };
 
-export interface FnDialogProps<Result = any> {
+export interface FnDialogProps<Form = Record<string, any>> {
   title: string;
   body?: () => VNodeChild;
   width?: number | string;
   draggable?: boolean;
-  buttons?: Partial<Record<"reset" | "cancel" | "confirm", FnButtonProps>>;
+  buttons?: Partial<Record<"reset" | "cancel" | "confirm", FnButtonProps<FnFormContext<Form>>>>;
   footer?: boolean | null;
-  onOpen?: (ctx: FnDialogContext) => void;
-  onClose?: (ctx: FnDialogContext) => void;
-  onOpened?: (ctx: FnDialogContext) => void;
+  onOpen?: (ctx: FnDialogContext<Form>) => void;
+  onClose?: (ctx: FnDialogContext<Form>) => void;
+  onOpened?: (ctx: FnDialogContext<Form>) => void;
   slots?: FnSlots;
 }
 
@@ -172,8 +176,8 @@ export interface FnFormProps<Form = Record<string, any>> {
   labelCol?: Record<string, any>;
   wrapperCol?: Record<string, any>;
   formProps?: Record<string, any>;
-  onSubmit?: (ctx: FnFormContext) => any | Promise<any>;
-  onReset?: (ctx: FnFormContext) => any | Promise<any>;
+  onSubmit?: (ctx: FnFormContext<Form>) => any | Promise<any>;
+  onReset?: (ctx: FnFormContext<Form>) => any | Promise<any>;
   slots?: FnSlots;
 }
 
@@ -190,10 +194,10 @@ export type FnComponentProps = {
 
 export interface FnFormColumn {
   key?: string;
-  title?: string;
+  title?: FnDynamic<string>;
   order?: number;
   span?: number;
-  show?: boolean;
+  show?: FnDynamic<boolean>;
   component?: FnComponentProps;
   rules?: any[];
   itemProps?: Record<string, any>;
@@ -202,33 +206,38 @@ export interface FnFormColumn {
   [key: string]: any;
 }
 
-export interface FnButtonItem {
+export interface FnButtonItem<Context = void> {
   key: string;
   label: string;
   show?: boolean;
   disabled?: boolean;
   danger?: boolean;
   icon?: Component;
-  click?: (context: FnFormContext) => void;
-  onClick?: (context: FnFormContext) => void;
+  click?: (context: Context) => void;
 }
 
-export interface FnButtonProps {
-  context?: FnFormContext;
-  show?: boolean;
+export interface FnButtonBaseProps {
+  text?: FnRefable<string>;
   type?: string;
-  text?: string;
   icon?: Component;
   shape?: "default" | "circle" | "round";
-  buttonType?: "button" | "dropdown";
   tooltip?: string | { title: string };
   primaryColor?: string;
   loading?: boolean;
   disabled?: boolean;
   danger?: boolean;
-  click?: (ctx: FnFormContext) => void;
-  onClick?: (ctx: FnFormContext) => void;
-  items?: FnButtonItem[];
+}
+
+export interface FnButtonProps<Context = void> extends FnButtonBaseProps {
+  show?: boolean;
+  order?: number;
+  buttonType?: "button" | "dropdown";
+  click?: (context: Context) => void;
+  items?: FnButtonItem<Context>[];
+}
+
+export interface FnDropdownButtonProps<Context = void> extends FnButtonBaseProps {
+  items: FnButtonItem<Context>[];
 }
 
 export interface FnCrudColumn<Row = any> {
@@ -241,10 +250,11 @@ export interface FnCrudColumn<Row = any> {
 }
 
 export interface FnTableColumn<Row = any> {
-  buttons?: Record<string, FnButtonProps>;
+  buttons?: Record<string, FnButtonProps<FnRowContext<Row>>>;
   show?: boolean;
   title?: string;
   width?: number | string;
+  resizable?: boolean;
   class?: string;
   align?: "left" | "center" | "right";
   ellipsis?: boolean;
@@ -253,7 +263,7 @@ export interface FnTableColumn<Row = any> {
   order?: number;
   setting?: FnColumnSettingControl;
   component?: Record<string, any>;
-  render?: (ctx: FnTableRowContext<Row>) => VNodeChild;
+  render?: FnDynamic<(ctx: FnRowContext<Row>) => VNodeChild>;
   slots?: FnSlots;
 }
 
@@ -310,8 +320,7 @@ export interface FnTablePageResult<Row = any> {
 
 export interface FnActionbarProps {
   show?: boolean;
-  buttons: Record<string, FnButtonProps>;
-  slots?: FnSlots;
+  buttons: Record<string, FnButtonProps<void>>;
 }
 
 export interface FnPaginationProps {
@@ -331,12 +340,13 @@ export interface FnPaginationTarget {
   pageSize: number;
 }
 
-export interface FnRowSelectOptions<Row = FnTableRow> {
+export interface FnRowSelectOptions {
   title?: string;
   type?: "single" | "multiple";
-  onChange?: (keys: Array<string | number>, rows: Row[]) => void;
+  fixed?: "left" | "right" | null;
+  selectedRowKeys?: Array<string | number>;
+  onChange?: (keys: Array<string | number>) => void;
   crossPage?: boolean;
-  initialSelectedKeys?: Array<string | number>;
 }
 
 export interface FnTableProps {
@@ -363,14 +373,8 @@ export interface FnCrudPaginationOptions extends FnPaginationProps {
   "onUpdate:pageSize"?: (pageSize: number) => void;
 }
 
-export interface FnTableSelectionContext {
-  title?: string;
-  type?: "single" | "multiple";
-  selectedRowKeys: Readonly<Ref<Array<string | number>>>;
-  changeSelection: (change: FnTableRowSelectionChange<FnTableRow>) => void;
-}
-
 export interface FnTabsProps {
+  show?: boolean;
   refCol?: string;
   tabs?: Record<string, DictOption>; //以refCol引用生成之后再与tabs合并
   slots?: FnSlots;
@@ -381,17 +385,22 @@ export interface FnHeadingProps {
   description?: string;
   slots?: FnSlots;
 }
+export interface FnToolbarOptions {
+  show?: boolean;
+  buttons?: Record<string, FnButtonProps<void>>;
+  slots?: FnSlots;
+}
 export interface FnCrudOptions<Row = any> {
   onToggleDensity?: () => void;
   id?: string;
   preferenceStorage?: FnCrudPreferenceStorage;
   rowHandle?: FnTableColumn<Row>;
-  rowSelect?: FnRowSelectOptions<Row>;
+  rowSelect?: FnRowSelectOptions;
   columns: Record<string, FnCrudColumn<Row>>;
   layout?: FnTableLayoutRow[];
   search?: Omit<FnSearchProps, "columns"> & { columns?: Record<string, FnSearchColumn> };
   actionbar?: FnActionbarProps;
-  toolbar?: FnActionbarProps;
+  toolbar?: FnToolbarOptions;
   heading?: FnHeadingProps;
   tabs?: FnTabsProps;
   form?: FnDynamic<Omit<FnFormDialogOptions, "columns">>;
@@ -433,8 +442,6 @@ export interface FnCrudExpose<Row = any> {
   table: {
     /** Returns all selected keys, including keys retained across pages. */
     getSelectedRowKeys: () => Array<string | number>;
-    /** Returns only selected rows present on the current page. */
-    getSelectedRows: () => Row[];
     clearSelection: () => void;
     refresh: () => Promise<void>;
     delete: (rowOrId: Row | string | number) => Promise<void>;
@@ -442,7 +449,7 @@ export interface FnCrudExpose<Row = any> {
   };
 }
 
-export type FnTableLayoutItem = "header" | "tabs" | "search" | "actionbar" | "toolbar" | "";
+export type FnTableLayoutItem = "header" | "heading" | "tabs" | "search" | "actionbar" | "toolbar" | "";
 export interface FnTableLayoutCol {
   type: FnTableLayoutItem;
   style?: CSSProperties;
@@ -464,7 +471,7 @@ export interface FnSearchColumn {
 export interface FnSearchProps {
   show?: boolean;
   columns: Record<string, FnDynamic<FnSearchColumn>>;
-  buttons?: Record<string, FnButtonProps>;
+  buttons?: Record<string, FnButtonProps<FnSearchContext>>;
   formProps?: Record<string, any>;
   slots?: FnSlots;
 }

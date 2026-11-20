@@ -1,5 +1,5 @@
-import { computed, type ComputedRef } from "vue";
-import type { FnComputeContext, FnComputeValue } from "./types/index";
+import { computed, isRef, unref, type ComputedRef } from "vue";
+import type { FnComputeContext, FnComputeValue } from "../types/index";
 
 export function compute<T>(computeFn: (context: FnComputeContext) => T): FnComputeValue<T> {
   return { __fnCompute: true, computeFn };
@@ -22,6 +22,9 @@ function isAtomicObject(value: Record<string, any>) {
 }
 
 function resolveValue(value: any, context: FnComputeContext, seen: WeakMap<object, any>): any {
+  if (isRef(value)) {
+    return resolveValue(unref(value), context, seen);
+  }
   if (isComputeValue(value)) {
     return resolveValue(value.computeFn(context), context, seen);
   }

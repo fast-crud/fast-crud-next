@@ -58,10 +58,37 @@ describe("FnModal footer 默认值", () => {
   });
   it("未配置 footer 时不能被 Vue Boolean prop 自动转成 false", async () => {
     expect(await resolveFooter({})).toBeUndefined();
+    expect(await resolveFooter({ footer: undefined })).toBeUndefined();
   });
   it("显式 false/null 仍然隐藏 footer", async () => {
     expect(await resolveFooter({ footer: false })).toBe(false);
     expect(await resolveFooter({ footer: null })).toBeNull();
+  });
+});
+
+describe("FnModal 插槽渲染", () => {
+  it("合并 props.slots 与真实插槽，并为 footer 插槽提供动态上下文", () => {
+    expect(descriptor.template?.content).toContain(":get-context=\"getSlotContext\"");
+    expect(script.content).toContain("? useSlots() : {}");
+    expect(script.content).toContain("function getSlotContext()");
+  });
+
+  it("为所有配置型 slots 提供 modal 上下文 getter", () => {
+    expect(descriptor.template?.content).toContain(":get-context=\"getSlotContext\"");
+    expect(script.content).toContain("function getSlotContext()");
+    expect(script.content).not.toContain("getContext");
+    for (const slotName of ["headerActionLeft", "headerActionRight", "bodyLeft", "bodyRight"]) {
+      expect(descriptor.template?.content).toContain(`slots?.${slotName}`);
+    }
+  });
+
+  it("将 headerRight 放在标题右侧，并移除 actionLeft/actionRight 插槽", () => {
+    const template = descriptor.template?.content ?? "";
+    const titleGroup = template.match(/class="fn-modal-title-group"[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? "";
+
+    expect(titleGroup).toContain("slots?.headerRight");
+    expect(template).not.toContain("slots?.actionLeft");
+    expect(template).not.toContain("slots?.actionRight");
   });
 });
 

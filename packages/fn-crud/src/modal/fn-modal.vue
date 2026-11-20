@@ -3,11 +3,18 @@
   <div v-if="props.open" class="fn-modal-mask" @mousedown.self="close">
     <div ref="modalElementRef" :class="['fn-modal', { 'fn-modal-maximized': fullscreenState }]" :style="{ width: fullscreenState ? '100%' : typeof width === 'number' ? `${width}px` : width }" v-bind="$attrs">
       <div ref="headerRef" class="fn-modal-titlebar">
-        <slot name="headerLeft"><FnRender v-if="slots?.headerLeft" :render="slots.headerLeft" /></slot>
-        <div class="fn-modal-title font-bold">
-          <slot name="title">{{ title }}</slot>
+        <div class="fn-modal-title-group">
+          <FnRender v-if="slots?.headerLeft" :render="slots.headerLeft" :get-context="getSlotContext" />
+          <div class="fn-modal-title">
+            <FnRender v-if="slots?.title" :render="slots.title" :get-context="getSlotContext" />
+            <template v-else>{{ title }}</template>
+          </div>
+          <FnRender v-if="slots?.headerRight" :render="slots.headerRight" :get-context="getSlotContext" />
         </div>
+
+
         <div class="fn-modal-titlebar-actions">
+          <FnRender v-if="slots?.headerActionLeft" :render="slots.headerActionLeft" :get-context="getSlotContext" />
           <button type="button" title="最大化" @click.stop="toggleMaximized">
             <Minimize2 v-if="fullscreenState" :size="16" />
             <Maximize2 v-else :size="16" />
@@ -15,23 +22,28 @@
           <button type="button" title="关闭" @click.stop="close">
             <X :size="16" />
           </button>
+          <FnRender v-if="slots?.headerActionRight" :render="slots.headerActionRight" :get-context="getSlotContext" />
         </div>
-        <slot name="headerRight"><FnRender v-if="slots?.headerRight" :render="slots.headerRight" /></slot>
+
       </div>
       <div class="fn-modal-body">
-        <slot name="bodyTop"><FnRender v-if="slots?.bodyTop" :render="slots.bodyTop" /></slot><slot v-if="props.open" /><slot name="bodyBottom"><FnRender v-if="slots?.bodyBottom" :render="slots.bodyBottom" /></slot>
+        <FnRender v-if="slots?.bodyTop" :render="slots.bodyTop" :get-context="getSlotContext" />
+        <div class="fn-modal-body-content">
+          <FnRender v-if="slots?.bodyLeft" :render="slots.bodyLeft" :get-context="getSlotContext" />
+          <div class="fn-modal-body-main">
+            <FnRender v-if="props.open && slots?.default" :render="slots.default" :get-context="getSlotContext" />
+          </div>
+          <FnRender v-if="slots?.bodyRight" :render="slots.bodyRight" :get-context="getSlotContext" />
+        </div>
+        <FnRender v-if="slots?.bodyBottom" :render="slots.bodyBottom" :get-context="getSlotContext" />
       </div>
       <div v-if="footer !== null && footer !== false" class="fn-modal-footer">
-        <slot name="footerLeft"><FnRender v-if="slots?.footerLeft" :render="slots.footerLeft" /></slot>
-        <slot name="actionLeft"><FnRender v-if="slots?.actionLeft" :render="slots.actionLeft" /></slot>
-        <slot name="footer">
-          <FnRender v-if="slots?.footer" :render="slots.footer" :ctx="{ close, confirm: () => $emit('confirm'), loading: confirmLoading }" />
-          <template v-else>
-            <template v-for="(button, key) in buttonProps" :key="key"><FnButton v-if="button.show !== false" v-bind="button" /></template>
-          </template>
-        </slot>
-        <slot name="actionRight"><FnRender v-if="slots?.actionRight" :render="slots.actionRight" /></slot>
-        <slot name="footerRight"><FnRender v-if="slots?.footerRight" :render="slots.footerRight" /></slot>
+        <FnRender v-if="slots?.footerLeft" :render="slots.footerLeft" :get-context="getSlotContext" />
+        <FnRender v-if="slots?.footer" :render="slots.footer" :get-context="getSlotContext" />
+        <template v-else>
+          <template v-for="(button, key) in buttonProps" :key="key"><FnButton v-if="button.show !== false" v-bind="button" /></template>
+        </template>
+        <FnRender v-if="slots?.footerRight" :render="slots.footerRight" :get-context="getSlotContext" />
       </div>
     </div>
   </div>
@@ -40,10 +52,10 @@
 
 <script setup lang="ts">
 import { Maximize2, Minimize2, X } from "@lucide/vue";
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from "vue";
 import FnButton from "../components/fn-button.vue";
 import FnRender from "../components/fn-render";
-import type { FnModalProps } from "../types/index";
+import type { FnModalProps, FnSlots } from "../types/index";
 
 defineOptions({ inheritAttrs: false });
 
@@ -56,7 +68,11 @@ const props = withDefaults(defineProps<FnModalProps>(), {
   // footer 类型含 Boolean，必须显式保留 undefined，避免未配置时被转为 false。
   footer: undefined,
 });
-const slots = computed(() => (props as FnModalProps & { slots?: Record<string, (props?: Record<string, any>) => any> }).slots);
+const vueSlots = getCurrentInstance() ? useSlots() : {};
+const slots = computed<FnSlots>(() => ({
+  ...(props.slots ?? {}),
+  ...(vueSlots as FnSlots),
+}));
 const emit = defineEmits<{
   "update:open": [value: boolean];
   confirm: [];
@@ -65,16 +81,19 @@ const emit = defineEmits<{
 }>();
 const openState = computed(() => props.open);
 const fullscreenState = ref(false);
+function getSlotContext() {
+  return { close, confirm: () => emit("confirm"), loading: props.confirmLoading };
+}
 
 const buttonProps = computed(() => ({
-  reset: { text: "重置", type: "default", onClick: () => emit("reset"), ...props.buttons?.reset },
+  reset: { text: "重置", type: "default", click: () => emit("reset"), ...props.buttons?.reset },
   cancel: {
     text: "取消",
     type: "default",
-    onClick: close,
+    click: close,
     ...props.buttons?.cancel,
   },
-  confirm: { text: "确定", type: "primary", loading: props.confirmLoading, onClick: () => emit("confirm"), ...props.buttons?.confirm },
+  confirm: { text: "确定", type: "primary", loading: props.confirmLoading, click: () => emit("confirm"), ...props.buttons?.confirm },
 }));
 const headerRef = ref<HTMLElement>();
 const modalElementRef = ref<HTMLElement>();
@@ -244,6 +263,18 @@ defineExpose({ state: { open: openState, fullscreen: fullscreenState }, openModa
     padding: 24px;
     flex: 1;
     color: #344054;
+    display: flex;
+    flex-direction: column;
+  }
+  .fn-modal-body-content {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
+  }
+  .fn-modal-body-main {
+    flex: 1;
+    min-width: 0;
   }
   .fn-modal-titlebar {
     display: flex;
@@ -251,6 +282,17 @@ defineExpose({ state: { open: openState, fullscreen: fullscreenState }, openModa
     justify-content: space-between;
     cursor: move;
     user-select: none;
+    line-height: 30px;
+    .fn-modal-title {
+      font-weight: 600;
+    }
+  }
+  .fn-modal-title-group {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+    margin-right: auto;
   }
   .fn-modal-title {
     font-size: 16px;
@@ -285,6 +327,7 @@ defineExpose({ state: { open: openState, fullscreen: fullscreenState }, openModa
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    line-height: 30px;
   }
   .dark & {
     color: #d8dee8;

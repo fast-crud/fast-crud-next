@@ -5,8 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { getFnTableRowKey } from "./row-key";
-import { isFnComputeValue } from "../compute";
-import type { FnTableSelectionContext } from "../types/index";
+import { isFnComputeValue } from "../use/compute";
 
 const filename = fileURLToPath(new URL("./fn-table.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -14,13 +13,11 @@ const script = compileScript(descriptor, { id: "fn-table-test", fs: { fileExists
 const compiled = ts.transpileModule(script.content, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
 const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
-let selectionContext: FnTableSelectionContext | undefined;
 const loadDependency = (name: string) => {
-  if (name === "@lucide/vue" || name === "./fn-table-cell.vue" || name === "../components/fn-render") return {};
+  if (name === "@lucide/vue" || name === "./fn-table-row.vue" || name === "../components/fn-render") return {};
   if (name === "./row-key") return { getFnTableRowKey };
-  if (name === "../compute") return { isFnComputeValue };
-  if (name === "../provider/context") return { fnCrudTableSelectionKey: "selection" };
-  if (name === "vue") return { ...require(name), inject: () => selectionContext };
+  if (name === "../use/compute") return { isFnComputeValue };
+  if (name === "../provider/context") return { fnTableSizeKey: "size" };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);
@@ -29,6 +26,30 @@ it("按 columns 对象生成有序渲染列", () => {
   const props = { columns: { name: { title: "名称", cell: { order: 1 } }, id: { title: "ID", cell: { order: 2 } } } };
   const setup = module.exports.default.setup(props, { expose: () => {}, emit: () => {} });
   expect(setup.columns.value.map(column => column.key)).toEqual(["name", "id"]);
+});
+
+it("点击同一列头依次切换正序、逆序和取消排序", () => {
+  const emitted: Array<[string, unknown]> = [];
+  const props = { columns: {}, data: [], sort: { prop: "name", asc: true } };
+  const setup = module.exports.default.setup(
+    props,
+    { expose: () => {}, emit: (name: string, value: unknown) => emitted.push([name, value]) }
+  );
+
+  setup.sortColumn("name");
+  props.sort = emitted.at(-1)?.[1] as typeof props.sort;
+  setup.sortColumn("name");
+  props.sort = emitted.at(-1)?.[1] as typeof props.sort;
+  setup.sortColumn("name");
+  props.sort = emitted.at(-1)?.[1] as typeof props.sort;
+  setup.sortColumn("name");
+
+  expect(emitted).toEqual([
+    ["sort", { prop: "name", asc: false }],
+    ["sort", { prop: "", asc: true }],
+    ["sort", { prop: "name", asc: true }],
+    ["sort", { prop: "name", asc: false }],
+  ]);
 });
 
 it("未指定 order 的列保持在明确排序列之后", () => {
@@ -75,10 +96,10 @@ it("每组固定列只在滚动边界列添加阴影", () => {
 });
 
 it("固定列使用组内累计宽度计算 sticky 偏移", () => {
-  selectionContext = { type: "multiple", selectedRowKeys: { value: [] } as FnTableSelectionContext["selectedRowKeys"], changeSelection: vi.fn() };
   const setup = module.exports.default.setup(
     {
       columns: {
+        __fn_selection_column: { title: "", cell: { fixed: "left", width: 44, order: 0 } },
         leftFirst: { title: "左一", cell: { fixed: "left", width: 100, order: 1 } },
         leftNext: { title: "左二", cell: { fixed: "left", width: 120, order: 2 } },
         normal: { title: "普通", cell: { width: 200, order: 3 } },
@@ -90,52 +111,11 @@ it("固定列使用组内累计宽度计算 sticky 偏移", () => {
     { expose: () => {}, emit: () => {} }
   );
 
-  expect(setup.columnStyle(setup.columns.value[0], "leftFirst")).toMatchObject({ left: "44px" });
-  expect(setup.columnStyle(setup.columns.value[1], "leftNext")).toMatchObject({ left: "144px" });
-  expect(setup.columnStyle(setup.columns.value[3], "rightFirst")).toMatchObject({ right: "110px" });
-  expect(setup.columnStyle(setup.columns.value[4], "rightLast")).toMatchObject({ right: "0px" });
-});
-
-it("行动态计算 context 使用 CRUD 字段配置和当前行", () => {
-  const columns = { name: { key: "name", title: "名称" } };
-  const row = { id: 12, name: "cert" };
-  const setup = module.exports.default.setup({ columns, data: [row] }, { expose: () => {}, emit: () => {} });
-
-  expect(setup.getRowContext(row, 0)).toMatchObject({ type: "row", row, form: row, index: 0, columns });
-});
-
-it("行选择交由 FnCrud selection context 处理", () => {
-  const changeSelection = vi.fn();
-  const selectedRowKeys = { value: ["12"] } as FnTableSelectionContext["selectedRowKeys"];
-  selectionContext = { type: "multiple", selectedRowKeys, changeSelection };
-  const props = {
-    data: [{ id: 12 }, { id: 13 }],
-    rowKey: "id",
-  };
-  let exposed: unknown;
-  const setup = module.exports.default.setup(props, { expose: (value: unknown) => (exposed = value), emit: vi.fn() });
-
-  expect(setup.isRowSelected(props.data[0], 0)).toBe(true);
-  expect(setup.isRowSelected(props.data[1], 1)).toBe(false);
-
-  setup.selectRowOnChange(props.data[1], 1, true);
-
-  expect(changeSelection).toHaveBeenCalledWith({ type: "row", row: props.data[1], index: 1, selected: true });
-  expect(exposed).toBeUndefined();
-});
-
-it("选择当前页由 FnCrud selection context 处理", () => {
-  const changeSelection = vi.fn();
-  selectionContext = { type: "multiple", selectedRowKeys: { value: ["9"] } as FnTableSelectionContext["selectedRowKeys"], changeSelection };
-  const props = {
-    data: [{ id: 12 }],
-    rowKey: "id",
-  };
-  const setup = module.exports.default.setup(props, { expose: () => {}, emit: vi.fn() });
-
-  setup.togglePageSelection(false);
-
-  expect(changeSelection).toHaveBeenCalledWith({ type: "page", selected: false });
+  expect(setup.columnStyle(setup.columns.value[0], "__fn_selection_column")).toMatchObject({ left: "0px" });
+  expect(setup.columnStyle(setup.columns.value[1], "leftFirst")).toMatchObject({ left: "44px" });
+  expect(setup.columnStyle(setup.columns.value[2], "leftNext")).toMatchObject({ left: "144px" });
+  expect(setup.columnStyle(setup.columns.value[4], "rightFirst")).toMatchObject({ right: "110px" });
+  expect(setup.columnStyle(setup.columns.value[5], "rightLast")).toMatchObject({ right: "0px" });
 });
 
 it("调整列宽时在拖动结束后只发出一次宽度变更", () => {
@@ -149,10 +129,47 @@ it("调整列宽时在拖动结束后只发出一次宽度变更", () => {
   const setup = module.exports.default.setup({ columns: {}, data: [] }, { expose: () => {}, emit: (name: string, value: unknown) => emitted.push([name, value]) });
 
   setup.startResize({ clientX: 100 } as PointerEvent, { key: "name", width: 120 });
+  expect(setup.resizeIndicatorLeft.value).toBe(100);
   listeners.get("pointermove")?.({ clientX: 145 } as PointerEvent);
+  expect(setup.resizeIndicatorLeft.value).toBe(145);
   listeners.get("pointerup")?.({} as PointerEvent);
 
   expect(emitted).toEqual([["column-resize", { key: "name", width: 165 }]]);
-  expect(setup).not.toHaveProperty("columnWidths");
+  expect(setup.resizeIndicatorLeft.value).toBeNull();
   vi.unstubAllGlobals();
+});
+
+it("未设置宽度的普通列使用稳定宽度", () => {
+  const setup = module.exports.default.setup({ columns: {}, data: [] }, { expose: () => {}, emit: () => {} });
+
+  expect(setup.columnStyle({ key: "name" }, "name").width).toBe("120px");
+});
+
+it("取消列宽拖动时不保存宽度", () => {
+  const listeners = new Map<string, (event: PointerEvent) => void>();
+  vi.stubGlobal("window", {
+    addEventListener: (name: string, listener: (event: PointerEvent) => void) => listeners.set(name, listener),
+    removeEventListener: (name: string) => listeners.delete(name),
+    setTimeout: (callback: () => void) => callback(),
+  });
+  const emit = vi.fn();
+  const setup = module.exports.default.setup({ columns: {}, data: [] }, { expose: () => {}, emit });
+
+  setup.startResize({ clientX: 100 } as PointerEvent, { key: "name", width: 120 });
+  listeners.get("pointermove")?.({ clientX: 145 } as PointerEvent);
+  listeners.get("pointercancel")?.({} as PointerEvent);
+
+  expect(emit).not.toHaveBeenCalled();
+  expect(setup.resizeIndicatorLeft.value).toBeNull();
+  vi.unstubAllGlobals();
+});
+
+it("不可调整宽度列使用自动宽度且不渲染拖动手柄", () => {
+  const setup = module.exports.default.setup({ columns: { spacer: { title: "", cell: { width: "auto", resizable: false } } }, data: [] }, { expose: () => {}, emit: () => {} });
+  const column = setup.columns.value[0];
+
+  expect(setup.columnStyle(column, column.key).width).toBe("auto");
+  expect(setup.columnClasses(column)).toContain("fn-table-column-unresizable");
+  expect(readFileSync(filename, "utf8")).toContain('v-if="column.resizable !== false"');
+  expect(readFileSync(filename, "utf8")).toContain('column.resizable === false ? undefined : sortColumn(column.key)');
 });

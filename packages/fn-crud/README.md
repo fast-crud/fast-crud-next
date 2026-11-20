@@ -44,7 +44,7 @@ const crudState = reactive<FnCrudState>({
   table: { size: 14, density: "comfort" },
 });
 
-useFnCrud(crudState);
+useFnCrud({ state: crudState });
 ```
 
 ```vue

@@ -4,6 +4,8 @@
 
 `pageRequest` 接收分页、搜索和排序参数：
 
+点击列头会在正序、逆序和取消排序之间循环。取消后，`sort` 为 `undefined`；切换到另一列会从正序开始。
+
 ```ts
 pageRequest: async ({ page, query, sort }) => {
   const response = await api.list({
@@ -37,15 +39,15 @@ const statusDict = markRaw(new DictStore({
 
 ## 跨页选择
 
-开启 `rowSelect.crossPage` 后，`onChange` 的 keys 会保留跨页选择；rows 只代表当前已经加载页的记录。批量操作应以 keys 为准，再由业务层回查完整记录：
+`rowSelect.selectedRowKeys` 是选择状态的唯一数据源，`useFnCrud` 会在表格选择变化时写回该数组。业务组件可以直接观察或预置 keys，不需要额外的 `crudRef`；`onChange` 只接收 keys，适合通知业务执行副作用。开启 `rowSelect.crossPage` 后，keys 会保留跨页选择。批量操作应以 keys 为准，再由业务层回查完整记录：
 
 ```ts
 rowSelect: {
   crossPage: true,
-  onChange: keys => {
-    selectedKeys.value = keys;
-  },
+  selectedRowKeys: [],
 }
 ```
 
-调用 `crud.table.getSelectedRowKeys()` 可读取全部选中 key，`crud.table.getSelectedRows()` 只返回当前页记录。
+调用 `crud.table.getSelectedRowKeys()` 可读取全部选中 key，包括跨页保留的 key。
+
+`useFnCrud({ state, crudRef })` 会安装 `rowSelect.onChange`，将选择变化写回 `state.rowSelect.selectedRowKeys` 并继续调用用户传入的回调。默认 actionbar 提供「批量操作」下拉菜单，其中「批量删除」按选中 keys 调用 `request.delRequest`，确认成功后清空选择并刷新列表。actionbar 按钮只负责按钮配置，不接收 selectedRow 上下文；业务批量操作直接读取 `state.rowSelect.selectedRowKeys`。

@@ -59,18 +59,18 @@ import { FnConfigProvider } from "@fast-crud/fast-crud-next";
 - `uiContext.setServices({ notification, message })` 或对应 UI 适配器：替换通知和消息实现。
 - `NConfigProvider`、`AConfigProvider` 等宿主组件：管理第三方 UI 框架自身的主题和 locale。
 
-不要把 `FnCrudState` 或 `installFnCrud` 的配置对象当作 `FnConfigProvider` 的参数传入；列表配置仍通过 `useFnCrud(state)` 和 `<FnCrud v-bind="state" />` 传递。
+不要把 `FnCrudState` 或 `installFnCrud` 的配置对象当作 `FnConfigProvider` 的参数传入；列表配置仍通过 `useFnCrud({ state, crudRef })` 和 `<FnCrud ref="crudRef" v-bind="state" />` 传递。
 
 ## 创建列表 state
 
 `FnCrudOptions` 描述原始配置类型；`FnCrudOptionsInput<Row>` 将顶层字段扩展为原始值或 Vue `Ref`/`ComputedRef`，用于 `reactive` 的输入泛型。`FnCrudState<Row>` 表示深层解包后的响应式状态，由 `useFnCrud` 接收并返回。
 
-一个列表只维护一份响应式 state。先调用 `useFnCrud(state)`，模板再把同一份 state 传给 `FnCrud`：
+一个列表只维护一份响应式 state，并用 `crudRef` 获取 FnCrud expose。先调用 `useFnCrud({ state, crudRef })`，模板再把同一份 state 传给 `FnCrud`：
 
 ```vue
 <script setup lang="ts">
-import { reactive } from "vue";
-import { FnCrud, FnInput, type FnCrudOptionsInput, useFnCrud } from "@fast-crud/fast-crud-next";
+import { reactive, ref } from "vue";
+import { FnCrud, FnInput, type FnCrudExpose, type FnCrudOptionsInput, useFnCrud } from "@fast-crud/fast-crud-next";
 
 interface User {
   id: number;
@@ -113,11 +113,12 @@ const state = reactive<FnCrudOptionsInput<User>>({
   },
 });
 
-useFnCrud(state);
+const crudRef = ref<FnCrudExpose>();
+useFnCrud({ state, crudRef });
 </script>
 
 <template>
-  <FnCrud v-bind="state" />
+<FnCrud ref="crudRef" v-bind="state" />
 </template>
 ```
 

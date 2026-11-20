@@ -1,5 +1,5 @@
 import type { FnCrudColumn, FnCrudPreferenceStorage, FnCrudPreferences, FnTableColumn } from "./types/index";
-import { compute, isFnComputeValue, resolveComputedValue } from "./compute";
+import { compute, isFnComputeValue, resolveComputedValue } from "./use/compute";
 
 const storagePrefix = "fn-crud:";
 

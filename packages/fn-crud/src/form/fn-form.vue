@@ -20,7 +20,10 @@ import FnInput from "../components/fn-input.vue";
 import FnFormItem from "./fn-form-item.vue";
 import { fnFormContextKey } from "./context";
 import { validateFnFormField } from "./validation";
+import { resolveComputedValue } from "../use/compute";
 import type { FnFormColumn, FnFormProps, FnFormContext } from "../types/index";
+
+type ResolvedFormColumn = Omit<FnFormColumn, "title" | "show"> & { title?: string; show?: boolean };
 
 const props = withDefaults(
   defineProps<
@@ -31,7 +34,7 @@ const props = withDefaults(
   >(),
   {
     initialForm: () => ({}),
-    gutter: 16,
+    gutter: 8,
     formProps: () => ({}),
     mode: "add",
     onSave: undefined,
@@ -52,9 +55,9 @@ const initialValues = {
   ...props.initialForm,
 };
 const formState = reactive({ ...initialValues });
-const formColumns = computed(() =>
+const formColumns = computed<ResolvedFormColumn[]>(() =>
   Object.entries(props.columns)
-    .map(([key, column]) => ({ ...column, key }))
+    .map(([key, column]) => ({ ...resolveComputedValue(column, { type: "form", form: formState, mode: mode.value }), key }) as ResolvedFormColumn)
     .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
 );
 const formStyle = computed(() => ({ ...((props.formProps.style as Record<string, string>) || {}), "--fn-form-label-width": (props.labelCol?.style?.width as string) || "120px" }));

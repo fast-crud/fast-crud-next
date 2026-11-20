@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { computed, ref } from "vue";
+import type { FnButtonProps } from "../types/index";
 
 const filename = fileURLToPath(new URL("./fn-button.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -11,97 +13,50 @@ const script = compileScript(descriptor, { id: "fn-button-test", fs: { fileExist
 const compiled = ts.transpileModule(script.content, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
 const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
-const loadDependency = (name: string) => {
-  if (name === "vue") {
-    return require(name);
-  }
-  if (name === "@lucide/vue" || name === "./fn-icon.vue" || name === "./fn-dropdown-button.vue") {
-    return {};
-  }
-  if (name === "./use-fn-button-ripple") {
-    return {
-      useFnButtonRipple: () => {
-        const ripples = require("vue").ref([]);
-        let id = 0;
-        return {
-          ripples,
-          createRipple: () => { ripples.value = [...ripples.value, ++id]; },
-          removeRipple: (rippleId: number) => { ripples.value = ripples.value.filter((ripple: number) => ripple !== rippleId); },
-        };
-      },
-    };
-  }
-  return require(name);
-};
+const loadDependency = (name: string) => (name === "vue" ? require(name) : {});
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);
 
-describe("FnButton 点击上下文", () => {
-  it("未配置 show 时默认显示按钮", () => {
-    expect(Object.prototype.hasOwnProperty.call(module.exports.default.props.show, "default")).toBe(true);
-    expect(module.exports.default.props.show.default).toBeUndefined();
+describe("FnButton", () => {
+  it("按 buttonType 分发基础按钮和下拉按钮", () => {
+    const template = descriptor.template?.content ?? "";
+
+    expect(template).toContain("buttonType === 'dropdown'");
+    expect(template).toContain("<FnDropdownButton");
+    expect(template).toContain("<FnButtonBase");
   });
 
-  it("将真实行上下文传给操作按钮", () => {
-    const context = { type: "row", row: { id: 12 }, index: 0 };
-    const onClick = vi.fn();
-    const setup = module.exports.default.setup({ context, onClick }, { expose: () => {}, emit: () => {} });
-    setup.handleClick();
-    expect(onClick).toHaveBeenCalledWith(context);
-  });
-  it("未传上下文时保持默认行为", () => {
+  it("剥离 wrapper 配置并调用业务闭包，不生成 CRUD context", () => {
     const click = vi.fn();
-    const setup = module.exports.default.setup({ click }, { expose: () => {}, emit: () => {} });
-    setup.handleClick();
-    expect(click).toHaveBeenCalledWith({ type: "row" });
-  });
-
-  it("使用按钮的静态属性并把当前行 context 传给回调", () => {
-    const context = { type: "row", row: { status: "pending" } };
     const setup = module.exports.default.setup(
-      {
-        context,
-        show: true,
-        text: "审核",
-        disabled: false,
-        loading: false,
-      },
-      { expose: () => {}, emit: () => {} }
+      { buttonType: "button", text: "编辑", click, context: { type: "row", row: { id: 1 } } },
+      { emit: vi.fn(), expose: vi.fn() }
     );
 
-    expect(setup.resolvedProps.value).toMatchObject({ show: true, text: "审核", disabled: false });
-    expect(setup.buttonClasses.value["fn-button-disabled"]).toBe(false);
-  });
-
-  it("支持 danger、禁用状态和自定义主色", () => {
-    const click = vi.fn();
-    const setup = module.exports.default.setup({ type: "default", danger: true, disabled: true, primaryColor: "#4c63ff", onClick: click }, { expose: () => {}, emit: () => {} });
     setup.handleClick();
-    expect(setup.buttonClasses.value).toMatchObject({ "fn-button-default": true, "fn-button-danger": true, "fn-button-disabled": true });
-    expect(setup.buttonStyle.value["--fn-button-primary"]).toBe("#4c63ff");
-    expect(click).not.toHaveBeenCalled();
+
+    expect(setup.buttonProps.value).toEqual(expect.objectContaining({ text: "编辑" }));
+    expect(setup.buttonProps.value).not.toHaveProperty("context");
+    expect(click).toHaveBeenCalledWith();
   });
 
-  it("默认圆角形状不会覆盖 primary 按钮类型", () => {
-    const setup = module.exports.default.setup({ type: "primary", shape: "default" }, { expose: () => {}, emit: () => {} });
-    expect(setup.buttonClasses.value).toMatchObject({ "fn-button-primary": true, "fn-button-shape-default": true });
-    expect(setup.buttonClasses.value["fn-button-default"]).toBeUndefined();
+  it("支持响应式按钮文案并随 computed 更新", () => {
+    const enabled = ref(false);
+    const button: FnButtonProps = {
+      text: computed(() => enabled.value ? "禁用数量输入" : "启用数量输入"),
+    };
+    const setup = module.exports.default.setup(button, { emit: vi.fn(), expose: vi.fn() });
+
+    expect(setup.buttonProps.value.text).toBe("启用数量输入");
+    enabled.value = true;
+    expect(setup.buttonProps.value.text).toBe("禁用数量输入");
   });
 
-  it("点击按钮时创建外圈波纹", () => {
-    const setup = module.exports.default.setup({ disabled: false, loading: false }, { expose: () => {}, emit: () => {} });
-    const button = {};
+  it("只接受 click 回调", () => {
+    const legacyOnClick = vi.fn();
+    const setup = module.exports.default.setup({ onClick: legacyOnClick }, { emit: vi.fn(), expose: vi.fn() });
 
-    setup.handleClick({ currentTarget: button, detail: 1 });
+    setup.handleClick();
 
-    expect(setup.ripples.value).toHaveLength(1);
-  });
-
-  it("禁用或加载时不生成波纹", () => {
-    for (const props of [{ disabled: true, loading: false }, { disabled: false, loading: true }]) {
-      const setup = module.exports.default.setup(props, { expose: () => {}, emit: () => {} });
-      setup.handleClick({ currentTarget: {}, detail: 1 });
-
-      expect(setup.ripples.value).toHaveLength(0);
-    }
+    expect(legacyOnClick).not.toHaveBeenCalled();
   });
 });

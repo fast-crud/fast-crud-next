@@ -15,7 +15,7 @@ function handleInput(event: Event): void {
 .fn-input {
   display: block;
   width: 100%;
-  min-height: 32px;
+  min-height: var(--fn-control-height, 32px);
   padding: 4px 10px;
   border: 1px solid var(--fn-color-border, #d0d5dd);
   border-radius: var(--fn-border-radius, 5px);

@@ -23,31 +23,32 @@ beforeEach(async () => {
   await renderToString(createSSRApp(ComputeView));
 });
 
-it("切换表格开关只禁用或启用本行的单价输入", () => {
+it("表格开关使用 vModel 配置，单价输入按本行状态禁用", () => {
   const first = reactive({ customPrice: false, unitPrice: 680 });
   const second = reactive({ customPrice: true, unitPrice: 120 });
   const cell = (field: string, row: typeof first) => resolveComputedValue(options.columns[field].cell, { type: "row", row }) as FnTableColumn;
   const firstPrice = computed(() => cell("unitPrice", first));
   const secondPrice = computed(() => cell("unitPrice", second));
-  const toggle = () => cell("customPrice", first);
 
-  expect(firstPrice.value).toMatchObject({ component: { disabled: true, modelValue: 680 } });
-  toggle().component!["onUpdate:modelValue"](true);
-  expect(firstPrice.value).toMatchObject({ component: { disabled: false, modelValue: 680 } });
-  toggle().component!["onUpdate:modelValue"](false);
-  expect(firstPrice.value).toMatchObject({ component: { disabled: true, modelValue: 680 } });
-  expect(secondPrice.value).toMatchObject({ component: { disabled: false, modelValue: 120 } });
+  expect(options.columns.customPrice.cell).toMatchObject({ component: { name: expect.anything() } });
+  expect(options.columns.customPrice.cell.component).not.toHaveProperty("computeFn");
+  expect(firstPrice.value).toMatchObject({ component: { disabled: true } });
+  first.customPrice = true;
+  expect(firstPrice.value).toMatchObject({ component: { disabled: false } });
+  first.customPrice = false;
+  expect(firstPrice.value).toMatchObject({ component: { disabled: true } });
+  expect(secondPrice.value).toMatchObject({ component: { disabled: false } });
 });
 
 it("操作栏按钮通过外部状态禁用并重新启用数量输入", () => {
-  const quantity = computed(() => resolveComputedValue(options.columns.quantity.cell, { type: "row", row: { quantity: 4 } }));
-  const toggle = options.actionbar?.buttons.toggleQuantity?.onClick;
+  const quantity = options.columns.quantity.cell as FnTableColumn;
+  const toggle = options.actionbar?.buttons.toggleQuantity?.click;
 
-  expect(quantity.value).toMatchObject({ component: { disabled: false } });
+  expect(quantity).toMatchObject({ component: { disabled: false } });
   toggle?.({ type: "row" });
-  expect(quantity.value).toMatchObject({ component: { disabled: true } });
+  expect(quantity).toMatchObject({ component: { disabled: true } });
   toggle?.({ type: "row" });
-  expect(quantity.value).toMatchObject({ component: { disabled: false } });
+  expect(quantity).toMatchObject({ component: { disabled: false } });
 });
 
 it("表单开关实时控制单价字段显隐并保留原值", () => {

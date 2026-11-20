@@ -38,6 +38,22 @@ function resetRows(): void { rows.value = initialRows.map((row) => ({ ...row }))
   </div>
 </template>
 
-<style scoped>
-.comparison-page{width:100%;margin:0}.page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;padding:20px 24px 0}.page-heading h1{margin:0 0 6px;color:var(--n-text-color,#19273a);font-size:24px;font-weight:650}.page-heading p{margin:0;color:var(--n-text-color-3,#758397);font-size:13px}.record-count{padding-top:6px;color:var(--n-text-color-3,#758397);font-size:13px;font-variant-numeric:tabular-nums}.table-panel{overflow:hidden;border:1px solid var(--n-border-color,#e1e7ef);border-radius:0;background:var(--n-color,#fff)}.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid var(--n-border-color,#e1e7ef)}.table-toolbar strong{color:var(--n-text-color,#26364a);font-size:14px}.toolbar-actions{display:flex;gap:10px}@media(max-width:600px){.table-toolbar{align-items:flex-start;padding:14px;flex-direction:column}.page-heading{padding:16px 14px 0}.page-heading h1{font-size:21px}}
+<style lang="less">
+.comparison-page {
+  width: 100%;
+  margin: 0;
+  .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; padding: 20px 24px 0; }
+  .page-heading h1 { margin: 0 0 6px; color: var(--n-text-color, #19273a); font-size: 24px; font-weight: 650; }
+  .page-heading p { margin: 0; color: var(--n-text-color-3, #758397); font-size: 13px; }
+  .record-count { padding-top: 6px; color: var(--n-text-color-3, #758397); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .table-panel { overflow: hidden; border: 1px solid var(--n-border-color, #e1e7ef); border-radius: 0; background: var(--n-color, #fff); }
+  .table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--n-border-color, #e1e7ef); }
+  .table-toolbar strong { color: var(--n-text-color, #26364a); font-size: 14px; }
+  .toolbar-actions { display: flex; gap: 10px; }
+  @media (max-width: 600px) {
+    .table-toolbar { align-items: flex-start; padding: 14px; flex-direction: column; }
+    .page-heading { padding: 16px 14px 0; }
+    .page-heading h1 { font-size: 21px; }
+  }
+}
 </style>

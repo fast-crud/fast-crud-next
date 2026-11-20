@@ -6,7 +6,7 @@ const fnModalKey = Symbol("FnModal");
 const modalServices: FnModalService[] = [];
 
 export const model = {
-  confirm<Result = unknown>(options: FnDialogProps<Result>): Promise<Result | undefined> {
+  confirm<Result = unknown>(options: FnDialogProps<any>): Promise<Result | undefined> {
     const service = modalServices[modalServices.length - 1];
     if (!service) {
       throw new Error("model.confirm 必须在 FnModalProvider 注册后调用");
