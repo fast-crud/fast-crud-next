@@ -19,7 +19,7 @@ export function createRowSelectionColumn(options: {
     key: "__fn_selection_column",
     title: "",
     cell: {
-      width: 44,
+      width: 56,
       order: -Infinity,
       fixed: options.rowSelect.fixed ?? undefined,
       resizable: false,

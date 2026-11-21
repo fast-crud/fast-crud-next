@@ -63,7 +63,7 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
       onChange: selectedRowKeys => {
         state.rowSelect!.selectedRowKeys = [...selectedRowKeys];
       },
-      fixed: null,
+      fixed: "left",
     },
     table: {
       "onUpdate:density": density => {

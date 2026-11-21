@@ -117,7 +117,7 @@ it("FnCrud 将 provider 公共配置与显式 props 深度合并", () => {
 
 it("FnCrud 深度合并公共与新增表单配置后交给 FnFormDialog，并提供默认提交请求", async () => {
   const title = compute(({ form }) => `公共:${form?.name}`);
-  const common = { title, width: 500, dialog: { footer: false, buttons: { cancel: { show: false } } } };
+  const common = { width: 500, dialog: { title, footer: false, buttons: { cancel: { show: false } } } };
   const specific = { width: 640, dialog: { title: "新增", buttons: { confirm: { text: "创建" } } } };
   const addRequest = vi.fn(async () => undefined);
   const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
@@ -136,14 +136,15 @@ it("FnCrud 深度合并公共与新增表单配置后交给 FnFormDialog，并�
 
   const [options] = open.mock.calls[0];
   expect(options).toMatchObject({ mode: "add", columns: {} });
-  expect(options.formOptions).toMatchObject({
+  expect(options).toMatchObject({
+    mode: "add",
     width: 640,
     dialog: { title: "新增", footer: false, buttons: { cancel: { show: false }, confirm: { text: "创建" } } },
   });
-  expect(options.formOptions.title).toBe(title);
+  expect(options.dialog.title).toBe("新增");
 
   const form = { name: "certd" };
-  await options.formOptions.onSubmit({ form });
+  await options.onSubmit({ form });
   expect(addRequest).toHaveBeenCalledWith(form);
   expect(pageRequest).toHaveBeenCalledOnce();
 });
@@ -162,8 +163,8 @@ it("FnCrud 允许表单配置覆盖默认提交请求", async () => {
 
   await exposed.form.openAddForm();
 
-  expect(open.mock.calls[0][0].formOptions.onSubmit).toBe(onSubmit);
-  await open.mock.calls[0][0].formOptions.onSubmit({ form: { name: "certd" } });
+  expect(open.mock.calls[0][0].onSubmit).toBe(onSubmit);
+  await open.mock.calls[0][0].onSubmit({ form: { name: "certd" } });
   expect(onSubmit).toHaveBeenCalledOnce();
   expect(addRequest).not.toHaveBeenCalled();
 });

@@ -87,12 +87,44 @@ it("每组固定列只在滚动边界列添加阴影", () => {
     },
     { expose: () => {}, emit: () => {} }
   );
+  setup.scrollElement.value = { scrollWidth: 500, clientWidth: 300, scrollLeft: 100 } as HTMLElement;
+  setup.updateScrollEdge();
 
   expect(setup.columnClasses(setup.columns.value[0])).toContain("fn-table-fixed-left");
   expect(setup.columnClasses(setup.columns.value[0])).not.toContain("fn-table-fixed-left-shadow");
   expect(setup.columnClasses(setup.columns.value[1])).toContain("fn-table-fixed-left-shadow");
   expect(setup.columnClasses(setup.columns.value[3])).toContain("fn-table-fixed-right-shadow");
   expect(setup.columnClasses(setup.columns.value[4])).not.toContain("fn-table-fixed-right-shadow");
+});
+
+it("固定列阴影在滚动离开对应边缘时显示", () => {
+  const setup = module.exports.default.setup(
+    {
+      columns: {
+        name: { title: "名称", cell: { fixed: "left" as const } },
+        actions: { title: "操作", cell: { fixed: "right" as const } },
+      },
+      data: [],
+    },
+    { expose: () => {}, emit: () => {} }
+  );
+  const leftColumn = setup.columns.value[0];
+  const rightColumn = setup.columns.value[1];
+  setup.scrollElement.value = { scrollWidth: 500, clientWidth: 300, scrollLeft: 0 } as HTMLElement;
+
+  setup.updateScrollEdge();
+  expect(setup.columnClasses(leftColumn)).not.toContain("fn-table-fixed-left-shadow");
+  expect(setup.columnClasses(rightColumn)).toContain("fn-table-fixed-right-shadow");
+
+  setup.scrollElement.value.scrollLeft = 100;
+  setup.updateScrollEdge();
+  expect(setup.columnClasses(leftColumn)).toContain("fn-table-fixed-left-shadow");
+  expect(setup.columnClasses(rightColumn)).toContain("fn-table-fixed-right-shadow");
+
+  setup.scrollElement.value.scrollLeft = 200;
+  setup.updateScrollEdge();
+  expect(setup.columnClasses(leftColumn)).toContain("fn-table-fixed-left-shadow");
+  expect(setup.columnClasses(rightColumn)).not.toContain("fn-table-fixed-right-shadow");
 });
 
 it("固定列使用组内累计宽度计算 sticky 偏移", () => {

@@ -1,5 +1,5 @@
 <template>
-  <Transition name="fn-modal" @after-leave="emit('afterClose')">
+  <Transition name="fn-modal" @after-leave="emit('closed')">
   <div v-if="props.open" class="fn-modal-mask" @mousedown.self="close">
     <div ref="modalElementRef" :class="['fn-modal', { 'fn-modal-maximized': fullscreenState }]" :style="{ width: fullscreenState ? '100%' : typeof width === 'number' ? `${width}px` : width }" v-bind="$attrs">
       <div ref="headerRef" class="fn-modal-titlebar">
@@ -56,6 +56,7 @@ import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref
 import FnButton from "../components/fn-button.vue";
 import FnRender from "../components/fn-render";
 import type { FnModalProps, FnSlots } from "../types/index";
+import { useMerge } from "../use/use-merge";
 
 defineOptions({ inheritAttrs: false });
 
@@ -77,24 +78,33 @@ const emit = defineEmits<{
   "update:open": [value: boolean];
   confirm: [];
   reset: [];
-  afterClose: [];
+  closed: [];
 }>();
-const openState = computed(() => props.open);
 const fullscreenState = ref(false);
 function getSlotContext() {
   return { close, confirm: () => emit("confirm"), loading: props.confirmLoading };
 }
 
-const buttonProps = computed(() => ({
-  reset: { text: "重置", type: "default", click: () => emit("reset"), ...props.buttons?.reset },
+const defaultButtons = computed(() => ({
+  reset: {
+    show: true,
+    text: "重置",
+    type: "default",
+    click: () => emit("reset"),
+  },
   cancel: {
+    show: true,
     text: "取消",
     type: "default",
     click: close,
-    ...props.buttons?.cancel,
   },
-  confirm: { text: "确定", type: "primary", loading: props.confirmLoading, click: () => emit("confirm"), ...props.buttons?.confirm },
+  confirm: { show: true, text: "确定", type: "primary", loading: props.confirmLoading, click: () => emit("confirm") },
 }));
+
+const { merge } = useMerge();
+const buttonProps = computed(() => {
+  return merge({}, defaultButtons.value, props.buttons ?? {});
+});
 const headerRef = ref<HTMLElement>();
 const modalElementRef = ref<HTMLElement>();
 let modalElement: HTMLElement | undefined;
@@ -197,7 +207,7 @@ onBeforeUnmount(() => {
   headerRef.value?.removeEventListener("mousedown", onMouseDown);
 });
 
-defineExpose({ state: { open: openState, fullscreen: fullscreenState }, openModal, close, setFullscreen, toggleFullscreen: toggleMaximized });
+defineExpose({ fullscreen: fullscreenState, open: openModal, close, setFullscreen, toggleFullscreen: toggleMaximized });
 </script>
 
 <style lang="less">

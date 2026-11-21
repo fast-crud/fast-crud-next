@@ -150,10 +150,10 @@ const tableRenderSlot = vueSlots.default ? (ctx?: Record<string, any>) => vueSlo
 const tableRenderProps = useTableRenderProps(props, tableProps, tableRenderSlot);
 const layoutProps = useLayoutProps(props);
 const formProps = useFormProps(props);
-function openFormDialog(options: FnFormDialogOptions): FnFormContext {
+function openFormDialog(options: FnFormDialogOptions): Promise<FnFormContext> {
   return FnFormDialogRef.value!.open(options);
 }
-function openAddForm(initialForm: Record<string, any> = {}): FnFormContext {
+function openAddForm(initialForm: Record<string, any> = {}): Promise<FnFormContext> {
   return openForm("add", initialForm);
 }
 async function openEditForm(row: FnTableRow, initialForm: Record<string, any> = {}): Promise<FnFormContext> {
@@ -163,9 +163,9 @@ async function openEditForm(row: FnTableRow, initialForm: Record<string, any> = 
   }
   return openForm("edit", { ...form, ...initialForm });
 }
-function openForm(mode: "add" | "edit", initialForm: Record<string, any> = {}): FnFormContext {
+function openForm(mode: "add" | "edit", initialForm: Record<string, any> = {}): Promise<FnFormContext> {
   const modeOptions = mode === "add" ? props.addForm : props.editForm;
-  const formOptions = merge({}, {
+  const formConfig = merge({}, {
     onSubmit: async (ctx: FnFormContext) => {
       if (mode === "add" && props.request.addRequest) {
         await props.request.addRequest(ctx.form || {});
@@ -177,12 +177,8 @@ function openForm(mode: "add" | "edit", initialForm: Record<string, any> = {}): 
       await refresh();
     },
   }, props.form, modeOptions);
-  return FnFormDialogRef.value!.open({
-    ...formProps.value,
-    mode,
-    initialForm,
-    formOptions,
-  });
+  const options = merge({}, formProps.value, { mode, initialForm }, formConfig);
+  return FnFormDialogRef.value!.open(options);
 }
 const exposed: FnCrudExpose = {
   search: { getSearchForm: () => ({ ...searchForm }) },

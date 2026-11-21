@@ -6,10 +6,10 @@
   </div>
 </template>
 <script setup lang="ts">
+import set from "lodash-es/set";
 import { computed } from "vue";
 import FnRender from "../components/fn-render";
 import FnComponentRender from "../components/fn-component-render";
-import { updateCellValue as writeCellValue } from "./cell-value";
 import type { FnTableColumn, FnTableRow, FnRowContext } from "../types/index";
 const props = defineProps<{ column: FnTableColumn<FnTableRow> & { key: string }; context: FnRowContext; value: unknown }>();
 const emit = defineEmits<{ componentRef: [instance: object | null] }>();
@@ -35,7 +35,7 @@ function renderCell() {
 }
 
 function updateCellValue(value: unknown): void {
-  writeCellValue(props.context.row, props.column.key, value);
+  set(props.context.row, props.column.key, value);
 }
 </script>
 <style lang="less">

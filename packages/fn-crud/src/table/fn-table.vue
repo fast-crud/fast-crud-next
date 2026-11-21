@@ -1,7 +1,7 @@
 <template>
   <div class="fn-table" :style="tableDensityStyle" :data-density="density" :aria-busy="loading">
     <FnRender v-if="slots?.top" :render="slots.top" :ctx="{ data, loading }" />
-    <div class="fn-table-scroll">
+    <div ref="scrollElement" class="fn-table-scroll" @scroll="updateScrollEdge">
       <table :style="tableStyle">
         <thead>
           <tr>
@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { ArrowDown, ArrowUp } from "@lucide/vue";
-import { computed, provide, ref, type CSSProperties } from "vue";
+import { computed, onBeforeUnmount, onMounted, onUpdated, provide, ref, type CSSProperties } from "vue";
 import FnTableRowComponent from "./fn-table-row.vue";
 import FnRender from "../components/fn-render";
 import { isFnComputeValue } from "../use/compute";
@@ -78,9 +78,28 @@ const emit = defineEmits<{
   sort: [value: { prop: string; asc: boolean }];
   "column-resize": [value: { key: string; width: number }];
 }>();
+const scrollElement = ref<HTMLElement | null>(null);
+const isAtLeftEdge = ref(true);
+const isAtRightEdge = ref(false);
 const resizing = ref(false);
 const resizeIndicatorLeft = ref<number | null>(null);
 const cellComponentRefs = new Map<string, unknown>();
+function updateScrollEdge(event?: Event): void {
+  const element = (event?.currentTarget as HTMLElement | null) ?? scrollElement.value;
+  if (!element) {
+    return;
+  }
+  isAtLeftEdge.value = element.scrollLeft <= 1;
+  isAtRightEdge.value = element.scrollWidth <= element.clientWidth || element.scrollLeft + element.clientWidth >= element.scrollWidth - 1;
+}
+
+onMounted(() => {
+  updateScrollEdge();
+  window.addEventListener("resize", updateScrollEdge);
+});
+onUpdated(updateScrollEdge);
+onBeforeUnmount(() => window.removeEventListener("resize", updateScrollEdge));
+
 const tableStyle = computed(() => {
   if (typeof props.minWidth === "number") {
     return { minWidth: `${props.minWidth}px` };
@@ -196,8 +215,8 @@ function columnClasses(column: FnTableColumnConfig): Array<string | undefined> {
     column.class,
     column.resizable === false ? "fn-table-column-unresizable" : undefined,
     column.fixed ? `fn-table-fixed-${column.fixed}` : undefined,
-    column.key === leftFixedShadowKey.value ? "fn-table-fixed-left-shadow" : undefined,
-    column.key === rightFixedShadowKey.value ? "fn-table-fixed-right-shadow" : undefined,
+    column.key === leftFixedShadowKey.value && !isAtLeftEdge.value ? "fn-table-fixed-left-shadow" : undefined,
+    column.key === rightFixedShadowKey.value && !isAtRightEdge.value ? "fn-table-fixed-right-shadow" : undefined,
   ];
 }
 
@@ -289,10 +308,10 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     }
 
     .fn-table-selection-column {
-      width: 44px;
-      min-width: 44px;
+      width: 56px;
+      min-width: 56px;
       padding-right: 8px;
-      padding-left: 16px;
+      padding-left: 8px;
       text-align: center;
     }
 
@@ -392,10 +411,40 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     right: 0;
   }
   .fn-table-fixed-left-shadow {
-    box-shadow: 12px 0 18px -8px rgb(23 32 51 / 18%);
+    overflow: visible;
+
+    .fn-table-cell {
+      overflow: hidden;
+    }
+
+    &::after {
+      position: absolute;
+      top: -1px;
+      right: -12px;
+      bottom: -1px;
+      width: 12px;
+      background: linear-gradient(to right, rgb(23 32 51 / 18%), transparent);
+      content: "";
+      pointer-events: none;
+    }
   }
   .fn-table-fixed-right-shadow {
-    box-shadow: -12px 0 18px -8px rgb(23 32 51 / 18%);
+    overflow: visible;
+
+    .fn-table-cell {
+      overflow: hidden;
+    }
+
+    &::before {
+      position: absolute;
+      top: -1px;
+      bottom: -1px;
+      left: -12px;
+      width: 12px;
+      background: linear-gradient(to left, rgb(23 32 51 / 18%), transparent);
+      content: "";
+      pointer-events: none;
+    }
   }
   th.fn-table-fixed-left,
   th.fn-table-fixed-right {
@@ -439,11 +488,15 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     }
 
     .fn-table-fixed-left-shadow {
-      box-shadow: 12px 0 18px -8px rgb(0 0 0 / 55%);
+      &::after {
+        background: linear-gradient(to right, rgb(0 0 0 / 55%), transparent);
+      }
     }
 
     .fn-table-fixed-right-shadow {
-      box-shadow: -12px 0 18px -8px rgb(0 0 0 / 55%);
+      &::before {
+        background: linear-gradient(to left, rgb(0 0 0 / 55%), transparent);
+      }
     }
 
     th.fn-table-fixed-left,

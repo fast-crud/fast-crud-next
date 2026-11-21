@@ -33,15 +33,18 @@ export interface FnDictStore {
 }
 export interface FnFormInstance<Form = Record<string, any>> {
   save: () => Promise<any>;
-  reset: () => Form;
+  reset: () => Promise<Form>;
   getForm: () => Form;
   getContext: () => FnFormContext<Form>;
   validate: () => Promise<boolean>;
 }
 
 export interface FnFormDialogInstance<Form = Record<string, any>> {
-  open: (options: FnFormDialogOptions<Form>) => Promise<Form | undefined>;
+  open: (options: FnFormDialogOptions<Form>) => Promise<FnFormContext<Form>>;
   close: () => void;
+  reset: () => Promise<void>;
+  cancel: () => Promise<void>;
+  submit: () => Promise<void>;
   getFormData: () => Form | undefined;
 }
 
@@ -63,15 +66,16 @@ export interface FnModalProps {
   width?: number | string;
   draggable?: boolean;
   confirmLoading?: boolean;
-  buttons?: Partial<Record<"reset" | "cancel" | "confirm", FnButtonProps<void>>>;
+  buttons?: Partial<Record<string, FnButtonProps<void>>>;
   footer?: boolean | null;
   slots?: FnSlots;
 }
 export interface FnModalInstance {
-  state: { open: ComputedRef<boolean>; fullscreen: Ref<boolean> };
-  openModal: () => void;
+  fullscreen: Ref<boolean>;
+  open: () => void;
   close: () => void;
   setFullscreen: (value: boolean) => void;
+  toggleFullscreen: () => void;
 }
 export type FnRenderSlot = (ctx?: Record<string, any>) => VNodeChild;
 export type FnSlots = Partial<Record<string, FnRenderSlot>>;
@@ -91,10 +95,10 @@ export interface FnFormContext<Form = Record<string, any>> {
   mode?: string;
   columns?: Record<string, FnDynamic<FnFormColumn>>;
   validate?: () => Promise<boolean>;
-  reset?: () => void;
-  dialog?: FnDialogContext<Form>;
+  reset?: () => void | Promise<void>;
   submit?: () => Promise<void>;
   close?: () => void;
+  fullscreen?: Ref<boolean>;
 }
 
 export interface FnFormContextRef {
@@ -129,7 +133,7 @@ export interface FnComputeContext<Row = any, Form = Record<string, any>, SearchF
   validate?: () => Promise<boolean>;
   reset?: () => void;
   columns?: Record<string, any>;
-  dialog?: FnDialogContext<Form>;
+  dialog?: FnDialogContext;
   submit?: () => Promise<void>;
   close?: () => void;
 }
@@ -144,12 +148,10 @@ export interface FnComputeValue<T = any> {
   readonly computeFn: (context: FnComputeContext) => T;
 }
 
-export type FnDialogContext<Form = Record<string, any>> = {
+export type FnDialogContext = {
   close: () => void;
-  confirm: () => void;
-  loading: Ref<boolean>;
-  open: Ref<boolean>;
-  formCtx?: FnFormContext<Form>;
+  open: () => void;
+  fullscreen: Ref<boolean>;
 };
 
 export interface FnDialogProps<Form = Record<string, any>> {
@@ -159,18 +161,17 @@ export interface FnDialogProps<Form = Record<string, any>> {
   draggable?: boolean;
   buttons?: Partial<Record<"reset" | "cancel" | "confirm", FnButtonProps<FnFormContext<Form>>>>;
   footer?: boolean | null;
-  onOpen?: (ctx: FnDialogContext<Form>) => void;
-  onClose?: (ctx: FnDialogContext<Form>) => void;
-  onOpened?: (ctx: FnDialogContext<Form>) => void;
+  onOpen?: (ctx: FnDialogContext) => void;
+  onClose?: (ctx: FnDialogContext) => void;
+  onOpened?: (ctx: FnDialogContext) => void;
   slots?: FnSlots;
 }
 
 export interface FnFormProps<Form = Record<string, any>> {
   dialog?: Omit<FnDialogProps<Form>, "body">;
-  title?: string;
   width?: number | string;
   draggable?: boolean;
-  columns: Record<string, FnFormColumn>;
+  columns?: Record<string, FnFormColumn>;
   mode?: string;
   initialForm?: Form;
   labelCol?: Record<string, any>;
@@ -433,9 +434,9 @@ export interface FnCrudExpose<Row = any> {
     getSearchForm: () => Record<string, any>;
   };
   form: {
-    openAddForm: (initialForm?: Record<string, any>) => Promise<Record<string, any> | undefined>;
-    openEditForm: (row: Row, initialForm?: Record<string, any>) => Promise<Record<string, any> | undefined>;
-    openFormDialog: (options: FnFormDialogOptions) => Promise<Record<string, any> | undefined>;
+    openAddForm: (initialForm?: Record<string, any>) => Promise<FnFormContext>;
+    openEditForm: (row: Row, initialForm?: Record<string, any>) => Promise<FnFormContext>;
+    openFormDialog: (options: FnFormDialogOptions) => Promise<FnFormContext>;
     getFormData: () => Record<string, any> | undefined;
     close: () => void;
   };

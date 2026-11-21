@@ -4,7 +4,7 @@
       <div v-for="column in formColumns" :key="column.key" class="fn-form-column" :style="{ gridColumn: `span ${column.span ?? 12}` }">
         <FnFormItem v-if="column.show !== false" :label="column.title" :error="errors[column.key]" :help="column.helper" :html-for="column.key" v-bind="column.itemProps">
           <slot :name="column.key" :column="column" :form="formState" :value="formState[column.key]">
-            <FnComponentRender v-if="column.component" v-bind="getComponentProps(column)" v-model:model-value="formState[column.key]" scope="form" :field-key="column.key" />
+            <FnComponentRender v-if="column.component" :name="column.component.name!" v-bind="getComponentProps(column)" v-model:model-value="formState[column.key]" scope="form" :field-key="column.key" />
             <FnInput v-else :id="column.key" v-model="formState[column.key]" @update:model-value="validateField(column.key)" @blur="validateField(column.key)" />
           </slot>
         </FnFormItem>
@@ -34,6 +34,7 @@ const props = withDefaults(
   >(),
   {
     initialForm: () => ({}),
+    columns: () => ({}),
     gutter: 8,
     formProps: () => ({}),
     mode: "add",
@@ -88,8 +89,8 @@ function getContext(): FnFormContext {
     mode: mode.value,
     columns: props.columns,
     formRef,
-    reset: () => {
-      reset();
+    reset: async () => {
+      await reset();
     },
     validate: async () => {
       await validate();
@@ -98,11 +99,11 @@ function getContext(): FnFormContext {
   };
 }
 
-function reset(): Record<string, any> {
+async function reset(): Promise<Record<string, any>> {
   Object.keys(formState).forEach(key => delete formState[key]);
   Object.assign(formState, initialValues);
   clearValidate();
-  props.onReset?.(getContext());
+  await props.onReset?.(getContext());
   return getForm();
 }
 
@@ -125,9 +126,6 @@ async function save(): Promise<any> {
   emit("save", form);
   if (props.onSubmit) {
     await props.onSubmit(getContext());
-  }
-  if (props.onSave) {
-    return await props.onSave(form);
   }
   return form;
 }

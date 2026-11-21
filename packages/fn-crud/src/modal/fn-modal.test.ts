@@ -5,6 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { describe, it, expect, vi } from "vitest";
 import { reactive } from "vue";
+import { useMerge } from "../use/use-merge";
 
 const filename = fileURLToPath(new URL("./fn-modal.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -16,6 +17,7 @@ const loadDependency = (name: string) => {
   if (name === "@lucide/vue" || name === "../components/fn-button.vue" || name === "../components/fn-render") {
     return {};
   }
+  if (name === "../use/use-merge") return { useMerge };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);
@@ -102,9 +104,9 @@ describe("FnModal 状态归属", () => {
     setup.close();
 
     expect(emit).toHaveBeenCalledWith("update:open", false);
-    expect(exposed.state.open.value).toBe(true);
+    expect(exposed.open).toEqual(expect.any(Function));
+    expect(exposed.fullscreen.value).toBe(false);
     props.open = false;
-    expect(exposed.state.open.value).toBe(false);
   });
 
   it("fullscreen 是内部状态，不接收外部 prop 或发出 v-model 事件", () => {
@@ -112,22 +114,22 @@ describe("FnModal 状态归属", () => {
     let exposed: any;
     const setup = module.exports.default.setup({ fullscreen: true }, { expose: (value: unknown) => (exposed = value), emit });
 
-    expect(exposed.state.fullscreen.value).toBe(false);
+    expect(exposed.fullscreen.value).toBe(false);
     setup.toggleMaximized();
 
-    expect(exposed.state.fullscreen.value).toBe(true);
+    expect(exposed.fullscreen.value).toBe(true);
     expect(emit).not.toHaveBeenCalledWith("update:fullscreen", true);
   });
 });
 
 describe("FnModal 过渡", () => {
-  it("使用 Vue 离场过渡，并在离场完成后通知 afterClose", () => {
-    expect(descriptor.template?.content).toContain('<Transition name="fn-modal" @after-leave="emit(\'afterClose\')">');
+  it("使用 Vue 离场过渡，并在离场完成后通知 closed", () => {
+    expect(descriptor.template?.content).toContain('<Transition name="fn-modal" @after-leave="emit(\'closed\')">');
     expect(descriptor.styles[0]?.content).toContain(".fn-modal-enter-from");
     expect(descriptor.styles[0]?.content).toContain("transition: background-color 180ms ease");
     expect(descriptor.styles[0]?.content).toContain("background-color: transparent");
     expect(descriptor.styles[0]?.content).toContain("scale: 0.96");
-    expect(script.content).not.toContain('emit("afterClose");');
+    expect(script.content).not.toContain('emit("closed");');
   });
 });
 

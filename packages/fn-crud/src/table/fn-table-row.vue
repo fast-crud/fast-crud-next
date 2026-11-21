@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import get from "lodash-es/get";
 import { computed } from "vue";
 import FnRender from "../components/fn-render";
 import type { FnDynamic, FnRenderSlot, FnRowContext, FnTableColumn, FnTableRow } from "../types/index";
@@ -48,12 +49,7 @@ const resolvedColumns = computed(() => props.columns.map(column => {
 }));
 
 function getCellValue(row: FnTableRow, column: FnTableRowColumn): unknown {
-  return column.key.split(".").reduce<unknown>((value, key) => {
-    if (typeof value !== "object" || value === null) {
-      return undefined;
-    }
-    return (value as Record<string, unknown>)[key];
-  }, row);
+  return get(row, column.key);
 }
 
 function setComponentRef(key: string, instance: unknown): void {

@@ -5,6 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { compute, resolveComputedValue } from "../use/compute";
+import { useMerge } from "../use/use-merge";
 
 const filename = fileURLToPath(new URL("./fn-form-dialog.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -15,15 +16,15 @@ const module = { exports: {} as any };
 const loadDependency = (name: string) => {
   if (name === "../modal/fn-modal.vue" || name === "./fn-form.vue") return {};
   if (name === "../use/compute") return { resolveComputedValue };
+  if (name === "../use/use-merge") return { useMerge };
   if (name === "../use/use-fn-ui-services") return { useFnUiServices: () => ({ notification: { error: vi.fn() }, message: { error: vi.fn() } }) };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);
 
-it("将包装了 formDialog context 的 dialog.slots 传给 FnModal", () => {
-  expect(descriptor.template?.content).toContain('v-bind="resolvedForm?.dialog"');
-  expect(descriptor.template?.content).toContain(':slots="dialogSlots"');
-  expect(descriptor.template?.content).not.toContain("#[name]");
+it("将 form dialog props 分别传给 FnModal 和 FnForm", () => {
+  expect(descriptor.template?.content).toContain('v-bind="computedModalProps"');
+  expect(descriptor.template?.content).toContain('v-bind="computedFormProps"');
   expect(script.content).toContain("() => render(getFormContext())");
 });
 
@@ -38,11 +39,11 @@ it("插槽包装调用时读取最新 formDialog context", () => {
     reset: () => form,
   };
 
-  setup.dialogSlots.value.headerRight();
+  setup.computedModalProps.value.slots.headerRight();
 
   expect(render).toHaveBeenCalledWith(expect.objectContaining({
     form,
-    dialog: expect.objectContaining({ close: expect.any(Function), confirm: expect.any(Function) }),
+    fullscreen: undefined,
     submit: expect.any(Function),
     close: expect.any(Function),
   }));
@@ -56,9 +57,9 @@ it("动态表单配置使用 formDialog context，并保留取消回调", async 
     mode: "edit",
     initialForm: form,
     columns: {
-      kind: compute(({ form: values, dialog, type }) => ({
+      kind: compute(({ form: values, type }) => ({
         component: {
-          name: `${type}-${values?.kind}-${dialog?.open.value ? "open" : "closed"}`,
+          name: `${type}-${values?.kind}`,
         },
       })),
     },
@@ -71,52 +72,81 @@ it("动态表单配置使用 formDialog context，并保留取消回调", async 
     reset: () => form,
   };
 
-  expect(setup.resolvedForm.value.columns.kind.component.name).toBe("form-user-closed");
-  await setup.cancelForm();
+  expect(setup.computedFormDialogProps.value.columns.kind.component.name).toBe("form-user");
+  await setup.computedModalProps.value.buttons.cancel.click();
   expect(cancel).toHaveBeenCalledOnce();
 });
 
-it("弹窗 ref 创建前调用 close 会结束当前表单流程", async () => {
+it("等待 FnForm 挂载后返回 FnFormContext", async () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
-  const result = setup.open({ columns: {} });
+  const context = await setup.open({ columns: {}, initialForm: { name: "record" } });
 
-  setup.close();
-
-  await expect(result).resolves.toBeUndefined();
+  expect(context).toEqual(expect.objectContaining({ type: "form", form: { name: "record" } }));
+  expect(context.close).toEqual(expect.any(Function));
 });
 
-it("在 FnFormDialog context 中计算合并后的动态表单选项", async () => {
+it("在 FnFormDialog context 中计算合并后的动态表单选项", () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
-  const result = setup.open({
+  setup.open({
     columns: {},
     mode: "edit",
     initialForm: { name: "certd" },
-    title: compute(({ form, mode }) => `${mode}:${form?.name}`),
+    dialog: { title: compute(({ form, mode }) => `${mode}:${form?.name}`) },
   });
 
-  expect(setup.resolvedForm.value.title).toBe("edit:certd");
-  expect(setup.resolvedForm.value.dialog.title).toBe("edit:certd");
-  setup.close();
-  await expect(result).resolves.toBeUndefined();
+  expect(setup.computedFormDialogProps.value.dialog.title).toBe("edit:certd");
+});
+
+it("将顶层尺寸配置应用到 Modal，并让 dialog 配置优先", () => {
+  const setup = module.exports.default.setup({}, { expose: () => {} });
+  setup.open({ columns: {}, width: 720, draggable: false, dialog: { width: 840, draggable: true } });
+
+  expect(setup.computedModalProps.value.width).toBe(840);
+  expect(setup.computedModalProps.value.draggable).toBe(true);
 });
 
 it("提交时执行动态解析后的 onSubmit 回调", async () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
   const submit = vi.fn();
   const form = { name: "new-service" };
-  setup.open({ columns: {}, onSubmit: submit });
+  const contextPromise = setup.open({ columns: {}, onSubmit: submit });
   setup.formRef.value = {
-    save: async () => form,
+    save: async () => {
+      await setup.computedFormProps.value.onSubmit({ type: "form", form });
+      return form;
+    },
     getContext: () => ({ type: "form", form, columns: {} }),
     getForm: () => form,
     validate: async () => true,
     reset: () => form,
   };
+  const context = await contextPromise;
 
-  await setup.submitForm();
+  await setup.submit();
 
   expect(submit).toHaveBeenCalledOnce();
   expect(submit).toHaveBeenCalledWith(expect.objectContaining({ form }));
+  expect(context.form).toBe(form);
+});
+
+it("重置时执行合并并解析后的 onReset 回调", async () => {
+  const setup = module.exports.default.setup({}, { expose: () => {} });
+  const onReset = vi.fn();
+  const form = { name: "initial" };
+  setup.open({
+    columns: {},
+    initialForm: form,
+    onReset: compute(({ form: values }) => () => onReset(values)),
+  });
+  setup.formRef.value = {
+    getForm: () => form,
+    reset: vi.fn(),
+    validate: async () => true,
+  };
+
+  setup.computedFormProps.value.onReset({ type: "form", form });
+
+  expect(onReset).toHaveBeenCalledWith(form);
 });
 
 it("动态表单配置只依赖公开的表单数据接口", () => {
@@ -127,7 +157,7 @@ it("动态表单配置只依赖公开的表单数据接口", () => {
     columns: {
       name: compute(({ form: values }) => ({ title: values?.name })),
     },
-    title: compute(({ form: values }) => values?.name),
+    dialog: { title: compute(({ form: values }) => values?.name) },
   });
   setup.formRef.value = {
     getForm: () => form,
@@ -135,16 +165,15 @@ it("动态表单配置只依赖公开的表单数据接口", () => {
     reset: () => form,
   };
 
-  expect(setup.resolvedForm.value.title).toBe("certd");
-  expect(setup.resolvedForm.value.columns.name.title).toBe("certd");
+  expect(setup.computedFormDialogProps.value.dialog.title).toBe("certd");
+  expect(setup.computedFormDialogProps.value.columns.name.title).toBe("certd");
 });
 
 it("表单弹窗默认显示页脚按钮，并允许单独隐藏配置按钮", () => {
   const setup = module.exports.default.setup({}, { expose: () => {} });
   setup.open({ columns: {}, dialog: { buttons: { cancel: { show: false } } } });
 
-  expect(descriptor.template?.content).toContain(':footer="resolvedForm?.dialog?.footer ?? true"');
-  expect(setup.dialogButtons.value.reset.show).toBe(true);
-  expect(setup.dialogButtons.value.cancel.show).toBe(false);
-  expect(setup.dialogButtons.value.confirm.show).toBe(true);
+  expect(setup.computedModalProps.value.buttons.reset.show).toBe(true);
+  expect(setup.computedModalProps.value.buttons.cancel.show).toBe(false);
+  expect(setup.computedModalProps.value.buttons.confirm.show).toBe(true);
 });

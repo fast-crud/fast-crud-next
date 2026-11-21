@@ -13,7 +13,7 @@
       :footer="dialog.Props.footer"
       @update:open="dialog.open = $event"
       @confirm="confirm(dialog)"
-      @after-close="finish(dialog)"
+      @closed="finish(dialog)"
     >
       <component :is="dialog.Props.body" v-if="dialog.Props.body" />
       <template v-for="(slot, name) in dialog.Props.slots" :key="name" #[name]><component :is="slot" /></template>
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, shallowReactive } from "vue";
+import { nextTick, reactive, shallowReactive, toRef } from "vue";
 import FnModal from "./fn-modal.vue";
 import { provideFnModal } from "./dialog";
 import { useFnUiServices } from "../use/use-fn-ui-services";
@@ -59,7 +59,8 @@ function getDialogContext(dialog: FnDialogRecord): FnDialogContext {
     confirm: () => {
       void confirm(dialog);
     },
-    loading: dialog.loading,
+    loading: toRef(dialog, "loading"),
+    open: toRef(dialog, "open"),
   };
 }
 

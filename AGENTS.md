@@ -12,12 +12,20 @@
 - 不添加 Ant Design Vue。基础表格、表单、搜索、弹窗和工具栏应使用本地 Fn 组件或原生 HTML 控件；可选主题适配器必须保持独立，不得由基础入口加载。
 - demo 数据和页面展示放在 `src/App.vue`；可复用的组件行为放在 `src/crud`。
 
+## 设计原则
+
+- 每类配置和运行时状态都应有明确的唯一所有者，并沿单一数据流传递。组合多个来源时明确优先级，在所属边界合成完整配置；不要再用 `formOptions` 这类嵌套载荷重复包装已经合并的配置。
+- 配置处理分为两个连续阶段：先使用 `useMerge().merge` 深度合并各来源，再由拥有正确上下文的组件解析 `compute(...)` 等动态值。动态性优先放在叶子属性；只有对象结构本身随上下文变化时才整体计算。
+- 组件按职责分工：状态由一个组件持有，回调由对应领域组件执行，组合组件负责映射配置与协调生命周期。不要让多个组件重复维护状态或重复解释同一份配置。
+- API 的返回值和事件应准确表达生命周期与数据语义。需要等待子组件挂载才能构造有效 context 时，等待后返回该 context；按钮回调负责动作，不用 Promise 返回值替代已有的 context。
+
 ## 实现约定
 
 - Vue 单文件组件使用 Vue 3 Composition API 和 `<script setup lang="tsx">`；公开配置、事件和组合式函数保留明确的 TypeScript 类型。
 - 配置示例优先保留静态对象结构；动态值优先使用叶子节点属性上的 `ref`、`computed` 或 `compute(...)`，不要仅为动态单个属性包装整块 `form`、`cell` 或 `component`。只有对象结构本身确实随上下文变化时才整体使用 `compute(...)`。
 - 所有返回 VNode 的 render 方法使用 TSX/JSX 语法编写，不使用 `h()` 拼接 render 树。
 - 优先复用现有 Fn 组件和原生 HTML 控件，不为基础交互引入 UI 框架。
+- 读取或写入对象嵌套路径时优先使用 `lodash-es/get` 和 `lodash-es/set`，不要手写 `split('.')` 配合循环或 `reduce` 遍历路径；普通记录键、配置键和数组索引访问不属于路径操作，不需要强行替换。
 - 组件库已有图标使用 `@lucide/vue`。
 - 所有 Vue 组件样式统一使用 `<style lang="less">`，并用 Less 大括号嵌套结构编写；默认不使用 `scoped`。选择器应尽量嵌套在组件名对应的根 class 下，避免无根 class 的全局规则；Teleport/Portal、Transition 状态等根节点外渲染的内容，可使用有明确组件前缀的独立根 class。确需使用 `scoped` 时应说明原因；可复用组件需要保留日间和夜间主题表现。
 - CRUD state 使用单一数据源：通过 `reactive<FnCrudState>()` 创建，调用 `useFnCrud(state)` 初始化，并将同一份 state 通过 `v-bind` 传给 FnCrud。
