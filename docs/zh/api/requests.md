@@ -10,7 +10,8 @@
 | `infoRequest` | `(id: string \| number) => Promise<Record<string, any>>` | 可选。在编辑弹窗打开前加载详情。省略时使用列表行。 |
 | `addRequest` | `(form: Record<string, any>) => Promise<any>` | 默认新增表单校验通过后调用。 |
 | `editRequest` | `(form: Record<string, any>) => Promise<any>` | 默认编辑表单校验通过后调用。 |
-| `delRequest` | `(id: string \| number) => Promise<any>` | 删除确认后调用，内置批量删除按选中行键逐条调用。 |
+| `delRequest` | `(id: string \| number) => Promise<any>` | 单行删除确认后调用。 |
+| `batchDelRequest` | `(ids: string[]) => Promise<any>` | 批量删除确认后调用一次，接收全部选中行的字符串键。 |
 
 默认新增、编辑、删除请求成功后刷新当前列表。成功返回值可由业务自己定义，失败应拒绝 Promise。使用原生 `fetch` 时，检查 `response.ok` 并在失败时抛出错误。FnCrud 当前将内部生成的行键转成字符串，后端接线时按接口约定转换。
 

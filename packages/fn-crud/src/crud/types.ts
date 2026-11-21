@@ -274,6 +274,7 @@ export interface FnCrudOptions<Row = any> {
     addRequest?: (form: Record<string, any>) => Promise<any>;
     editRequest?: (form: Record<string, any>) => Promise<any>;
     delRequest?: (id: string | number) => Promise<any>;
+    batchDelRequest?: (ids: string[]) => Promise<any>;
     infoRequest?: (id: string | number) => Promise<Record<string, any>>;
   };
   table?: FnCrudTableOptions;

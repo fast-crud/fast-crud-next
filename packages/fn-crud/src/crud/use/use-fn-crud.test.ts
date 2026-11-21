@@ -50,16 +50,18 @@ it("响应式语言切换后更新当前操作栏并保留页面配置", () => {
       actionbar: { buttons: { add: { text: "Create" } } },
     }),
   });
+  const openAddForm = vi.fn();
   const props = useActionbarProps(
     { columns: {}, request: { pageRequest: vi.fn() }, actionbar: state.actionbar },
-    vi.fn(),
-    ref(true),
+    openAddForm,
+    ref([]),
     vi.fn(),
   );
 
   expect(props.value.buttons.batch).toMatchObject({ text: "批量操作", items: [{ label: "批量删除" }] });
   locale.value = "en-US";
   expect(props.value.buttons.add.text).toBe("Create");
+  expect(props.value.buttons.add.click).toBe(openAddForm);
   expect(props.value.buttons.batch).toMatchObject({ text: "Batch Actions", items: [{ label: "Batch Delete" }] });
   expect(state.form).toMatchObject({ dialog: { title: "Edit" } });
   locale.value = "zh-CN";
@@ -106,7 +108,7 @@ it("useFnCrud 保留用户 actionbar 按钮并补齐默认按钮", () => {
   }) as any;
   useFnCrud({ state });
 
-  const props = useActionbarProps(state, vi.fn(), ref(false), vi.fn()).value;
+  const props = useActionbarProps(state, vi.fn(), ref([]), vi.fn()).value;
 
   expect(Object.keys(props.buttons)).toEqual(["add", "batch", "custom"]);
   expect(props.buttons.add).toMatchObject({ text: "添加", type: "primary", show: true, order: -100 });

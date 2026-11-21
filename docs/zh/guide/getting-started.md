@@ -1,6 +1,6 @@
 # 快速开始
 
-先打开仓库里的示例，确认本地环境可以运行，再把最小列表放进自己的 Vue 页面。使用 Django 做后端时，可以直接跟着 [Django 实战](./django.md)走完前后端接通。维护已有 Fast Crud 页面时，先看[迁移对照](./from-fast-crud.md)。
+先打开仓库里的示例，确认本地环境可以运行，再把最小列表放进自己的 Vue 页面。要将 FnCrud 接入已有应用，可以跟着[项目集成](./project-integration.md)走完前后端接通。维护已有 Fast Crud 页面时，先看[迁移对照](./from-fast-crud.md)。
 
 ## 先运行一个完整页面
 

@@ -187,6 +187,7 @@ function handleRippleTransitionEnd(event: TransitionEvent, id: number): void {
     color: var(--fn-color-error, #dc3545);
     background: transparent;
     &:hover:not(:disabled) {
+      border-color: transparent;
       background: color-mix(in srgb, var(--fn-color-error, #dc3545) 9%, transparent);
     }
   }

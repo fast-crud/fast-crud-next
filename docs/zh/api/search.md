@@ -49,4 +49,4 @@ search: {
 | `tabs.slots.before`、`after` | `{ tabs, modelValue }` | 添加在标签区头尾。 |
 | `tabs.slots.item` | `{ item, active }` | 自定义标签内容。 |
 
-在 [Admin 请求 Mock](../demos/admin.md)的 `/crud/basis/request-mock` 搜索服务名称。打开 `/crud/dict/credentials` 可验证标签筛选和计数。
+在 [Admin 请求 Mock](../demos/admin.md)的 `/crud/basis/request-mock` 搜索服务名称。打开 `/crud/dict/credentials` 可验证标签筛选和计数。`tabs.refCol` 读取到选项时，首位默认显示「全部」，点击后清除该字段的筛选。可通过 `tabs.tabs[""]` 覆盖该标签的配置，设置 `show: false` 可隐藏。

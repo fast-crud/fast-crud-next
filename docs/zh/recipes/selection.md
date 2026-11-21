@@ -22,3 +22,5 @@ rowSelect: {
 ```
 
 `useFnCrud` 将选中键写回 `state.rowSelect.selectedRowKeys`。业务批量操作读取这些键，必要时再向后端查询记录。在 `/crud/feature/selection` 选中一行、翻页再选一行，检查批量操作是否包含两页的选中项。参阅 [Admin 示例](../demos/admin.md)和[表格 API](../api/table.md)。
+
+跨页选择示例通过 `#actionRight="{ selectedRowKeys }"` 在操作栏内置按钮后展示跨页累计的选中条数，旁边可直接执行批量发布。

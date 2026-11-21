@@ -6,7 +6,11 @@
           <FnHeading v-if="(col.type === 'header' || col.type === 'heading') && headingProps.show !== false" v-bind="headingProps" />
           <FnTabs v-else-if="col.type === 'tabs' && tabsProps.show !== false" v-bind="tabsProps" />
           <FnSearch v-else-if="col.type === 'search' && searchProps.show !== false" v-bind="searchProps" />
-          <FnActionbar v-else-if="col.type === 'actionbar' && actionbarProps.show !== false" v-bind="actionbarProps" />
+          <FnActionbar v-else-if="col.type === 'actionbar' && actionbarProps.show !== false" v-bind="actionbarProps">
+            <template v-if="vueSlots.actionRight" #actionRight>
+              <slot name="actionRight" :selected-row-keys="getSelectedRowKeys()" />
+            </template>
+          </FnActionbar>
           <FnToolbar v-else-if="col.type === 'toolbar' && toolbarProps.show !== false" v-bind="toolbarProps" />
         </div>
       </div>
@@ -60,7 +64,7 @@ const {
   page,
   tabsCounts,
   tableProps,
-  canBatchDelete,
+  selectedRowKeys,
   getRecordId,
   getSelectedRowKeys,
   clearSelectedRowKeys,
@@ -100,8 +104,8 @@ function confirmDelete(rowOrId: FnTableRow | string | number): ReturnType<typeof
 }
 function openBatchDeleteDialog(): ReturnType<typeof model.confirm> | undefined {
   const selectedKeys = getSelectedRowKeys();
-  const delRequest = props.request.delRequest;
-  if (!selectedKeys.length || !delRequest) {
+  const batchDelRequest = props.request.batchDelRequest;
+  if (!selectedKeys.length || !batchDelRequest) {
     return;
   }
   return model.confirm({
@@ -112,9 +116,7 @@ function openBatchDeleteDialog(): ReturnType<typeof model.confirm> | undefined {
         text: "删除",
         danger: true,
         click: async () => {
-          for (const id of selectedKeys) {
-            await delRequest(id);
-          }
+          await batchDelRequest(selectedKeys);
           notification.success({ message: `已删除 ${selectedKeys.length} 条记录` });
           clearSelectedRowKeys();
           await refresh();
@@ -137,7 +139,7 @@ async function deleteById(id: string | number): Promise<void> {
   notification.success({ message: "删除成功" });
   await refresh();
 }
-const actionbarProps = useActionbarProps(props, openAddForm, canBatchDelete, handleActionbarSelect);
+const actionbarProps = useActionbarProps(props, openAddForm, selectedRowKeys, handleActionbarSelect);
 const toolbarProps = useToolbarProps(props, {
   density,
   preferencesLoaded,

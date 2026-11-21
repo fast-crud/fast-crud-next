@@ -5,7 +5,7 @@
 | 任务或符号 | 起点 |
 | --- | --- |
 | `FnCrud`、`FnConfigProvider`、`useFnCrud`、`FnCrudState`、`FnCrudExpose` | [快速开始](./guide/getting-started.md) · [FnCrud API](./api/fn-crud.md) |
-| Django、Vite proxy、CSRF | [Django 实战](./guide/django.md) |
+| 项目集成、后端接口、Vite 代理、Django、CSRF | [项目集成](./guide/project-integration.md) |
 | `@fast-crud/fast-crud`、`useFs`、`crudBinding` | [从 Fast Crud 迁移](./guide/from-fast-crud.md) |
 | `installFnCrud`、`commonOptions`、`locale` | [全局安装与语言](./guide/installation.md) |
 | `columns[key].type`、`addTypes`、`dict-select` | [字段类型](./guide/column-types.md) |

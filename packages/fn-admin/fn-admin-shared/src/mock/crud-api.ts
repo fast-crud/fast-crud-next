@@ -12,6 +12,7 @@ export function createCrudApi<Row>(name: string) {
     addRequest: (form: Record<string, any>) => requestMock({ method: 'post', url: `${path}/add`, data: form }),
     editRequest: (form: Record<string, any>) => requestMock({ method: 'post', url: `${path}/update`, data: form }),
     delRequest: (id: string | number) => requestMock({ method: 'post', url: `${path}/delete`, params: { id }, data: {} }),
+    batchDelRequest: (ids: string[]) => requestMock({ method: 'post', url: `${path}/batchDelete`, data: { ids } }),
     custom: <Result>(endpoint: string, data: unknown) => requestMock<Result>({ method: 'post', url: `${path}/${endpoint}`, data }),
   }
 }

@@ -204,7 +204,7 @@ const mockUtil: any = {
         path: "/mock/" + name + "/byIds",
         method: "post",
         handle(req: any) {
-          const ids = req.body.ids;
+          const ids = new Set((req.body.ids as (string | number)[]).map(String));
           const res = findByIds(ids, list);
           return {
             code: 0,
@@ -268,7 +268,7 @@ const mockUtil: any = {
           const ids = req.body.ids;
           for (let i = list.length - 1; i >= 0; i--) {
             const item = list[i];
-            if (ids.indexOf(item.id) >= 0) {
+            if (ids.has(String(item.id))) {
               list.splice(i, 1);
             }
           }

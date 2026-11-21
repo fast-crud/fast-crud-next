@@ -55,7 +55,6 @@ export function createRowSelectionColumn(options: {
 export function useSelection(props: FnCrudOptions, data: Ref<FnTableRow[]>) {
   const selectedRowKeys = computed(() => (props.rowSelect?.selectedRowKeys || []).map(String));
   const rowSelectionName = `fn-crud-selection-${useId()}`;
-  const canBatchDelete = computed(() => selectedRowKeys.value.length > 0 && Boolean(props.request.delRequest));
 
   function getRecordId(row: FnTableRow, index = data.value.indexOf(row)): string {
     return String(getFnTableRowKey(row, index, props.table?.rowKey));
@@ -133,7 +132,6 @@ export function useSelection(props: FnCrudOptions, data: Ref<FnTableRow[]>) {
   return {
     selectedRowKeys,
     rowSelectionName,
-    canBatchDelete,
     selectionColumn,
     getRecordId,
     changeSelection,

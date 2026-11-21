@@ -159,7 +159,7 @@ it("默认行操作按钮和未显式隐藏的自定义按钮保持可见", () =
     return [];
   };
   const rowButtons = findButtons(rendered.children);
-  const actionbarButtons = (useActionbarProps(props, vi.fn(), ref(false), vi.fn()) as any).value.buttons;
+  const actionbarButtons = (useActionbarProps(props, vi.fn(), ref([]), vi.fn()) as any).value.buttons;
 
   expect(rowButtons.map((button: any) => button.props.show)).toEqual([true, true, true, false]);
   expect(actionbarButtons.custom.show).toBeUndefined();
@@ -177,7 +177,7 @@ it("actionbar 按钮按 order 升序排列，未设置 order 的按钮保留在�
     } },
   } as unknown as FnCrudOptions;
 
-  const buttons = (useActionbarProps(props, vi.fn(), ref(false), vi.fn()) as any).value.buttons;
+  const buttons = (useActionbarProps(props, vi.fn(), ref([]), vi.fn()) as any).value.buttons;
 
   expect(Object.keys(buttons)).toEqual(["earlier", "later", "defaultOrder", "add"]);
 });

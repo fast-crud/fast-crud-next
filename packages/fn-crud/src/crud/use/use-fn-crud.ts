@@ -66,6 +66,7 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
       dialog: {
         title: computed(() => t("fnCrud.crud.formDialog.edit")),
         buttons: {
+          reset: { icon: defaultCrudButtonIcons.reset },
           cancel: { icon: defaultCrudButtonIcons.cancel },
           confirm: { icon: defaultCrudButtonIcons.confirm },
         },

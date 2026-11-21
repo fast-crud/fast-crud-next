@@ -69,7 +69,7 @@ watch(
     flex: none;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
+    min-height: 35px;
     padding: 0 1px;
     border: 0;
     color: var(--fn-color-text-tertiary);

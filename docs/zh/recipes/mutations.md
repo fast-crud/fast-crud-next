@@ -1,6 +1,6 @@
 # 新增、编辑和删除
 
-从能查询的列表开始。这里以用户列表为例，`api` 是应用已有的请求模块，`loadUsers` 是已经接好的分页函数。Django 项目可参考[从接口到页面的完整示例](../guide/django.md)。
+从能查询的列表开始。这里以用户列表为例，`api` 是应用已有的请求模块，`loadUsers` 是已经接好的分页函数。需要从后端接口接起时，请查看[项目集成](../guide/project-integration.md)。
 
 ## 接入请求并显示按钮
 
@@ -13,10 +13,11 @@ request: {
   addRequest: form => api.createUser(form),
   editRequest: form => api.updateUser(Number(form.id), form),
   delRequest: id => api.deleteUser(Number(id)),
+  batchDelRequest: ids => api.deleteUsers(ids.map(Number)),
 }
 ```
 
-开启操作栏可使用内置新增按钮。行操作区负责编辑和删除。示例接口使用数字主键，所以适配层调用 `Number(id)`。使用 UUID 等字符串主键时直接保留原值。
+开启操作栏可使用内置新增按钮。默认点击会打开新增表单，`useFnCrud({ state })` 即可使用。需要覆盖默认动作时可配置 `actionbar.buttons.add.click`。行操作区负责编辑和删除。示例接口使用数字主键，所以适配层调用 `Number(id)`。使用 UUID 等字符串主键时直接保留原值。
 
 编辑弹窗优先使用 `infoRequest` 的响应初始化。确保响应含更新接口要用的 `id`。列表行已经带有全部可编辑字段时，可省略详情请求。
 

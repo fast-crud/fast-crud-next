@@ -24,7 +24,7 @@ export default defineConfig({
             text: '指南',
             items: [
               { text: '快速开始', link: '/guide/getting-started' },
-              { text: '接入 Django', link: '/guide/django' },
+              { text: '项目集成', link: '/guide/project-integration' },
               { text: '从 Fast Crud 迁移', link: '/guide/from-fast-crud' },
               { text: '核心配置', link: '/guide/configuration' },
               { text: '全局安装与语言', link: '/guide/installation' },

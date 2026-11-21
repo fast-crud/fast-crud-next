@@ -51,3 +51,14 @@ rowSelect: {
 调用 `crud.table.getSelectedRowKeys()` 可读取全部选中 key，包括跨页保留的 key。
 
 `useFnCrud({ state, crudRef })` 会安装 `rowSelect.onChange`，将选择变化写回 `state.rowSelect.selectedRowKeys` 并继续调用用户传入的回调。默认 actionbar 提供「批量操作」下拉菜单，其中「批量删除」按选中 keys 调用 `request.delRequest`，确认成功后清空选择并刷新列表。actionbar 按钮只负责按钮配置，不接收 selectedRow 上下文；业务批量操作直接读取 `state.rowSelect.selectedRowKeys`。
+## 批量删除
+
+启用行选择后，通过 `request.batchDelRequest` 接入批量删除接口。确认后调用一次，参数为全部选中行的字符串键。请求成功后清空选中项并刷新列表。
+
+```ts
+request: {
+  pageRequest: api.pageRequest,
+  batchDelRequest: ids => api.deleteUsers(ids),
+}
+```
+

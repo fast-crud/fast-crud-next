@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, markRaw, reactive, ref } from "vue";
-import { FnCrud, FnInput, type FnCrudExpose, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
+import { FnButtonBase, FnCrud, FnInput, type FnCrudExpose, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type ChangeRequest } from "./api";
 const crud = ref<FnCrudExpose<ChangeRequest>>();
 const state = reactive({
@@ -22,6 +22,7 @@ const state = reactive({
     addRequest: api.addRequest,
     editRequest: api.editRequest,
     delRequest: api.delRequest,
+    batchDelRequest: api.batchDelRequest,
   },
 }) as unknown as FnCrudState<ChangeRequest>;
 useFnCrud({ state, crudRef: crud });
@@ -30,11 +31,14 @@ async function publishSelected(): Promise<void> { await api.publish(selectedKeys
 </script>
 
 <template>
-  <div class="crud-page showcase-page"><header class="showcase-actions"><span>已选 {{ selectedKeys.length }} 条</span><button type="button" :disabled="!selectedKeys.length" @click="publishSelected">批量发布</button></header><section class="showcase-panel"><FnCrud ref="crud" v-bind="state" /></section></div>
+  <div class="crud-page showcase-page">
+    <section class="showcase-panel">
+      <FnCrud ref="crud" v-bind="state">
+        <template #actionRight="{ selectedRowKeys }">
+          <span>已选 {{ selectedRowKeys.length }} 条</span>
+          <FnButtonBase type="default" text="批量发布" :disabled="!selectedRowKeys.length" @click="publishSelected" />
+        </template>
+      </FnCrud>
+    </section>
+  </div>
 </template>
-
-<style lang="less">
-.showcase-page {
- 
-}
-</style>

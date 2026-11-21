@@ -50,7 +50,7 @@ features:
 
 ## 开发时常用
 
-- 开始第一个页面。[快速开始](./guide/getting-started.md) · [接入 Django](./guide/django.md)
+- 开始第一个页面。[快速开始](./guide/getting-started.md) · [项目集成](./guide/project-integration.md)
 - 替换已有列表。[从 Fast Crud 迁移](./guide/from-fast-crud.md)
 - 配置字段和交互。[列与动态配置](./api/columns.md) · [分页搜索](./recipes/paging.md) · [表单联动](./recipes/forms.md) · [按钮与操作区](./api/actions.md)
 - 对照可运行源码。[Admin 示例](./demos/admin.md) · [主题集成](./themes/overview.md) · [Agent 查阅索引](./agent-index.md)

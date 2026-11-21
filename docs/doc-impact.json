@@ -79,7 +79,7 @@
   ],
   "packages/fn-crud/package.json": [
     "guide/getting-started.md",
-    "guide/django.md",
+    "guide/project-integration.md",
     "guide/from-fast-crud.md",
     "agent-index.md"
   ],

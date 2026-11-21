@@ -1,4 +1,4 @@
-import { Check, ListChecks, Pencil, Plus, Trash2, X } from "@lucide/vue";
+import { Check, ListChecks, Pencil, Plus, RotateCcw, Trash2, X } from "@lucide/vue";
 import { computed, markRaw, shallowReadonly, unref, type Ref } from "vue";
 import FnButton from "../../components/button/fn-button.vue";
 import { isFnComputeValue, useCompute } from "./use-compute";
@@ -14,6 +14,7 @@ export const defaultCrudButtonIcons = {
   batch: markRaw(ListChecks),
   edit: markRaw(Pencil),
   delete: markRaw(Trash2),
+  reset: markRaw(RotateCcw),
   cancel: markRaw(X),
   confirm: markRaw(Check),
 };
@@ -131,16 +132,21 @@ export function useTableProps(
 export function useActionbarProps(
   props: FnCrudOptions,
   openAddForm: () => unknown,
-  canBatchDelete: Ref<boolean>,
+  selectedRowKeys: Readonly<Ref<readonly (string | number)[]>>,
   onSelect: (buttonKey: string, itemKey: string) => void
 ) {
   return computed(() => {
     const buttons = { ...props.actionbar?.buttons };
-    buttons.add = { click: openAddForm, ...buttons.add };
+    buttons.add = { ...buttons.add, click: buttons.add?.click ?? openAddForm };
+    if (buttons.batch) {
+      buttons.batch = {
+        ...buttons.batch,
+        disabled: buttons.batch.disabled || selectedRowKeys.value.length === 0,
+      };
+    }
     return {
       ...props.actionbar,
       buttons: Object.fromEntries(Object.entries(buttons).sort(([, left], [, right]) => (left.order ?? Infinity) - (right.order ?? Infinity))),
-      canBatchDelete: canBatchDelete.value,
       onSelect,
     };
   });
@@ -199,11 +205,13 @@ export function useTabsProps(props: FnCrudOptions, columns: Ref<FnCrudOptions["c
     const options = cell && !isFnComputeValue(cell) ? unref(cell.component?.options) : undefined;
     const data: DictOption[] = Array.isArray(options) ? options : [];
     const tabs = new Map(data.map(item => [String(item.value), item]));
+    if (refCol && data.length && !tabs.has("")) tabs.set("", { label: "全部", value: "" });
     for (const [key, item] of Object.entries(props.tabs?.tabs || {})) tabs.set(key, { ...tabs.get(key), ...item });
     return {
       show: props.tabs?.show,
       tabs: Array.from(tabs.values())
         .filter(item => item.show !== false)
+        .sort((left, right) => Number(right.value === "") - Number(left.value === ""))
         .map(item => ({ ...item, count: tabsCounts.value[String(item.value)] ?? item.count ?? 0 })),
       modelValue: searchForm[refCol || ""] ?? "",
       slots: props.tabs?.slots,

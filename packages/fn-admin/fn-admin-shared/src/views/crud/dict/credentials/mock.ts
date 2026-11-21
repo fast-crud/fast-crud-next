@@ -19,6 +19,7 @@ const pageRequest = page.handle
 page.handle = (request) => {
   const result = pageRequest(request)
   result.data.tabsCounts = Object.fromEntries(['active', 'review', 'disabled'].map((status) => [status, options.list.filter((item) => item.status === status).length]))
+  result.data.tabsCounts[''] = options.list.length
   return result
 }
 

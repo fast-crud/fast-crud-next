@@ -332,10 +332,11 @@ it("FnCrud 通过 onChange 清理当前页不存在的选择", () => {
 it("actionbar 批量删除确认后按全部选中 keys 删除、清空选择并刷新", async () => {
   confirmDelete.mockReset().mockResolvedValue(undefined);
   const delRequest = vi.fn(async () => undefined);
+  const batchDelRequest = vi.fn(async () => undefined);
   const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
   const state = reactive({
     columns: {},
-    request: { pageRequest, delRequest },
+    request: { pageRequest, delRequest, batchDelRequest },
     rowSelect: { crossPage: true, selectedRowKeys: [12, 13] },
   }) as any;
   useFnCrud({ state });
@@ -353,7 +354,8 @@ it("actionbar 批量删除确认后按全部选中 keys 删除、清空选择并
   const options = confirmDelete.mock.calls[0][0];
   await options.buttons.confirm.click();
 
-  expect(delRequest.mock.calls).toEqual([["12"], ["13"]]);
+  expect(batchDelRequest.mock.calls).toEqual([[["12", "13"]]]);
+  expect(delRequest).not.toHaveBeenCalled();
   expect(setup.getSelectedRowKeys()).toEqual([]);
   expect(pageRequest).toHaveBeenCalledTimes(1);
 });
