@@ -1,13 +1,20 @@
 <template>
-  <input class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" :type="type" v-bind="$attrs" @input="handleInput" @blur="$emit('blur', $event)" />
+  <textarea v-if="multiline" class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" @input="handleInput" @blur="$emit('blur', $event)" />
+  <input v-else class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" :type="type" @input="handleInput" @blur="$emit('blur', $event)" />
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{ modelValue?: string | number; disabled?: boolean; placeholder?: string; type?: string }>(), { type: "text" });
-const emit = defineEmits<{ "update:modelValue": [value: string]; blur: [event: FocusEvent] }>();
+const props = withDefaults(defineProps<{ modelValue?: string | number; disabled?: boolean; placeholder?: string; type?: string; multiline?: boolean }>(), { type: "text" });
+const emit = defineEmits<{ "update:modelValue": [value: string | number | undefined]; blur: [event: FocusEvent] }>();
 
 function handleInput(event: Event): void {
-  emit("update:modelValue", (event.target as HTMLInputElement).value);
+  const input = event.target as HTMLInputElement | HTMLTextAreaElement;
+  if (!props.multiline && props.type === "number") {
+    const number = (input as HTMLInputElement).valueAsNumber;
+    emit("update:modelValue", Number.isNaN(number) ? undefined : number);
+    return;
+  }
+  emit("update:modelValue", input.value);
 }
 </script>
 

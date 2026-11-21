@@ -1,0 +1,81 @@
+{
+  "packages/fn-crud/src/index.ts": [
+    "api/fn-crud.md",
+    "agent-index.md"
+  ],
+  "packages/fn-crud/src/types/": [
+    "api/fn-crud.md",
+    "api/requests.md"
+  ],
+  "packages/fn-crud/src/crud/types.ts": [
+    "api/fn-crud.md",
+    "api/requests.md",
+    "api/forms.md",
+    "api/table.md"
+  ],
+  "packages/fn-crud/src/crud/fn-crud.vue": [
+    "api/fn-crud.md",
+    "recipes/mutations.md"
+  ],
+  "packages/fn-crud/src/crud/use/": [
+    "guide/configuration.md",
+    "api/table.md"
+  ],
+  "packages/fn-crud/src/crud/table/": [
+    "api/table.md",
+    "recipes/paging.md",
+    "recipes/selection.md"
+  ],
+  "packages/fn-crud/src/crud/type/": [
+    "guide/column-types.md",
+    "api/fn-crud.md"
+  ],
+  "packages/fn-crud/src/crud/search/": [
+    "recipes/paging.md"
+  ],
+  "packages/fn-crud/src/crud/dict/": [
+    "recipes/selection.md"
+  ],
+  "packages/fn-crud/src/crud/form/": [
+    "api/forms.md",
+    "recipes/forms.md"
+  ],
+  "packages/fn-crud/src/crud/toolbar/": [
+    "api/table.md"
+  ],
+  "packages/fn-crud/src/components/": [
+    "api/components.md"
+  ],
+  "packages/fn-crud/src/components/provider/": [
+    "guide/installation.md"
+  ],
+  "packages/fn-crud/src/components/form/": [
+    "api/forms.md",
+    "recipes/forms.md"
+  ],
+  "packages/fn-crud/src/components/overlay/": [
+    "api/forms.md"
+  ],
+  "packages/fn-crud/src/locale/": [
+    "guide/installation.md"
+  ],
+  "packages/fn-crud/src/theme/": [
+    "themes/overview.md"
+  ],
+  "packages/fn-crud/package.json": [
+    "guide/getting-started.md",
+    "agent-index.md"
+  ],
+  "packages/fn-admin/*/src/router/**": [
+    "demos/admin.md"
+  ],
+  "packages/fn-admin/fn-admin-shared/src/views/crud/basis/request-mock/": [
+    "recipes/paging.md",
+    "recipes/mutations.md",
+    "demos/admin.md"
+  ],
+  "packages/fn-admin/fn-admin-shared/src/views/crud/form/": [
+    "recipes/forms.md",
+    "demos/admin.md"
+  ]
+}

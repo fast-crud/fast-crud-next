@@ -15,6 +15,8 @@ pnpm docs:dev
 
 使用 `pnpm docs:build` 构建文档，使用 `pnpm docs:preview` 预览构建产物。
 
+修改公开配置或行为时，运行 `pnpm docs:check` 定位相关章节。详见[文档维护](docs/zh/development/documentation.md)。
+
 ## 开发检查
 
 - `pnpm test` 运行 Vitest 测试。

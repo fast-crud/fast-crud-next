@@ -55,6 +55,12 @@
 - 开发新功能后，必须在 `docs_v1/` 对应模块补充该功能的集成方式、配置项和使用示例；README 只保留入口和简要说明。
 - 每个组件支持的默认插槽和具名插槽都必须有可运行的 CRUD 示例；示例要像 Fast Crud 插槽示例一样标出每个插入位置，并演示该插槽可用的上下文。新增或调整插槽时同步更新示例页和对应文档。
 
+## 文档同步
+
+- 改动公开配置、类型、默认值、事件、插槽、用户可观察行为或文档引用的 Admin 路由时，在同一次交付更新 `docs/zh` 的 API、用法与可运行示例。以公开入口、源码、测试和实际调用为准。
+- 运行 `pnpm docs:check` 定位受影响章节和检查 Markdown 链接。新增或移动页面时同步侧栏、Agent 索引和 `docs/doc-impact.json`；删除或重命名 API 时搜索旧用法。
+- 验证 `pnpm docs:build` 和受影响的类型检查或聚焦测试。PR 或交付总结列出文档更新，无需更新时说明依据。详见 `docs/zh/development/documentation.md`。
+
 ## Admin CRUD 页面约定
 
 - Ant Design Vue、Element Plus、Naive UI admin 的 CRUD 页面按 fast-crud admin 的分类放在 `src/views/crud/<category>/<page>/`，分类优先使用 `basis`、`dict`、`feature`、`form`、`component` 等领域目录。

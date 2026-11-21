@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
-import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useRowHandleProps, useSearchProps, useTabsProps } from "./use-crud-props";
+import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useResolvedColumns, useRowHandleProps, useSearchProps, useTabsProps } from "./use-crud-props";
 import { isFnComputeValue, useCompute } from "./use-compute";
 import type { FnCrudOptions, FnRowContext } from "../../types/index";
 
@@ -16,7 +16,7 @@ describe("useTabsProps", () => {
       tabs: { refCol: "status" },
     } as unknown as FnCrudOptions;
 
-    const result = useTabsProps(props, {}, ref({}), vi.fn()).value;
+    const result = useTabsProps(props, useResolvedColumns(props), {}, ref({}), vi.fn()).value;
 
     expect(result.tabs).toEqual([]);
     expect(result.slots).toBeUndefined();
@@ -29,7 +29,7 @@ describe("useTabsProps", () => {
       tabs: { show: false },
     } as unknown as FnCrudOptions;
 
-    expect(useTabsProps(props, {}, ref({}), vi.fn()).value.show).toBe(false);
+    expect(useTabsProps(props, useResolvedColumns(props), {}, ref({}), vi.fn()).value.show).toBe(false);
   });
 });
 
@@ -42,8 +42,9 @@ it("search props 将调用方和配置中的自定义内容收敛到 default slo
     slots: { search: configuredSlot },
   } as unknown as FnCrudOptions;
 
-  expect(useSearchProps(props).value.slots?.default).toBe(configuredSlot);
-  expect(useSearchProps(props, vueSlot).value.slots?.default).toBe(vueSlot);
+  const columns = useResolvedColumns(props);
+  expect(useSearchProps(props, columns).value.slots?.default).toBe(configuredSlot);
+  expect(useSearchProps(props, columns, vueSlot).value.slots?.default).toBe(vueSlot);
 });
 
 it("搜索列覆盖深度合并 component 并在合并后解析叶子 compute", () => {
@@ -67,7 +68,7 @@ it("搜索列覆盖深度合并 component 并在合并后解析叶子 compute", 
     request: { pageRequest: vi.fn() },
   } as unknown as FnCrudOptions;
 
-  const searchColumn = useSearchProps(props).value.columns.name;
+  const searchColumn = useSearchProps(props, useResolvedColumns(props)).value.columns.name;
 
   expect(isFnComputeValue(searchColumn)).toBe(true);
   if (!isFnComputeValue(searchColumn)) return;
@@ -85,7 +86,7 @@ it("tabs props 在更新事件中写入搜索表单并执行搜索", () => {
     tabs: { refCol: "status" },
   } as unknown as FnCrudOptions;
 
-  const tabs = useTabsProps(props, searchForm, ref({}), applySearch).value;
+  const tabs = useTabsProps(props, useResolvedColumns(props), searchForm, ref({}), applySearch).value;
   tabs["onUpdate:modelValue"]("active");
 
   expect(searchForm.status).toBe("active");

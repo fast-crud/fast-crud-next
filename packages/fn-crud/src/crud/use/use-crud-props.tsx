@@ -1,20 +1,45 @@
-import { computed, type Ref } from "vue";
+import { computed, shallowReadonly, unref, type Ref } from "vue";
 import FnButton from "../../components/button/fn-button.vue";
 import { isFnComputeValue, useCompute } from "./use-compute";
 import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
 import { useMerge } from "../../components/use/use-merge";
-import type { DictOption, FnColumnSettingsColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../../types/index";
+import { getColumnType } from "../type";
+import type { DictOption, FnColumnSettingsColumn, FnCrudColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../../types/index";
 export { createRowSelectionColumn } from "./use-selection";
 const { compute, resolveComputedValue } = useCompute();
 
-export function useSearchProps(props: FnCrudOptions, searchSlot?: FnRenderSlot): Ref<FnSearchProps> {
+export function useResolvedColumns<Row>(props: Pick<FnCrudOptions<Row>, "columns">) {
+  const { merge } = useMerge();
+  return computed(() => {
+    const columns: Record<string, FnCrudColumn<Row>> = {};
+    for (const [key, column] of Object.entries(props.columns)) {
+      const type = unref(column.type);
+      if (!type || type.length === 0) {
+        columns[key] = column;
+        continue;
+      }
+      const names = typeof type === "string" ? [type] : type;
+      const defaults = names.map(name => {
+        const definition = getColumnType(name);
+        if (!definition && import.meta.env.DEV) {
+          console.warn("[FnCrud] 未知字段类型", { key, type: name });
+        }
+        return typeof definition === "function" ? definition(shallowReadonly(column)) : definition;
+      });
+      columns[key] = merge({}, ...defaults, column);
+    }
+    return columns;
+  });
+}
+
+export function useSearchProps(props: FnCrudOptions, columns: Ref<FnCrudOptions["columns"]>, searchSlot?: FnRenderSlot): Ref<FnSearchProps> {
   const { merge } = useMerge();
   return computed(() => {
     const source: Record<string, FnDynamic<FnSearchColumn>> = { ...props.search?.columns };
-    for (const [key, column] of Object.entries(props.columns)) {
+    for (const [key, column] of Object.entries(columns.value)) {
       if (column.search) {
         const override = source[key];
-        const merged = merge({}, column.search, override || {});
+        const { search: merged } = merge({}, { search: column.search }, { search: override });
         source[key] = compute(context => resolveComputedValue(merged, context) as FnSearchColumn);
       }
     }
@@ -50,9 +75,9 @@ export function useRowHandleProps<Row>(props: FnCrudOptions<Row>, editRow: (ctx:
   });
 }
 
-export function useTableColumns(props: FnCrudOptions, rowHandleProps: Ref<Record<string, any>>) {
+export function useTableColumns(props: FnCrudOptions, resolvedColumns: Ref<FnCrudOptions["columns"]>, rowHandleProps: Ref<Record<string, any>>) {
   return computed(() => {
-    const columns = { ...props.columns };
+    const columns = { ...resolvedColumns.value };
     if (props.rowHandle && props.rowHandle.show !== false) {
       const rowHandle = rowHandleProps.value;
       const blankColumn = columns[FN_CRUD_BLANK_COLUMN_KEY];
@@ -157,10 +182,10 @@ export function useHeadingProps(props: FnCrudOptions, getSelectedRowKeys: () => 
   });
 }
 
-export function useTabsProps(props: FnCrudOptions, searchForm: Record<string, any>, tabsCounts: Ref<Record<string, number>>, applySearch: () => void) {
+export function useTabsProps(props: FnCrudOptions, columns: Ref<FnCrudOptions["columns"]>, searchForm: Record<string, any>, tabsCounts: Ref<Record<string, number>>, applySearch: () => void) {
   return computed(() => {
     const refCol = props.tabs?.refCol;
-    const cell = refCol && props.columns[refCol]?.cell;
+    const cell = refCol && columns.value[refCol]?.cell;
     const dict = cell && !isFnComputeValue(cell) ? cell.dict : undefined;
     const options = dict?.getOptions()?.value;
     const data: DictOption[] = Array.isArray(options) ? options : [];
@@ -208,11 +233,11 @@ export function useLayoutProps(props: FnCrudOptions): Ref<FnTableLayoutRow[]> {
   return computed(() => props.layout || [{ cols: [{ type: "header" }] }, { cols: [{ type: "actionbar" }, { type: "tabs", style: { flex: 1 } }, { type: "search" }, { type: "toolbar" }] }]);
 }
 
-export function useFormProps(props: FnCrudOptions) {
+export function useFormProps(resolvedColumns: Ref<FnCrudOptions["columns"]>) {
   return computed(() => {
     const columns: Record<string, FnDynamic<FnFormColumn>> = {};
-    for (const [key, column] of Object.entries(props.columns)) {
-      if (column.form && column.show !== false) columns[key] = compute(context => ({ title: column.title, ...resolveComputedValue(column.form!, context) }));
+    for (const [key, { form, show, title }] of Object.entries(resolvedColumns.value)) {
+      if (form && show !== false) columns[key] = compute(context => ({ title, ...resolveComputedValue(form, context) }));
     }
     return { columns };
   });

@@ -78,6 +78,9 @@ async function validateField(key: string): Promise<void> {
 
 function getComponentProps(column: FnFormColumn): Record<string, any> {
   const component = { ...(column.component || {}) };
+  if (column.dict && component.options === undefined) {
+    component.options = column.dict.getOptions().value;
+  }
   return component;
 }
 

@@ -34,7 +34,7 @@ import FnRender from "../components/render/fn-render.ts";
 import { model } from "../components/overlay/dialog.ts";
 import { fnCrudSearchKey, uiContext } from "../components/provider/context.ts";
 import { useMerge } from "../components/use/use-merge";
-import { useActionbarProps, useFormProps, useHeadingProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableRenderProps, useTabsProps, useToolbarProps } from "./use/use-crud-props.tsx";
+import { useActionbarProps, useFormProps, useHeadingProps, useLayoutProps, usePaginationProps, useResolvedColumns, useRowHandleProps, useSearchProps, useTableRenderProps, useTabsProps, useToolbarProps } from "./use/use-crud-props.tsx";
 import { useTable } from "./use/use-table";
 import { useFnCrudPreferences, type FnCrudPreferencesController } from "./use/use-preferences";
 import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnRowContext, FnTableRow } from "../types/index.ts";
@@ -46,10 +46,11 @@ const { notification } = uiContext.getServices();
 const { merge } = useMerge();
 const FnFormDialogRef = ref<InstanceType<typeof FnFormDialog>>();
 const searchForm = reactive<Record<string, any>>({});
-const searchProps = useSearchProps(props, vueSlots.search ? (ctx?: Record<string, any>) => vueSlots.search?.(ctx) : undefined);
+const resolvedColumns = useResolvedColumns(props);
+const searchProps = useSearchProps(props, resolvedColumns, vueSlots.search ? (ctx?: Record<string, any>) => vueSlots.search?.(ctx) : undefined);
 const rowHandleProps = useRowHandleProps(props, editRow, openDeleteDialog);
 let preferences!: FnCrudPreferencesController;
-const table = useTable(props, rowHandleProps, searchForm, () => preferences);
+const table = useTable(props, resolvedColumns, rowHandleProps, searchForm, () => preferences);
 preferences = useFnCrudPreferences(props, () => table.baseTableColumns.value, () => table.defaultColumnSettings.value, notification);
 onMounted(async () => {
   await preferences.initializePreferences();
@@ -149,12 +150,12 @@ const headingSlot = vueSlots.header
   ? (ctx?: Record<string, any>) => vueSlots.header?.({ "selected-row-keys": ctx?.selectedRowKeys, selectedRowKeys: ctx?.selectedRowKeys })
   : undefined;
 const headingProps = useHeadingProps(props, getSelectedRowKeys, headingSlot);
-const tabsProps = useTabsProps(props, searchForm, tabsCounts, applySearch);
+const tabsProps = useTabsProps(props, resolvedColumns, searchForm, tabsCounts, applySearch);
 const paginationProps = usePaginationProps(props, page, changePage);
 const tableRenderSlot = vueSlots.default ? (ctx?: Record<string, any>) => vueSlots.default?.(ctx) : undefined;
 const tableRenderProps = useTableRenderProps(props, tableProps, tableRenderSlot);
 const layoutProps = useLayoutProps(props);
-const formProps = useFormProps(props);
+const formProps = useFormProps(resolvedColumns);
 function openFormDialog(options: FnFormDialogOptions): Promise<FnFormContext> {
   return FnFormDialogRef.value!.open(options);
 }

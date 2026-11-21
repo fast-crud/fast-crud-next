@@ -77,4 +77,4 @@ useFnCrud({ state })
 
 接入后端时，在 `pageRequest` 中传递 `query`、`page.offset` 和 `page.limit`，再将响应转换成 `{ records, total }`。其中 `records` 是当前页数据，`total` 是过滤后、分页前的总数。
 
-参阅[核心配置](./configuration.md)，或运行 [Admin 示例](../demos/admin.md) 查看完整的新增、编辑和删除流程。
+接入真实接口时，继续阅读[分页、搜索与排序](../recipes/paging.md)和[请求 API](../api/requests.md)。配置结构见[核心配置](./configuration.md)。

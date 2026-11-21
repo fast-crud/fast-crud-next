@@ -11,6 +11,9 @@ import * as crudUse from "./use/use-crud-props.tsx";
 import * as tableUse from "./use/use-table";
 import { fnCrudContext, uiContext } from "../components/provider/context.ts";
 import { FN_CRUD_BLANK_COLUMN_KEY, useFnCrud } from "./use/use-fn-crud";
+import { DictStore } from "./dict/dict";
+import { resolveComputedValue } from "./use/use-compute";
+import type { FnCrudOptions, FnFormDialogOptions } from "./types";
 import { useMerge } from "../components/use/use-merge";
 import * as crudPreferences from "./use/use-preferences";
 import type { FnCrudExpose } from "../types/index.ts";
@@ -167,6 +170,46 @@ it("FnCrud 允许表单配置覆盖默认提交请求", async () => {
   await open.mock.calls[0][0].onSubmit({ form: { name: "certd" } });
   expect(onSubmit).toHaveBeenCalledOnce();
   expect(addRequest).not.toHaveBeenCalled();
+});
+
+it("字段类型更新表格、搜索和 Tabs，表单在下次打开时使用新配置", async () => {
+  const dict = new DictStore({ data: [{ value: "active", label: "生效中" }] });
+  const activeType = ref<string | undefined>("dict-select");
+  const state = reactive<FnCrudOptions>({
+    columns: { status: { key: "status", title: "状态", type: activeType, dict, cell: { width: 90 } } },
+    tabs: { refCol: "status" },
+    request: { pageRequest: vi.fn(async () => ({ records: [], total: 0 })) },
+  });
+  useFnCrud({ state });
+  let exposed!: FnCrudExpose;
+  const setup = module.exports.default.setup(state, { emit: () => {}, expose: (value: FnCrudExpose) => (exposed = value) });
+  const open = vi.fn(async (_options: FnFormDialogOptions) => undefined);
+  setup.FnFormDialogRef.value = { open };
+  setup.searchForm.status = "active";
+  setup.preferences.saveColumnWidth({ key: "status", width: 140 });
+
+  expect(setup.tableProps.value.columns.status.cell.dict).toBe(dict);
+  expect(setup.tabsProps.value.tabs).toMatchObject([{ value: "active" }]);
+  const search = () => resolveComputedValue(setup.searchProps.value.columns.status, { type: "search" });
+  expect(search()).toMatchObject({ component: { clearable: true } });
+  await exposed.form.openAddForm();
+  const initial = open.mock.calls[0][0];
+  expect(resolveComputedValue(initial.columns.status, { type: "form" })).toMatchObject({ dict });
+
+  activeType.value = "text";
+  expect(setup.tableProps.value.columns.status.cell).toEqual({ width: 140 });
+  expect(setup.tabsProps.value.tabs).toEqual([]);
+  expect(search()).not.toHaveProperty("dict");
+  expect(exposed.search.getSearchForm()).toEqual({ status: "active" });
+  expect(resolveComputedValue(initial.columns.status, { type: "form" })).toMatchObject({ dict });
+
+  await exposed.form.openEditForm({ status: "active" });
+  const edit = open.mock.calls[1][0];
+  expect(resolveComputedValue(edit.columns.status, { type: "form" })).not.toHaveProperty("dict");
+  state.columns.status.type = undefined;
+  expect(search()).toBeUndefined();
+  await exposed.form.openAddForm();
+  expect(open.mock.calls[2][0].columns.status).toBeUndefined();
 });
 
 it("table.turnPage 使用当前搜索和排序条件并请求指定分页", async () => {

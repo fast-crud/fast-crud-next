@@ -1,0 +1,28 @@
+name: Docs
+
+# on:
+#   pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:check --base "$DOCS_BASE"
+        env:
+          DOCS_BASE: ${{ github.event.pull_request.base.sha }}
+      - run: pnpm docs:build

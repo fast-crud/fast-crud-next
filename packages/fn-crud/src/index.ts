@@ -26,10 +26,11 @@ export { default as FnComponentRender } from "./components/render/fn-component-r
 export { default as FnSearch } from "./crud/search/fn-search.vue";
 export { default as FnNotificationHost } from "./components/feedback/fn-notification-host.vue";
 export type * from "./types/index";
-export type { FnCrudLocale } from "./locale";
+export { fnCrudLocales, type FnCrudI18n, type FnCrudLocale } from "./locale";
 export { default as FnTabs } from "./crud/tabs/index.vue";
 export * from "./theme";
 export { DictStore } from "./crud/dict/dict";
+export { addTypes } from "./crud/type";
 export { compute, isFnComputeValue, resolveComputed, resolveComputedValue, useCompute } from "./crud/use";
 export { UnMergeable } from "./components/use";
 export { createFnCrudPreferenceStorage, createFnCrudPreferenceSnapshot, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./crud/use";

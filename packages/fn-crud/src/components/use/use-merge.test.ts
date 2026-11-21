@@ -26,13 +26,24 @@ it("merge 支持多级来源并保留最后一个 state 来源的用户值", () 
   expect(state.columns).toEqual({ local: { key: "local", title: "本地列" }, default: { key: "default" } });
 });
 
-it("DictStore 和 __fnCompute 值按不可合并对象保留引用", () => {
+it("DictStore 保留引用，静态配置整体覆盖 compute 且不修改来源", () => {
   const dict = new DictStore({ data: [], immediate: false });
   const dynamic = compute(() => ({ value: 1 }));
   const result = merge({}, { cell: { dict, dynamic } }, { cell: { dict: { extra: true }, dynamic: { extra: true } } });
 
   expect(result.cell.dict).toBe(dict);
-  expect(result.cell.dynamic).toBe(dynamic);
+  expect(result.cell.dynamic).toEqual({ extra: true });
+  expect(Object.keys(dynamic)).toEqual(["__fnCompute", "computeFn"]);
+  expect(merge({}, { cell: { dynamic } }).cell.dynamic).toBe(dynamic);
+});
+
+it("组件定义保持原引用，后一个定义整体覆盖前一个组件", () => {
+  const first = { setup() {}, props: { first: String } };
+  const next = { render() {} };
+  const result = merge({}, { component: { name: first, clearable: true } }, { component: { name: next } });
+  expect(result.component.name).toBe(next);
+  expect(result.component.clearable).toBe(true);
+  expect(next).not.toHaveProperty("props");
 });
 
 it("深度合并时保留叶子 compute，并让后一个来源覆盖动态值", () => {

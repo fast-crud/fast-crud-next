@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { reactive } from "vue";
+import { installFnCrud, useFnCrud, type FnCrudState } from "@fast-crud/fast-crud-next";
 import { adminPreferences } from "@fast-crud/fn-admin-shared/preferences";
-import { adminMessages } from "../locale";
+import { adminI18n } from "../locale";
 import { adminMenuConfig, adminRouteRecords } from "./config";
 
 function menuPaths(config: typeof adminMenuConfig): string[] {
@@ -11,6 +13,29 @@ function menuPaths(config: typeof adminMenuConfig): string[] {
 }
 
 describe("Ant Design Vue admin route configuration", () => {
+  it("Admin 和 FnCrud 使用同一个 i18n 实例切换语言", () => {
+    const previousLanguage = adminPreferences.language;
+    try {
+      adminPreferences.language = "zh";
+      installFnCrud({ i18n: adminI18n });
+      const state = useFnCrud({
+        state: reactive<FnCrudState>({
+          columns: {},
+          request: { pageRequest: async () => ({ records: [], total: 0 }) },
+        }),
+      });
+
+      expect(state.actionbar?.buttons.add.text).toBe("添加");
+      adminPreferences.language = "en";
+      expect(adminI18n.global.t("layout.console")).toBe("Console");
+      expect(state.actionbar?.buttons.add.text).toBe("Add");
+      expect(state.form).toMatchObject({ dialog: { title: "Edit" } });
+    } finally {
+      adminPreferences.language = previousLanguage;
+      installFnCrud({});
+    }
+  });
+
   it("菜单和路由共用词条，标题随 Admin 语言更新", () => {
     const page = adminMenuConfig.find(item => item.key === "crud")!.children![0];
     const route = adminRouteRecords.find(item => item.path === page.path);
@@ -19,11 +44,11 @@ describe("Ant Design Vue admin route configuration", () => {
     try {
       expect(route?.meta?.titleKey).toBe(page.titleKey);
       adminPreferences.language = "zh";
-      expect(adminMessages.value.menu[page.titleKey]).toBe("基础列表");
-      expect(adminMessages.value.layout.console).toBe("控制台");
+      expect(adminI18n.global.t(`menu.${page.titleKey}`)).toBe("基础列表");
+      expect(adminI18n.global.t("layout.console")).toBe("控制台");
       adminPreferences.language = "en";
-      expect(adminMessages.value.menu[page.titleKey]).toBe("Basic list");
-      expect(adminMessages.value.layout.console).toBe("Console");
+      expect(adminI18n.global.t(`menu.${page.titleKey}`)).toBe("Basic list");
+      expect(adminI18n.global.t("layout.console")).toBe("Console");
     } finally {
       adminPreferences.language = previousLanguage;
     }

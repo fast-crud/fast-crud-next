@@ -1,4 +1,4 @@
-import { defineComponent, h, inject, resolveComponent, type Component } from "vue";
+import { defineComponent, h, inject, resolveComponent, toRaw, type Component } from "vue";
 import { fnFormContextKey } from "../form/context.ts";
 
 export default defineComponent({
@@ -15,7 +15,7 @@ export default defineComponent({
   setup(props, { attrs, emit, slots }) {
     const formContext = inject(fnFormContextKey, undefined);
     return () => {
-      const component = typeof props.name === "string" ? resolveComponent(props.name) : props.name;
+      const component = typeof props.name === "string" ? resolveComponent(props.name) : toRaw(props.name);
       const modelProp = props.vModel || "modelValue";
       const componentAttrs = { ...attrs } as Record<string, any>;
       componentAttrs[modelProp] = props.modelValue;

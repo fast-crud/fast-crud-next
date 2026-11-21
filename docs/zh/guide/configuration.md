@@ -4,7 +4,7 @@
 
 | 配置项 | 用途 |
 | --- | --- |
-| `columns` | 按字段组织配置。`cell` 控制表格单元格，`search` 控制搜索字段，`form` 控制表单字段。 |
+| `columns` | 按字段组织配置。`cell`、`search`、`form` 分别控制表格单元格、搜索和表单。`type` 为这三个分支提供[字段默认配置](./column-types.md)。 |
 | `request` | `pageRequest` 加载分页数据，可按需提供 `addRequest`、`editRequest` 和 `delRequest`。 |
 | `table`、`pagination` | 配置行标识、密度和分页。 |
 | `rowSelect` | 配置行选择及选中的行键。 |
@@ -31,3 +31,5 @@ installFnCrud({
 根据页面状态变化的属性可使用 Vue 的 `ref` 或 `computed`。需要读取当前行或表单上下文时，使用 `compute(...)`。例如，根据表单中的轮换方式决定是否显示轮换周期字段。单个属性变化时，把动态值放在对应的叶子属性上。
 
 在 [Admin 示例](../demos/admin.md) 中可查看动态配置和条件表单的联动效果。
+
+按需查阅 [FnCrud API](../api/fn-crud.md)、[全局安装与语言](./installation.md)和[表单联动示例](../recipes/forms.md)。

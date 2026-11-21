@@ -1,9 +1,12 @@
 import type { FnCrudExpose, FnCrudOptions } from "../../types/index";
 import type { FnDynamicType } from "../../types/index";
 import type { Ref, UnwrapNestedRefs } from "vue";
+import { toRaw } from "vue";
 import { computed } from "vue";
 import { fnCrudContext, type FnCrudInstallOptions } from "../../components/provider/context";
 import { useMerge } from "../../components/use/use-merge";
+import type { FnCrudI18n } from "../../locale";
+import { addTypes } from "../type";
 
 export type FnCrudOptionsInput<Row = any> = FnDynamicType<FnCrudOptions<Row>>;
 
@@ -18,16 +21,16 @@ export const FN_CRUD_BLANK_COLUMN_KEY = "__fn_blank_column";
 export interface UseFnCrudOptions<Row = any> {
   state: FnCrudReactiveState<Row>;
   crudRef?: Ref<FnCrudExpose<Row> | undefined>;
+  i18n?: FnCrudI18n;
 }
 
-export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>): FnCrudReactiveState<Row>;
-export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>): FnCrudReactiveState<Row> {
+export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<Row>): FnCrudReactiveState<Row> {
   const { merge } = useMerge();
   state.table ||= {};
   state.pagination ||= {};
   state.rowSelect ||= {};
   const commonOptions = fnCrudContext.getCommonOptions();
-  const messages = computed(() => fnCrudContext.getMessages().crud);
+  const t = (key: string) => fnCrudContext.t(key, i18n);
   const defaultCrudOptions = {
     columns: {
       [FN_CRUD_BLANK_COLUMN_KEY]: {
@@ -40,25 +43,25 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
       show: true,
       buttons: {
         add: {
-          text: computed(() => messages.value.actionbar.add),
+          text: computed(() => t("fnCrud.crud.actionbar.add")),
           click: crudRef ? () => crudRef.value?.form.openAddForm() : undefined,
           type: "primary",
           show: true,
           order: -100,
         },
         batch: {
-          text: computed(() => messages.value.actionbar.batch),
+          text: computed(() => t("fnCrud.crud.actionbar.batch")),
           type: "default",
           show: true,
           order: 0,
           buttonType: "dropdown",
-          items: [{ key: "delete", label: computed(() => messages.value.actionbar.batchDelete), danger: true }],
+          items: [{ key: "delete", label: computed(() => t("fnCrud.crud.actionbar.batchDelete")), danger: true }],
         },
       },
     },
     form:{
       dialog: {
-        title: computed(() => messages.value.formDialog.edit),
+        title: computed(() => t("fnCrud.crud.formDialog.edit")),
       },
     },
     rowSelect: {
@@ -118,9 +121,10 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
     state.table?.["onUpdate:density"]?.(nextDensity);
   };
   // Resolve configuration overrides before Vue unwraps the default text refs.
-  return merge(state, merge({}, defaultCrudOptions, commonOptions, state));
+  return merge(state, merge({}, defaultCrudOptions, commonOptions, toRaw(state)));
 }
 
 export function installFnCrud(options: FnCrudInstallOptions): void {
   fnCrudContext.configure(options);
+  if (options.columnTypes) addTypes(options.columnTypes);
 }

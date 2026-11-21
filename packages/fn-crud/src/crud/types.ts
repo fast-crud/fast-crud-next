@@ -94,6 +94,7 @@ export interface FnFormColumn {
   span?: number;
   show?: FnDynamic<boolean>;
   component?: FnComponentProps;
+  dict?: FnDictStore;
   rules?: any[];
   itemProps?: Record<string, any>;
   slots?: FnSlots;
@@ -105,10 +106,15 @@ export interface FnCrudColumn<Row = any> {
   show?: boolean;
   key: string;
   title: string;
+  type?: FnRefable<string | readonly string[] | undefined>;
+  dict?: FnDictStore;
   search?: FnDynamic<FnSearchColumn>;
   cell?: FnDynamic<FnTableColumn<Row>>;
   form?: FnDynamic<FnFormColumn>;
 }
+
+export type FnCrudColumnTypeOptions = Pick<FnCrudColumn, "cell" | "search" | "form">;
+export type FnCrudColumnType = FnCrudColumnTypeOptions | ((column: Readonly<FnCrudColumn>) => FnCrudColumnTypeOptions);
 
 export interface FnTableColumn<Row = any> {
   buttons?: Record<string, FnButtonProps<FnRowContext<Row>>>;

@@ -6,7 +6,7 @@ import { isFnComputeValue } from "./use-compute";
 import type { FnCrudPreferencesController } from "./use-preferences";
 import type { FnColumnSettingsColumn, FnCrudOptions, FnTableRow } from "../../types/index";
 
-export function useTable(props: FnCrudOptions, rowHandleProps: Ref<Record<string, any>>, searchForm: Record<string, any>, getPreferences: () => FnCrudPreferencesController) {
+export function useTable(props: FnCrudOptions, resolvedColumns: Ref<FnCrudOptions["columns"]>, rowHandleProps: Ref<Record<string, any>>, searchForm: Record<string, any>, getPreferences: () => FnCrudPreferencesController) {
   const data = ref<FnTableRow[]>([]);
   const loading = ref(false);
   const columnSettingsOpen = ref(false);
@@ -17,7 +17,7 @@ export function useTable(props: FnCrudOptions, rowHandleProps: Ref<Record<string
   const sort = ref({ prop: "", asc: true });
   const tabsCounts = ref<Record<string, number>>({});
   const selection = useSelection(props, data);
-  const baseTableColumns = useTableColumns(props, rowHandleProps);
+  const baseTableColumns = useTableColumns(props, resolvedColumns, rowHandleProps);
   const tableColumns = computed(() => {
     const columns = getPreferences().mergeColumns(baseTableColumns.value, { columns: getPreferences().columnPreferences.value, pageSize: pageSize.value, density: density.value });
     if (!selection.selectionColumn.value) return columns;
