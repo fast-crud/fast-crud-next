@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./preferences";
-import type { FnCrudPreferences } from "../types/index";
+import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./use/use-preferences";
+import type { FnCrudPreferences } from "./types/index";
 import { compute, resolveComputedValue } from "./use/compute";
 
 afterEach(() => {
@@ -93,10 +93,10 @@ it("uses localStorage by default and delegates full snapshots to remote get/set"
   const local = createFnCrudPreferenceStorage();
   await local.set("fn-crud:/path", snapshot);
   expect(await local.get("fn-crud:/path")).toEqual(snapshot);
-  await local.remove("fn-crud:/path");
+  await local.remove?.("fn-crud:/path");
   expect(await local.get("fn-crud:/path")).toBeUndefined();
 
-  const remote = { get: vi.fn(async () => snapshot), set: vi.fn(async (_key: string, value: FnCrudPreferences) => value) };
+  const remote = { get: vi.fn(async () => snapshot), set: vi.fn(async (_key: string, _value: FnCrudPreferences) => undefined) };
   const storage = createFnCrudPreferenceStorage(remote);
   expect(await storage.get("fn-crud:/path")).toEqual(snapshot);
   await storage.set("fn-crud:/path", snapshot);

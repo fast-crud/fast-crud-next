@@ -23,7 +23,6 @@ const crudState = reactive<FnCrudState<WorkflowRecord>>({
   },
   table: { rowKey: "id", minWidth: 700 },
   rowHandle: { width: 150 },
-  pagination: { pageSize: 5, pageSizeOptions: ["5", "10"] },
   form: {
     dialog: {
       width: 1200,

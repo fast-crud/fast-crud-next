@@ -278,9 +278,36 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     min-height: 0;
     flex: 1;
     overflow: auto;
+    scrollbar-color: var(--fn-color-text-tertiary) var(--fn-color-fill-alter);
+    scrollbar-width: thin;
     border-top: 1px solid var(--fn-color-border-secondary);
     border-bottom: 1px solid var(--fn-color-border-secondary);
     margin: 0;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--fn-color-fill-alter);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border: 3px solid transparent;
+      border-radius: 999px;
+      background: var(--fn-color-text-tertiary);
+      background-clip: padding-box;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--fn-color-primary);
+      background-clip: padding-box;
+    }
+
+    &::-webkit-scrollbar-corner {
+      background: var(--fn-color-fill-alter);
+    }
   }
   .fn-table-resize-indicator {
     position: absolute;

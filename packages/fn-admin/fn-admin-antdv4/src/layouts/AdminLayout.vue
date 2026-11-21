@@ -38,7 +38,7 @@ function onMenuClick({ key }: { key: string | number }): void { const path = Str
       <Menu :selected-keys="selectedKeys" :open-keys="openKeys" :items="items" mode="inline" theme="dark" @click="onMenuClick" />
       <div v-if="!collapsed" class="sider-foot"><span class="status-dot"></span>服务运行正常</div>
     </Layout.Sider>
-    <Layout>
+    <Layout style="height:100vh">
       <Layout.Header class="admin-header">
         <div class="header-left"><Button type="text" class="collapse-button" :icon="h(collapsed ? PanelLeftOpen : PanelLeftClose, { size: 17 })" :aria-label="adminText(collapsed ? '展开菜单' : '收起菜单', collapsed ? 'Expand menu' : 'Collapse menu')" @click="collapsed = !collapsed" /><Breadcrumb><Breadcrumb.Item>{{ adminText('控制台', 'Console') }}</Breadcrumb.Item><Breadcrumb.Item>{{ currentTitle }}</Breadcrumb.Item></Breadcrumb></div>
         <Space size="middle"><Button type="text" :icon="h(Bell, { size: 16 })" :aria-label="adminText('通知', 'Notifications')" /><Button type="text" :icon="h(Languages, { size: 16 })" :aria-label="adminText('切换语言', 'Switch language')" @click="toggleAdminLanguage">{{ adminPreferences.language === 'zh' ? 'EN' : '中文' }}</Button><Button type="text" :icon="h(adminPreferences.dark ? Sun : Moon, { size: 16 })" :aria-label="adminText('切换明暗主题', 'Toggle color theme')" @click="toggleAdminTheme" /><Tag color="blue">ANTDV 4</Tag><Avatar size="small" style="background-color: #155eef">F</Avatar><span class="user-name">{{ adminText('管理员', 'Administrator') }}</span></Space>
@@ -51,7 +51,7 @@ function onMenuClick({ key }: { key: string | number }): void { const path = Str
 
 <style lang="less">
 .admin-shell {
-  min-height: 100vh;
+  height: 100vh;
   background: #f5f7fb;
   &.dark { background: #141414; color: rgba(255,255,255,.85); }
   .admin-sider { box-shadow: 1px 0 0 rgba(0, 0, 0, .08); z-index: 3; }

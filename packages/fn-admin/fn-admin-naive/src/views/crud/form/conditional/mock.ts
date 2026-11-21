@@ -1,7 +1,7 @@
 import mockUtil from '@fast-crud/fn-admin-shared/mock/base'
 
 export default mockUtil.buildMock({
-  name: 'FnAdminRotations', idGenerator: 810, copyTimes: 1,
+  name: 'FnAdminRotations', idGenerator: 810, copyTimes: 11,
   list: [
     { name: '生产证书轮换', owner: '平台组', strategy: '自动轮换', graceDays: 14, target: '证书服务', status: '已启用' },
     { name: '边缘节点密钥', owner: '基础设施', strategy: '人工审批', graceDays: 7, target: '节点网关', status: '已启用' },

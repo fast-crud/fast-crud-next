@@ -96,7 +96,6 @@ const crudState = reactive<FnCrudState<Order>>({
     },
   },
   search: { columns: { product: { component: { name: inputComponent, vModel: "modelValue", placeholder: "搜索套餐" } } } },
-  pagination: { pageSize: 5 },
   request: api,
 });
 useFnCrud({ state: crudState });

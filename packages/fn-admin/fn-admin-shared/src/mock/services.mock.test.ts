@@ -12,7 +12,8 @@ describe('axios mock adapter CRUD endpoints', () => {
     })
 
     expect(result.total).toBeGreaterThan(0)
-    expect(result.records).toHaveLength(4)
+    expect(result.total).toBe(22)
+    expect(result.records).toHaveLength(5)
     expect(result.records.every((record) => record.owner === '平台组')).toBe(true)
   })
 

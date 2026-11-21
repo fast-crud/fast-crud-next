@@ -12,7 +12,6 @@ const crudState = reactive<FnCrudState<ServiceRecord>>({
     status: { key: "status", title: "状态", form: { value: "待发布" }, cell: { order: 4, width: 100, setting: { disabled: true } } },
     updatedAt: { key: "updatedAt", title: "最近更新", cell: { order: 5, width: 170 } },
   },
-  pagination: { pageSize: 5, pageSizeOptions: ["5", "10", "20"] },
   slots: {
     bodyBottom: () => (
       <div class="column-setting-examples">

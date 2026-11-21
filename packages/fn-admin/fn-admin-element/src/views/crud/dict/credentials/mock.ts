@@ -1,7 +1,7 @@
 import mockUtil from '@fast-crud/fn-admin-shared/mock/base'
 
 const options = {
-  name: 'FnAdminCredentials', idGenerator: 4100, copyTimes: 1,
+  name: 'FnAdminCredentials', idGenerator: 4100, copyTimes: 11,
   list: [
     { name: '生产证书轮换', owner: '平台组', scope: '生产', status: 'active', expiresAt: '2026-12-18' },
     { name: '边缘节点 API', owner: '基础设施', scope: '生产', status: 'active', expiresAt: '2027-02-03' },

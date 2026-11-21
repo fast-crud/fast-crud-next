@@ -2,17 +2,18 @@
 import { markRaw, reactive } from "vue";
 import { NSelect } from "naive-ui";
 import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, useFnCrud } from "@fast-crud/fast-crud-next";
+import { copyDemoRows } from "@fast-crud/fn-admin-shared/mock/copy-demo-rows";
 interface ServiceRecord { id: number; name: string; owner: string; environment: string; status: string; updatedAt: string; }
-const records = reactive<ServiceRecord[]>([
+const records = reactive<ServiceRecord[]>(copyDemoRows([
   { id: 1042, name: "证书自动续期", owner: "平台组", environment: "生产", status: "运行中", updatedAt: "2026-11-16 10:42" },
   { id: 1038, name: "边缘节点同步", owner: "基础设施", environment: "生产", status: "运行中", updatedAt: "2026-11-16 09:18" },
   { id: 1029, name: "域名健康检查", owner: "平台组", environment: "预发布", status: "待发布", updatedAt: "2026-11-15 17:36" },
   { id: 1017, name: "旧证书清理", owner: "安全组", environment: "生产", status: "已暂停", updatedAt: "2026-11-15 14:05" },
   { id: 1004, name: "站点可用性巡检", owner: "运维组", environment: "测试", status: "运行中", updatedAt: "2026-11-14 11:27" },
-]);
+]));
 const selectOptions = [{ label: "生产", value: "生产" }, { label: "预发布", value: "预发布" }, { label: "测试", value: "测试" }];
 const statusOptions = [{ label: "运行中", value: "运行中" }, { label: "待发布", value: "待发布" }, { label: "已暂停", value: "已暂停" }];
-const state = reactive<FnCrudState<ServiceRecord>>({ id: "naive-basic-services", heading: { title: "基础列表示例", description: "通过服务数据演示搜索、分页和增删改查。" }, rowSelect: { crossPage: true }, table: { rowKey: "id", minWidth: 760 }, pagination: { pageSize: 5 }, rowHandle: { width: 148 }, columns: {
+const state = reactive<FnCrudState<ServiceRecord>>({ id: "naive-basic-services", heading: { title: "基础列表示例", description: "通过服务数据演示搜索、分页和增删改查。" }, rowSelect: { crossPage: true }, table: { rowKey: "id", minWidth: 760 }, rowHandle: { width: 148 }, columns: {
   id: { key: "id", title: "编号", cell: { width: 90 } },
   name: { key: "name", title: "服务名称", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索名称或负责人" }, width: 220 }, form: { rules: [{ required: true, message: "请输入服务名称" }] }, cell: { order: 1 } },
   owner: { key: "owner", title: "负责人", form: { rules: [{ required: true, message: "请输入负责人" }] }, cell: { width: 120 } },

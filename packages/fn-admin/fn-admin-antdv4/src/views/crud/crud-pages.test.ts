@@ -10,7 +10,7 @@ import { api as formSlotsApi } from './form/slots/api'
 
 registerMockModules(import.meta.glob<{ default?: Array<{ path: string; handle: (request: any) => any }> }>('./**/mock.ts', { eager: true }))
 
-const query = { page: { offset: 0, limit: 20 }, query: {} }
+const query = { page: { offset: 0, limit: 55 }, query: {} }
 
 describe('Ant Design Vue CRUD page mocks', () => {
   it('registers each categorized page mock and serves its page endpoint', async () => {
@@ -24,13 +24,13 @@ describe('Ant Design Vue CRUD page mocks', () => {
       formSlotsApi.pageRequest(query),
     ])
 
-    expect(results.map((result) => result.total)).toEqual([5, 3, 12, 8, 6, 7, 4])
-    expect(results.every((result) => result.records.length > 0)).toBe(true)
+    expect(results.map((result) => result.total)).toEqual([55, 55, 55, 55, 55, 55, 55])
+    expect(results.every((result) => result.records.length === 55)).toBe(true)
   })
 
   it('returns dictionary tab counts and publishes selected change requests', async () => {
     const credentials = await credentialsApi.pageRequest(query)
-    expect(credentials.tabsCounts).toEqual({ active: 4, review: 2, disabled: 2 })
+    expect(credentials.tabsCounts).toEqual({ active: 33, review: 11, disabled: 11 })
 
     const pending = await selectionApi.pageRequest({ ...query, query: { status: '待发布' } })
     await selectionApi.publish([pending.records[0].id])

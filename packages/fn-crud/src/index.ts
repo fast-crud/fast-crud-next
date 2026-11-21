@@ -31,7 +31,7 @@ export * from "./theme";
 export { DictStore } from "./dict";
 export { compute, isFnComputeValue, resolveComputed, resolveComputedValue } from "./use/compute";
 export { UnMergeable } from "./use/use-merge";
-export { createFnCrudPreferenceStorage, createFnCrudPreferenceSnapshot, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./preferences";
+export { createFnCrudPreferenceStorage, createFnCrudPreferenceSnapshot, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./use/use-preferences";
 export { model, useFnDialog } from "./modal/dialog";
 export { UiContext, FnCrudContext, uiContext, fnCrudContext, type FnUiServices, type FnFeedbackApi } from "./provider/context";
 export { installFnCrud, useFnCrud, useFnUiServices, type FnCrudOptionsInput, type FnCrudReactiveState, type FnCrudState, type UseFnCrudOptions } from "./use/index";

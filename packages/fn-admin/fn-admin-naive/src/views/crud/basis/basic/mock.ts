@@ -1,7 +1,7 @@
 import mockUtil from '@fast-crud/fn-admin-shared/mock/base'
 
 export default mockUtil.buildMock({
-  name: 'NaiveBasicServices', idGenerator: 1040, copyTimes: 1,
+  name: 'NaiveBasicServices', idGenerator: 1040, copyTimes: 11,
   list: [
     { name: '证书自动续期', owner: '平台组', environment: '生产', status: '运行中', updatedAt: '2026-11-16 10:42' },
     { name: '边缘节点同步', owner: '基础设施', environment: '生产', status: '运行中', updatedAt: '2026-11-16 09:18' },

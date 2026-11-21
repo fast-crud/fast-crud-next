@@ -1,7 +1,7 @@
 import mockUtil from '@fast-crud/fn-admin-shared/mock/base'
 
 const options: any = {
-  name: 'FnAdminChangeRequests', idGenerator: 7300, copyTimes: 1,
+  name: 'FnAdminChangeRequests', idGenerator: 7300, copyTimes: 11,
   list: [
     { title: '生产证书续期', requester: '平台组', environment: '生产', status: '待发布', createdAt: '2026-11-16 10:42' },
     { title: '边缘节点配置同步', requester: '基础设施', environment: '预发布', status: '待发布', createdAt: '2026-11-16 09:18' },

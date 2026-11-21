@@ -59,11 +59,15 @@ const mockUtil: any = {
   buildMock(options: any) {
     const name = options.name;
     if (options.copyTimes == null) {
-      options.copyTimes = 29;
+      options.copyTimes = 11;
     }
     const list: any = [];
+    const seed = options.list.slice(0, 5);
+    while (seed.length > 0 && seed.length < 5) {
+      seed.push(seed[seed.length % options.list.length]);
+    }
     for (let i = 0; i < options.copyTimes; i++) {
-      copyList(options.list, list, options);
+      copyList(seed, list, options);
     }
     options.list = list;
     return [

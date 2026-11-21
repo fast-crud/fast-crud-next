@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="tsx">
-import { getCurrentInstance, provide, reactive, ref } from "vue";
+import { getCurrentInstance, onMounted, provide, reactive, ref } from "vue";
 import FnTable from "./table/fn-table.vue";
 import FnPagination from "./table/fn-pagination.vue";
 import FnSearch from "./search/index.vue";
@@ -36,6 +36,7 @@ import { fnCrudSearchKey, uiContext } from "./provider/context";
 import { useMerge } from "./use/use-merge";
 import { useActionbarProps, useFormProps, useHeadingProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableRenderProps, useTabsProps, useToolbarProps } from "./use.tsx";
 import { useTable } from "./use/use-table";
+import { useFnCrudPreferences, type FnCrudPreferencesController } from "./use/use-preferences";
 import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnRowContext, FnTableRow } from "./types/index";
 
 const rawProps = defineProps<FnCrudOptions & { rowHandle?: any; columns: Record<string, any> }>();
@@ -47,10 +48,14 @@ const FnFormDialogRef = ref<InstanceType<typeof FnFormDialog>>();
 const searchForm = reactive<Record<string, any>>({});
 const searchProps = useSearchProps(props, vueSlots.search ? (ctx?: Record<string, any>) => vueSlots.search?.(ctx) : undefined);
 const rowHandleProps = useRowHandleProps(props, editRow, openDeleteDialog);
-const table = useTable(props, rowHandleProps, searchForm, notification);
+let preferences!: FnCrudPreferencesController;
+const table = useTable(props, rowHandleProps, searchForm, () => preferences);
+preferences = useFnCrudPreferences(props, () => table.baseTableColumns.value, () => table.defaultColumnSettings.value, notification);
+onMounted(async () => {
+  await preferences.initializePreferences();
+  await table.refresh();
+});
 const {
-  preferencesLoaded,
-  density,
   page,
   tabsCounts,
   tableProps,
@@ -58,12 +63,12 @@ const {
   getRecordId,
   getSelectedRowKeys,
   clearSelectedRowKeys,
-  resetColumnSettings,
   refresh,
   applySearch,
   turnPage,
   changePage,
 } = table;
+const { preferencesLoaded, density } = preferences;
 provide(fnCrudSearchKey, { form: searchForm, search: applySearch });
 async function editRow(ctx: FnRowContext): Promise<void> {
   if (!ctx.row) {
@@ -136,8 +141,8 @@ const toolbarProps = useToolbarProps(props, {
   density,
   preferencesLoaded,
   columnSettingsProps: table.columnSettingsProps,
-  onUpdateDensity: table.changeDensity,
-  onResetColumnSettings: resetColumnSettings,
+  onUpdateDensity: preferences.changeDensity,
+  onResetColumnSettings: preferences.resetColumnSettings,
   bodyBottomSlot: vueSlots.bodyBottom ? () => vueSlots.bodyBottom?.() : undefined,
 });
 const headingSlot = vueSlots.header

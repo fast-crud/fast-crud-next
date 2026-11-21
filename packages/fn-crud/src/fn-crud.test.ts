@@ -12,9 +12,8 @@ import * as tableUse from "./use/use-table";
 import { fnCrudContext, uiContext } from "./provider/context";
 import { FN_CRUD_BLANK_COLUMN_KEY, useFnCrud } from "./use/use-fn-crud";
 import { useMerge } from "./use/use-merge";
+import * as crudPreferences from "./use/use-preferences";
 import type { FnCrudExpose } from "./types/index";
-import * as preferences from "./preferences";
-import { mergeFnCrudPreferences } from "./preferences";
 
 const confirmDelete = vi.fn();
 
@@ -52,15 +51,15 @@ const loadDependency = (name: string) => {
     };
   if (name === "./use.tsx") return crudUse;
   if (name === "./use/use-table") return tableUse;
+  if (name === "./use/use-preferences") return crudPreferences;
   if (name === "./use/use-fn-crud") return { FN_CRUD_BLANK_COLUMN_KEY };
   if (name === "./use/use-merge") return { useMerge };
-  if (name === "./preferences") return { ...preferences, mergeFnCrudPreferences };
   if (name === "./table/row-key") return { getFnTableRowKey };
   if (name === "./modal/dialog") return { model: { confirm: confirmDelete } };
   if (name === "ant-design-vue") return { notification: { success: vi.fn(), error: vi.fn() } };
   return require(name);
 };
-new Function("require", "module", "exports", "mergeFnCrudPreferences", compiled.outputText)(loadDependency, module, module.exports, mergeFnCrudPreferences);
+new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);
 
 it("FnCrud 通过计算 props 绑定内置子组件并将按钮渲染交给对应组件", () => {
   const template = descriptor.template?.content ?? "";
@@ -402,7 +401,8 @@ it("页面加载先读取远程偏好并写回配置源，再用已保存的 pag
   useFnCrud({ state: crudState as any });
   const setup = module.exports.default.setup(crudState, { emit: () => {}, expose: (value: FnCrudExpose) => (exposed = value) });
 
-  await setup.table.initializePreferences();
+  await setup.preferences.initializePreferences();
+  await setup.table.refresh();
 
   expect(get).toHaveBeenCalledWith("fn-crud:remote-pref-test");
   expect(setup.table.page.pageSize).toBe(50);
@@ -410,7 +410,7 @@ it("页面加载先读取远程偏好并写回配置源，再用已保存的 pag
   expect(crudState.table.density).toBeUndefined();
   expect(crudState.columns.name.cell.width).toBe(120);
   expect(setup.table.tableProps.value.columns.name).toMatchObject({ show: false, cell: { width: 180 } });
-  expect(setup.table.columnPreferences.value.name).toMatchObject({ show: false, width: 180 });
+  expect(setup.preferences.columnPreferences.value.name).toMatchObject({ show: false, width: 180 });
   expect(pageRequest).toHaveBeenCalledWith({ page: { offset: 0, limit: 50 }, query: {}, sort: undefined });
   expect(exposed).toBeDefined();
 });
@@ -442,15 +442,16 @@ it("载入用户列偏好优先覆盖开发者配置，并忽略已删除列", a
   useFnCrud({ state });
   const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
 
-  await setup.table.initializePreferences();
+  await setup.preferences.initializePreferences();
+  await setup.table.refresh();
 
   expect(state.columns.explicit.show).toBe(true);
   expect(state.columns.locked.cell).toMatchObject({ order: 1, setting: { disabled: true } });
   expect(state.columns.movable.show).toBeUndefined();
-  expect(setup.table.columnPreferences.value).not.toHaveProperty("deleted");
-  expect(setup.table.columnPreferences.value.explicit).toMatchObject({ show: false, order: 1 });
-  expect(setup.table.columnPreferences.value.locked).toMatchObject({ show: false, fixed: "left", order: 2 });
-  expect(setup.table.columnPreferences.value.movable).toMatchObject({ show: false });
+  expect(setup.preferences.columnPreferences.value).not.toHaveProperty("deleted");
+  expect(setup.preferences.columnPreferences.value.explicit).toMatchObject({ show: false, order: 1 });
+  expect(setup.preferences.columnPreferences.value.locked).toMatchObject({ show: false, fixed: "left", order: 2 });
+  expect(setup.preferences.columnPreferences.value.movable).toMatchObject({ show: false });
   expect(setup.table.tableProps.value.columns.explicit.show).toBe(false);
   expect(setup.table.tableProps.value.columns.movable.show).toBe(false);
 });
@@ -467,21 +468,21 @@ it("FnCrud 内部保存列设置覆盖并在还原时回到开发者配置", () 
   useFnCrud({ state });
   const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
 
-  setup.table.updateColumnSettings([
+  setup.preferences.updateColumnSettings([
     { key: "status", title: "状态", show: false, fixed: "right" },
     { key: "name", title: "名称", show: false },
   ]);
-  setup.table.saveColumnWidth({ key: "name", width: 180 });
+  setup.preferences.saveColumnWidth({ key: "name", width: 180 });
 
   expect(state.columns.name).toMatchObject({ show: true, cell: { width: 120, order: 0 } });
   expect(state.columns.status.cell).toMatchObject({ width: 90, order: 1 });
   expect(setup.table.tableProps.value.columns.name.cell.width).toBe(180);
   expect(setup.table.tableProps.value.columns.status).toMatchObject({ show: false, cell: { fixed: "right" } });
-  expect(setup.table.columnPreferences.value.name.width).toBe(180);
+  expect(setup.preferences.columnPreferences.value.name.width).toBe(180);
 
-  setup.table.resetColumnSettings();
+  setup.preferences.resetColumnSettings();
 
-  expect(setup.table.columnPreferences.value).toEqual({});
+  expect(setup.preferences.columnPreferences.value).toEqual({});
   expect(setup.table.tableProps.value.columns.name.cell.width).toBe(120);
   expect(setup.table.tableProps.value.columns.status).toMatchObject({ cell: { width: 90, order: 1 } });
 });
@@ -499,9 +500,10 @@ it("载入等同开发者默认值的旧偏好时不保留宽度覆盖", async (
   useFnCrud({ state });
   const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
 
-  await setup.table.initializePreferences();
+  await setup.preferences.initializePreferences();
+  await setup.table.refresh();
 
-  expect(setup.table.columnPreferences.value).toEqual({});
+  expect(setup.preferences.columnPreferences.value).toEqual({});
   expect(setup.table.tableProps.value.columns.id.cell.width).toBe(100);
 });
 
@@ -519,12 +521,12 @@ it("pageSize 和 density 通过偏好覆盖生效，并在用户更新时回调�
   }) as any;
   useFnCrud({ state });
   const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
-  setup.table.preferencesLoaded.value = true;
-  setup.table.preferencesKey.value = "fn-crud:update-pref-test";
+  setup.preferences.preferencesLoaded.value = true;
+  setup.preferences.preferencesKey.value = "fn-crud:update-pref-test";
 
   expect(setup.paginationProps.value.pageSize).toBe(10);
   expect(setup.table.density.value).toBe("comfort");
-  setup.table.changeDensity("compact");
+  setup.preferences.changeDensity("compact");
   expect(onUpdateDensity).toHaveBeenCalledWith("compact");
   expect(setup.table.density.value).toBe("compact");
 
@@ -545,13 +547,13 @@ it("用户将 pageSize 和 density 改回开发者默认值时仍保存用户偏
   }) as any;
   useFnCrud({ state });
   const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
-  setup.table.preferencesLoaded.value = true;
-  setup.table.preferencesKey.value = "fn-crud:reset-pref-test";
-  setup.table.changeDensity("compact");
-  setup.table.changeDensity("comfort");
+  setup.preferences.preferencesLoaded.value = true;
+  setup.preferences.preferencesKey.value = "fn-crud:reset-pref-test";
+  setup.preferences.changeDensity("compact");
+  setup.preferences.changeDensity("comfort");
 
-  expect(setup.table.densityPreference.value).toBe("comfort");
+  expect(setup.preferences.densityPreference.value).toBe("comfort");
   setup.table.changePage(1, 25);
   setup.table.changePage(1, 10);
-  expect(setup.table.pageSizePreference.value).toBe(10);
+  expect(setup.preferences.pageSizePreference.value).toBe(10);
 });

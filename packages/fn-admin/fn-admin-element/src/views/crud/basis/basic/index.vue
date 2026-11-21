@@ -7,6 +7,7 @@ import { h, markRaw, reactive, ref } from 'vue'
 import { ElTag } from 'element-plus'
 import { FnCrud, FnInput, type FnCrudState, type FnTablePageQuery, type FnTablePageResult, type FnRowContext, DictStore, useFnCrud } from '@fast-crud/fast-crud-next'
 import DemoSelect from '@fast-crud/fn-admin-shared/components/DemoSelect.vue'
+import { copyDemoRows } from '@fast-crud/fn-admin-shared/mock/copy-demo-rows'
 
 interface ServiceRecord { id: number; name: string; owner: string; environment: string; status: string; updatedAt: string }
 const statusDict = markRaw(new DictStore({ data: [
@@ -15,14 +16,14 @@ const statusDict = markRaw(new DictStore({ data: [
   { label: '已暂停', value: 'paused', color: 'default' },
 ] }))
 const environmentOptions = ['生产', '预发布', '测试'].map((value) => ({ label: value, value }))
-const rows = ref<ServiceRecord[]>([
+const rows = ref<ServiceRecord[]>(copyDemoRows([
   { id: 1042, name: '证书自动续期', owner: '平台组', environment: '生产', status: 'running', updatedAt: '2026-11-16 10:42' },
   { id: 1038, name: '边缘节点同步', owner: '基础设施', environment: '生产', status: 'running', updatedAt: '2026-11-16 09:18' },
   { id: 1029, name: '域名健康检查', owner: '平台组', environment: '预发布', status: 'staged', updatedAt: '2026-11-15 17:36' },
   { id: 1017, name: '旧证书清理', owner: '安全组', environment: '生产', status: 'paused', updatedAt: '2026-11-15 14:05' },
   { id: 1004, name: '站点可用性巡检', owner: '运维组', environment: '测试', status: 'running', updatedAt: '2026-11-14 11:27' },
   { id: 998, name: 'DNS 配置核验', owner: '基础设施', environment: '预发布', status: 'staged', updatedAt: '2026-11-13 16:50' },
-])
+]))
 const crudState = reactive({
   id: 'element-basic-crud',
   heading: { title: '基础列表示例', description: '通过服务数据演示搜索、分页和增删改查。' },
@@ -39,7 +40,6 @@ const crudState = reactive({
   },
   table: { rowKey: 'id', minWidth: 760 },
   rowHandle: { width: 150 },
-  pagination: { pageSize: 5, pageSizeOptions: ['5', '10', '20'] },
   request: {
     pageRequest: async ({ page, query, sort }: FnTablePageQuery): Promise<FnTablePageResult<ServiceRecord>> => {
       const keyword = String(query.name || '').trim().toLocaleLowerCase()

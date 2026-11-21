@@ -17,7 +17,6 @@ const state = reactive({
   },
   table: { rowKey: "id", minWidth: 820 },
   rowHandle: { width: 140 },
-  pagination: { pageSize: 5, pageSizeOptions: ["5", "10"] },
   request: {
     pageRequest: api.pageRequest,
     addRequest: api.addRequest,

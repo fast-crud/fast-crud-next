@@ -61,7 +61,6 @@
 
 ## Admin 实时开发
 
-- 用户日常会同时启动三套 admin 页面，修改代码后通过 Vite HMR 实时查看效果：AntDV `http://localhost:5173`、Element `http://localhost:5174`、Naive `http://localhost:5175`。
-- 页面样式或展示改动完成后，可直接打开这三个页面做对比和验证；普通 UI 开发无需额外执行编译或生产打包。不要控制屏幕，用你自己的浏览器查看。
+- 用户日常会同时启动三套 admin 页面，修改代码后，用户会通过 Vite HMR 实时查看效果：AntDV `http://localhost:5173`、Element `http://localhost:5174`、Naive `http://localhost:5175`。
 - 行为逻辑改动仍按需运行相关测试或类型检查。不要通过关闭检查或弱化组件类型约束来掩盖错误。
 - 路由或页面导入路径修复无需执行 `vite build`；优先通过文件存在性、编辑器诊断或开发服务器 HMR 做轻量验证，只有任务明确要求时才运行生产构建。
