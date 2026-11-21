@@ -17,27 +17,37 @@
 }
 
 :lang(zh-CN) .VPHome .VPHero {
-  padding-bottom: 2.5rem;
+  padding-bottom: 3.5rem;
 }
 
 :lang(zh-CN) .VPHome .VPHero .name {
   margin-bottom: .375rem;
-  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-size: 1.75rem;
   line-height: 1.25;
-  letter-spacing: -.035em;
+  letter-spacing: 0;
 }
 
 :lang(zh-CN) .VPHome .VPHero .text {
   max-width: 54rem;
-  font-size: clamp(2rem, 5.5vw, 3.875rem);
+  font-size: 2.5rem;
   line-height: 1.2;
-  letter-spacing: -.04em;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 
 :lang(zh-CN) .VPHome .VPHero .tagline {
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: 1.25rem;
   line-height: 1.65;
+}
+
+@media (min-width: 60rem) {
+  :lang(zh-CN) .VPHome .VPHero .name {
+    font-size: 2rem;
+  }
+
+  :lang(zh-CN) .VPHome .VPHero .text {
+    font-size: 3.75rem;
+  }
 }
 
 :lang(zh-CN) .VPHome .VPFeatures .item {
@@ -63,8 +73,31 @@
 }
 
 :lang(zh-CN) .VPHome .VPFeatures .title {
-  color: var(--vp-c-brand-1);
+  color: var(--vp-c-text-1);
   font-size: 1.125rem;
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .box:has(> .icon) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: .75rem;
+  align-items: center;
+  padding: 1.625rem;
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .box > .icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0;
+  color: var(--vp-c-brand-1);
+  background-color: var(--vp-c-brand-soft);
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .box:has(> .icon) > .details {
+  grid-column: 1 / -1;
+  align-self: start;
+  padding-top: .75rem;
 }
 
 :lang(zh-CN) .VPHome .VPHomeContent h2 {

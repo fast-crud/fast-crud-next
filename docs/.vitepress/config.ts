@@ -4,6 +4,7 @@ export default defineConfig({
   vite: { server: { port: 5177 } },
   title: 'Fast Crud Next',
   description: '基于 Vue 3 和 TypeScript 的 FnCrud 组件库',
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/fast-crud-next.svg' }]],
   rewrites: {
     'zh/:path*': ':path*',
   },
@@ -48,6 +49,7 @@ export default defineConfig({
               { text: '请求', link: '/api/requests' },
               { text: '搜索与 Tabs', link: '/api/search' },
               { text: '表单与弹窗', link: '/api/forms' },
+              { text: '独立弹窗与确认框', link: '/api/modal' },
               { text: '表格、选择与偏好', link: '/api/table' },
               { text: '按钮与操作区', link: '/api/actions' },
               { text: '基础组件', link: '/api/components' },
@@ -91,6 +93,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
+    logo: '/fast-crud-next.svg',
     search: { provider: 'local' },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/fast-crud/fast-crud-next' },

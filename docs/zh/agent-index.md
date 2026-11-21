@@ -14,6 +14,7 @@
 | `request.pageRequest`、`FnTablePageQuery`、排序、搜索 | [请求 API](./api/requests.md) · [分页、搜索与排序](./recipes/paging.md) |
 | `addRequest`、`editRequest`、`delRequest`、增删改 | [请求 API](./api/requests.md) · [增删改](./recipes/mutations.md) |
 | `form`、`addForm`、`editForm`、`compute`、`FnFormDialog`、插槽 | [表单与弹窗](./api/forms.md) · [表单联动与插槽](./recipes/forms.md) |
+| `FnModal`、`FnModal.confirm`、`v-model:open`、`closed` | [独立弹窗与确认框](./api/modal.md) |
 | `DictStore`、`rowSelect.selectedRowKeys`、`crossPage` | [字典与选择](./recipes/selection.md) |
 | `FnTable`、`preferenceStorage`、列宽、密度 | [表格与偏好](./api/table.md) |
 | `FnButton`、`FnInput`、`FnCheckbox`、`FnRadio` | [基础组件](./api/components.md) |

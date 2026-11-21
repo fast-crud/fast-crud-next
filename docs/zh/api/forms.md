@@ -63,3 +63,5 @@ footer: ctx => (
 ## 独立使用
 
 `FnForm`、`FnFormDialog` 均可从包入口导入。`FnFormDialog` 通过实例方法 `open(options)` 接收包含 `columns` 的 `FnFormDialogOptions`，挂载后返回表单上下文。实例还公开 `close()`、`reset()`、`cancel()`、`submit()` 和 `getFormData()`。
+
+只需展示自定义内容或确认一次操作时，参阅[独立弹窗与确认框](./modal.md)。

@@ -72,6 +72,42 @@ price: {
 
 `FnInput` 和 `compute` 均从 `@fast-crud/fast-crud-next` 导入。普通渲染回调用 `render`，只有需要根据上下文计算配置时才使用 `compute`。当前行组件的值更新只写入列表数据，保存到服务端需要调用业务 API。打开 [Admin 示例](../demos/admin.md)的 `/crud/basis/compute` 可验证编辑联动。
 
+### 用一个开关禁用整列输入
+
+同一列的所有单元格需要随页面开关变化时，将同一个 `ref` 传给 `cell.component.disabled`。下面的配置可放入已有列表，`quantity` 应与行数据字段同名。
+
+```ts
+import { markRaw, ref } from 'vue'
+import { FnInput } from '@fast-crud/fast-crud-next'
+
+const quantityDisabled = ref(false)
+
+const quantity = {
+  key: 'quantity',
+  title: '数量',
+  cell: {
+    component: {
+      name: markRaw(FnInput),
+      type: 'number',
+      disabled: quantityDisabled,
+    },
+  },
+}
+
+const actionbar = {
+  buttons: {
+    toggleQuantity: {
+      text: '切换数量输入状态',
+      click: () => {
+        quantityDisabled.value = !quantityDisabled.value
+      },
+    },
+  },
+}
+```
+
+把 `quantity` 放入 `columns.quantity`，把 `actionbar` 放入列表配置。单元格通过默认的 `modelValue` 写回字段，只改变当前页面的行数据。需要提交到后端时，可用编辑表单或显式保存。若只让当前行的输入取决于该行数据，则用 `compute(({ row }) => ...)`。三种联动可在 [Admin 动态计算示例](../demos/admin.md#动态计算示例怎么验证)中对照。
+
 ## 字典选项
 
 `DictStore` 和 `DictOption` 从包入口导入。`dict-select`、`dict-radio` 和 `dict-checkbox` 把字段的 `dict.getOptions()` 绑定到各分支的 `component.options`。自定义组件也可以直接绑定该 Ref。

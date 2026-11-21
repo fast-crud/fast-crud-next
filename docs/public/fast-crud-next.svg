@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <path id="bolt" d="M77 7h33L89 44h28l-59 76 10-52H43z"/>
+    <mask id="table-cutout">
+      <path fill="#fff" d="M0 0h128v128H0z"/>
+      <use href="#bolt" fill="#000" stroke="#000" stroke-width="8" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <g mask="url(#table-cutout)">
+    <rect x="9" y="24" width="102" height="80" rx="15" fill="#2347bd"/>
+    <path d="M16 47h88v48a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2z" fill="#3769e3"/>
+    <path d="M17 47h86M17 64h86M17 81h86M43 48v48M72 48v48" fill="none" stroke="#dce7ff" stroke-opacity=".83" stroke-width="3"/>
+    <path d="M22 36h14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <use href="#bolt" fill="#ffcb34" stroke="#ffcb34" stroke-width="2" stroke-linejoin="round"/>
+</svg>

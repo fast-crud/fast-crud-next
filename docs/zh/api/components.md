@@ -16,7 +16,32 @@
 | `FnTag` | 默认插槽提供标签内容，无额外上下文。 | `color` 接受 `success`、`warning` 等语义色或 CSS 颜色。 |
 | `FnButtonGroup` | `v-model` 绑定选中的 `value`，`change` 收到新的选中值。 | `options` 提供 `value`、`label` 等，`label` 为整组按钮提供可访问名称。 |
 | `FnButton`、`FnDropdownButton` | `FnButton` 接收 `click` 回调，下拉按钮可监听 `select` 取得菜单键。 | 常用 `text`、`type`、`disabled`、`loading`、`items`。见[按钮配置](./actions.md)。 |
-| `FnModal`、`FnDrawer` | 独立控制浮层。CRUD 提交表单见[表单与弹窗](./forms.md)。 | 纯确认操作可用 `FnModal.confirm(options)`。 |
+| `FnModal`、`FnDrawer` | 独立控制浮层。CRUD 提交表单见[表单与弹窗](./forms.md)。 | 受控弹窗和纯确认操作见[独立弹窗与确认框](./modal.md)。 |
+
+## 复选框、单选框与按钮组
+
+下面的片段假设已从包入口导入 `FnCheckbox`、`FnRadio` 和 `FnButtonGroup`，并在页面中声明相应的响应式值。
+
+```vue
+<FnCheckbox v-model="allVisible" :indeterminate="someVisible && !allVisible" aria-label="显示全部列" />
+
+<FnRadio v-model="alignment" name="alignment" value="left" aria-label="左对齐" />
+<FnRadio v-model="alignment" name="alignment" value="right" aria-label="右对齐" />
+
+<FnButtonGroup
+  v-model="fixed"
+  label="名称列固定位置"
+  :options="[
+    { value: 'left', label: '左侧' },
+    { value: '', label: '取消固定' },
+    { value: 'right', label: '右侧' },
+  ]"
+/>
+```
+
+`FnCheckbox` 的半选状态通过 `indeterminate` 单独控制，不改变绑定的布尔值。`FnRadio` 同组使用相同的 `name`，每项设置不同的 `value`。按钮组选项还可以设置 `title`、`ariaLabel`、`icon` 和 `disabled`。列设置抽屉使用复选框和按钮组，见[表格 API](./table.md#列设置如何生效)。
+
+需要监听普通按钮的原生点击事件时，可用 `<FnButtonBase text="保存" @click="save" />`。需要在 CRUD 操作区配置普通按钮或下拉菜单时，使用 `FnButtonProps`，见[按钮与操作区](./actions.md)。
 
 ## 使用自定义字段组件
 
@@ -37,6 +62,7 @@ component: {
 `FnSelect` 支持方向键浏览、Enter 选择、Esc 收起。多选时，输入为空可用 Backspace 移除最后一个可移除的标签。
 
 多选标签默认允许换行。设置 `wrap: false` 可固定为单行，至少显示第一个标签，过长时省略文字，其余放不下的标签显示为 `+N`。悬停可查看折叠项，展开列表后仍可取消任意已选项。`minWidth` 设置控件最小宽度，数字按像素处理，也可传入 CSS 长度。凭证示例的环境筛选使用 `search: { component: { multiple: true, wrap: false, minWidth: 160 } }`。
+
 ## FnIcon 图标尺寸
 
 `FnIcon` 默认使用 `1em`，随继承的字号缩放。可通过 `size` 指定尺寸，例如 `:size="16"` 或 `size="1.25em"`。

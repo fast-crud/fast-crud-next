@@ -68,7 +68,8 @@
     "recipes/forms.md"
   ],
   "packages/fn-crud/src/components/overlay/": [
-    "api/forms.md"
+    "api/forms.md",
+    "api/modal.md"
   ],
   "packages/fn-crud/src/locale/": [
     "guide/installation.md"
@@ -92,6 +93,13 @@
   ],
   "packages/fn-admin/fn-admin-shared/src/views/crud/form/": [
     "recipes/forms.md",
+    "demos/admin.md"
+  ],
+  "packages/fn-admin/fn-admin-shared/src/views/crud/basis/compute/": [
+    "api/columns.md",
+    "demos/admin.md"
+  ],
+  "packages/fn-admin/fn-admin-shared/src/mock/": [
     "demos/admin.md"
   ]
 }
