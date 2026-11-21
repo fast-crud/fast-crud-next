@@ -15,14 +15,14 @@
 ## 实现约定
 
 - Vue 单文件组件使用 Vue 3 Composition API 和 `<script setup lang="tsx">`；公开配置、事件和组合式函数保留明确的 TypeScript 类型。
-- 配置示例优先保留静态对象结构；需要响应式或上下文计算时，将 `ref`、`computed` 或 `compute(...)` 放在对应叶子属性，避免仅为动态单个属性包装整块 `form`、`cell` 或 `component` 配置。只有对象结构本身随上下文变化时才整体使用 `compute(...)`。
+- 配置示例优先保留静态对象结构；动态值优先使用叶子节点属性上的 `ref`、`computed` 或 `compute(...)`，不要仅为动态单个属性包装整块 `form`、`cell` 或 `component`。只有对象结构本身确实随上下文变化时才整体使用 `compute(...)`。
 - 所有返回 VNode 的 render 方法使用 TSX/JSX 语法编写，不使用 `h()` 拼接 render 树。
 - 优先复用现有 Fn 组件和原生 HTML 控件，不为基础交互引入 UI 框架。
 - 组件库已有图标使用 `@lucide/vue`。
 - 所有 Vue 组件样式统一使用 `<style lang="less">`，并用 Less 大括号嵌套结构编写；默认不使用 `scoped`。选择器应尽量嵌套在组件名对应的根 class 下，避免无根 class 的全局规则；Teleport/Portal、Transition 状态等根节点外渲染的内容，可使用有明确组件前缀的独立根 class。确需使用 `scoped` 时应说明原因；可复用组件需要保留日间和夜间主题表现。
 - CRUD state 使用单一数据源：通过 `reactive<FnCrudState>()` 创建，调用 `useFnCrud(state)` 初始化，并将同一份 state 通过 `v-bind` 传给 FnCrud。
 - `useFnCrud` 负责构建一套 `crudOptions`，并通过 `v-bind="crudOptions"` 传给 FnCrud；FnCrud 在内部为各内置子组件分别计算 props，再通过 `v-bind` 传给对应子组件。不要在 FnCrud 模板中逐项展开传递子组件 props；除控制显隐所需的 `v-if` 等条件外，子组件配置应集中在对应的 `xxxProps` 中。
-- 配置合并是 FnCrud 的核心逻辑，不限于表单：`useFnCrud` 按默认值、全局 `commonOptions`、局部 state 的优先级合并 `crudOptions`；FnCrud 的各 `xxxProps` 再组合所属配置与内置回调、运行时状态和插槽，并将完整 props 集中传给对应子组件。新增或调整配置时应明确来源优先级及回调保留规则，避免调用方拆开向组件传递多份配置。
+- 配置合并是 FnCrud 的核心逻辑，不限于表单：涉及配置对象合并时优先使用 `useMerge().merge` 做深度合并，避免浅展开丢失嵌套配置；它会保留数组覆盖、Ref 和叶子 `compute(...)` 等动态值语义。`useFnCrud` 按默认值、全局 `commonOptions`、局部 state 的优先级合并 `crudOptions`；FnCrud 的各 `xxxProps` 再组合所属配置与内置回调、运行时状态和插槽，并将完整 props 集中传给对应子组件。新增或调整配置时应明确来源优先级及回调保留规则，避免调用方拆开向组件传递多份配置。
 - 表单配置是上述合并逻辑的一个具体场景：打开新增/编辑表单时，以公共 `form` 为基础合并对应的 `addForm` / `editForm`，模式配置覆盖公共配置，得到单份表单选项后通过一个 options 对象传给 FnFormDialog；默认请求处理直接作为 `onSubmit`，允许用户配置覆盖；动态值由 FnFormDialog 使用当前 form context 解析。
 - Actionbar 和 Toolbar 各由对应的内置组件负责渲染与内部行为：使用 FnActionbar 承载 actionbar 配置，Toolbar 内部处理按钮和列设置。不要在 FnCrud 中自行遍历 Toolbar 按钮或渲染列设置，也不要为 Actionbar、Toolbar 转发或渲染没有用途的默认 slot。
 - 项目尚未正式发布，公开配置和行为变更无需保留旧字段或内部兼容兜底；应直接迁移仓库内调用方、示例和测试到最清晰的新接口。用户可观察或修改的运行时状态应归入对应的 `crudState` 领域配置，并由 `useFnCrud(state)` 安装写回回调，避免组件内部维护重复数据源。
