@@ -46,8 +46,8 @@ it("useFnCrud 保留用户 actionbar 按钮并补齐默认按钮", () => {
   const props = useActionbarProps(state, vi.fn(), ref(false), vi.fn()).value;
 
   expect(Object.keys(props.buttons)).toEqual(["add", "batch", "custom"]);
-  expect(props.buttons.add).toMatchObject({ text: "添加", type: "primary", show: true, order: -10 });
-  expect(props.buttons.batch).toMatchObject({ text: "批量操作", show: true, order: -10, buttonType: "dropdown" });
+  expect(props.buttons.add).toMatchObject({ text: "添加", type: "primary", show: true, order: -100 });
+  expect(props.buttons.batch).toMatchObject({ text: "批量操作", show: true, order: 0, buttonType: "dropdown" });
   expect(props.buttons.custom).toMatchObject({ text: "自定义" });
 });
 

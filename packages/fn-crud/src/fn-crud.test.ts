@@ -11,6 +11,7 @@ import * as crudUse from "./use.tsx";
 import * as tableUse from "./use/use-table";
 import { fnCrudContext, uiContext } from "./provider/context";
 import { FN_CRUD_BLANK_COLUMN_KEY, useFnCrud } from "./use/use-fn-crud";
+import { useMerge } from "./use/use-merge";
 import type { FnCrudExpose } from "./types/index";
 import * as preferences from "./preferences";
 import { mergeFnCrudPreferences } from "./preferences";
@@ -52,6 +53,7 @@ const loadDependency = (name: string) => {
   if (name === "./use.tsx") return crudUse;
   if (name === "./use/use-table") return tableUse;
   if (name === "./use/use-fn-crud") return { FN_CRUD_BLANK_COLUMN_KEY };
+  if (name === "./use/use-merge") return { useMerge };
   if (name === "./preferences") return { ...preferences, mergeFnCrudPreferences };
   if (name === "./table/row-key") return { getFnTableRowKey };
   if (name === "./modal/dialog") return { model: { confirm: confirmDelete } };
@@ -113,10 +115,10 @@ it("FnCrud 将 provider 公共配置与显式 props 深度合并", () => {
   fnCrudContext.configure({ commonOptions: () => ({}) });
 });
 
-it("FnCrud 合并公共与新增表单配置后交给 FnFormDialog，并提供默认提交请求", async () => {
+it("FnCrud 深度合并公共与新增表单配置后交给 FnFormDialog，并提供默认提交请求", async () => {
   const title = compute(({ form }) => `公共:${form?.name}`);
-  const common = { title, width: 500 };
-  const specific = { width: 640 };
+  const common = { title, width: 500, dialog: { footer: false, buttons: { cancel: { show: false } } } };
+  const specific = { width: 640, dialog: { title: "新增", buttons: { confirm: { text: "创建" } } } };
   const addRequest = vi.fn(async () => undefined);
   const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
   let exposed!: FnCrudExpose;
@@ -133,14 +135,15 @@ it("FnCrud 合并公共与新增表单配置后交给 FnFormDialog，并提供�
   await exposed.form.openAddForm();
 
   const [options] = open.mock.calls[0];
-  expect(options).toMatchObject({ mode: "add", columns: {}, width: 640 });
-  expect(options.title).toBe(title);
-  expect(options).not.toHaveProperty("commonOptions");
-  expect(options).not.toHaveProperty("modeOptions");
-  expect(options.onSubmit).toBeTypeOf("function");
+  expect(options).toMatchObject({ mode: "add", columns: {} });
+  expect(options.formOptions).toMatchObject({
+    width: 640,
+    dialog: { title: "新增", footer: false, buttons: { cancel: { show: false }, confirm: { text: "创建" } } },
+  });
+  expect(options.formOptions.title).toBe(title);
 
   const form = { name: "certd" };
-  await options.onSubmit({ form });
+  await options.formOptions.onSubmit({ form });
   expect(addRequest).toHaveBeenCalledWith(form);
   expect(pageRequest).toHaveBeenCalledOnce();
 });
@@ -159,8 +162,8 @@ it("FnCrud 允许表单配置覆盖默认提交请求", async () => {
 
   await exposed.form.openAddForm();
 
-  expect(open.mock.calls[0][0].onSubmit).toBe(onSubmit);
-  await open.mock.calls[0][0].onSubmit({ form: { name: "certd" } });
+  expect(open.mock.calls[0][0].formOptions.onSubmit).toBe(onSubmit);
+  await open.mock.calls[0][0].formOptions.onSubmit({ form: { name: "certd" } });
   expect(onSubmit).toHaveBeenCalledOnce();
   expect(addRequest).not.toHaveBeenCalled();
 });

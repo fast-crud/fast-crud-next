@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { compute } from "./compute";
+import { compute, resolveComputedValue } from "./compute";
 import { useMerge } from "./use-merge";
 import { DictStore } from "../dict";
 import { reactive, ref } from "vue";
@@ -31,6 +31,21 @@ it("DictStore 和 __fnCompute 值按不可合并对象保留引用", () => {
 
   expect(result.cell.dict).toBe(dict);
   expect(result.cell.dynamic).toBe(dynamic);
+});
+
+it("深度合并时保留叶子 compute，并让后一个来源覆盖动态值", () => {
+  const commonTitle = compute(({ form }) => `公共:${form?.name}`);
+  const localTitle = compute(({ form }) => `局部:${form?.name}`);
+  const result = merge(
+    {},
+    { dialog: { title: commonTitle, footer: false, buttons: { cancel: { show: false } } } },
+    { dialog: { title: localTitle, buttons: { confirm: { text: "创建" } } } }
+  );
+
+  expect(result.dialog.footer).toBe(false);
+  expect(result.dialog.buttons).toEqual({ cancel: { show: false }, confirm: { text: "创建" } });
+  expect(result.dialog.title).toBe(localTitle);
+  expect(resolveComputedValue(result, { type: "form", form: { name: "certd" } }).dialog.title).toBe("局部:certd");
 });
 
 it("merge 仍然覆盖数组且保留用户函数", () => {

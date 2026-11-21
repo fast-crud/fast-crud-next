@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
 import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useRowHandleProps, useSearchProps, useTabsProps } from "./use.tsx";
-import { isFnComputeValue } from "./use/compute";
+import { compute, isFnComputeValue } from "./use/compute";
 import type { FnCrudOptions, FnRowContext } from "./types/index";
 
 describe("useTabsProps", () => {
@@ -42,6 +42,36 @@ it("search props 将调用方和配置中的自定义内容收敛到 default slo
 
   expect(useSearchProps(props).value.slots?.default).toBe(configuredSlot);
   expect(useSearchProps(props, vueSlot).value.slots?.default).toBe(vueSlot);
+});
+
+it("搜索列覆盖深度合并 component 并在合并后解析叶子 compute", () => {
+  const props = {
+    columns: {
+      name: {
+        key: "name",
+        title: "名称",
+        search: {
+          component: { name: "FnInput", props: { clearable: true }, placeholder: "搜索名称" },
+        },
+      },
+    },
+    search: {
+      columns: {
+        name: {
+          component: { disabled: compute(({ form }) => form?.locked) },
+        },
+      },
+    },
+    request: { pageRequest: vi.fn() },
+  } as unknown as FnCrudOptions;
+
+  const searchColumn = useSearchProps(props).value.columns.name;
+
+  expect(isFnComputeValue(searchColumn)).toBe(true);
+  if (!isFnComputeValue(searchColumn)) return;
+  expect(searchColumn.computeFn({ type: "search", form: { locked: true } })).toEqual({
+    component: { name: "FnInput", props: { clearable: true }, placeholder: "搜索名称", disabled: true },
+  });
 });
 
 it("tabs props 在更新事件中写入搜索表单并执行搜索", () => {

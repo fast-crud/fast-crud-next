@@ -2,19 +2,19 @@ import { computed, type Ref } from "vue";
 import FnButton from "./components/fn-button.vue";
 import { compute, isFnComputeValue, resolveComputedValue } from "./use/compute";
 import { FN_CRUD_BLANK_COLUMN_KEY } from "./use/use-fn-crud";
+import { useMerge } from "./use/use-merge";
 import type { DictOption, FnColumnSettingsColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "./types/index";
 export { createRowSelectionColumn } from "./use/use-selection";
 
 export function useSearchProps(props: FnCrudOptions, searchSlot?: FnRenderSlot): Ref<FnSearchProps> {
+  const { merge } = useMerge();
   return computed(() => {
     const source: Record<string, FnDynamic<FnSearchColumn>> = { ...props.search?.columns };
     for (const [key, column] of Object.entries(props.columns)) {
       if (column.search) {
         const override = source[key];
-        source[key] = compute<FnSearchColumn>(context => ({
-          ...resolveComputedValue(column.search!, context),
-          ...resolveComputedValue(override || {}, context) as FnSearchColumn,
-        }));
+        const merged = merge({}, column.search, override || {});
+        source[key] = compute(context => resolveComputedValue(merged, context) as FnSearchColumn);
       }
     }
     const slots = { ...props.search?.slots };
