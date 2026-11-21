@@ -1,7 +1,8 @@
 import type { FnCrudExpose, FnCrudOptions } from "../../types/index";
 import type { FnDynamicType } from "../../types/index";
 import type { Ref, UnwrapNestedRefs } from "vue";
-import { fnCrudContext } from "../../components/provider/context";
+import { computed } from "vue";
+import { fnCrudContext, type FnCrudInstallOptions } from "../../components/provider/context";
 import { useMerge } from "../../components/use/use-merge";
 
 export type FnCrudOptionsInput<Row = any> = FnDynamicType<FnCrudOptions<Row>>;
@@ -26,7 +27,8 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
   state.pagination ||= {};
   state.rowSelect ||= {};
   const commonOptions = fnCrudContext.getCommonOptions();
-  const defaultCrudOptions: Partial<FnCrudOptions<Row>> = {
+  const messages = computed(() => fnCrudContext.getMessages().crud);
+  const defaultCrudOptions = {
     columns: {
       [FN_CRUD_BLANK_COLUMN_KEY]: {
         key: FN_CRUD_BLANK_COLUMN_KEY,
@@ -38,24 +40,25 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
       show: true,
       buttons: {
         add: {
-          text: "添加",
+          text: computed(() => messages.value.actionbar.add),
+          click: crudRef ? () => crudRef.value?.form.openAddForm() : undefined,
           type: "primary",
           show: true,
           order: -100,
         },
         batch: {
-          text: "批量操作",
+          text: computed(() => messages.value.actionbar.batch),
           type: "default",
           show: true,
           order: 0,
           buttonType: "dropdown",
-          items: [{ key: "delete", label: "批量删除", danger: true }],
+          items: [{ key: "delete", label: computed(() => messages.value.actionbar.batchDelete), danger: true }],
         },
       },
     },
     form:{
       dialog: {
-        title: "编辑",
+        title: computed(() => messages.value.formDialog.edit),
       },
     },
     rowSelect: {
@@ -81,10 +84,7 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
         state.pagination!.pageSize = pageSize;
       },
     },
-  };
-  if (crudRef) {
-    defaultCrudOptions.actionbar!.buttons.add.click = () => crudRef.value?.form.openAddForm();
-  }
+  } satisfies Omit<Partial<FnCrudOptions<Row>>, "actionbar" | "form"> & Record<"actionbar" | "form", unknown>;
   const commonTableOptions = commonOptions.table || {};
   const commonPaginationOptions = commonOptions.pagination || {};
   const localDensity = state.table["onUpdate:density"];
@@ -117,9 +117,10 @@ export function useFnCrud<Row = any>({ state, crudRef }: UseFnCrudOptions<Row>):
     const nextDensity = currentDensity === "comfort" ? "compact" : "comfort";
     state.table?.["onUpdate:density"]?.(nextDensity);
   };
-  return merge(state, defaultCrudOptions, commonOptions, state);
+  // Resolve configuration overrides before Vue unwraps the default text refs.
+  return merge(state, merge({}, defaultCrudOptions, commonOptions, state));
 }
 
-export function installFnCrud(options: { commonOptions: () => Partial<FnCrudOptions> }): void {
+export function installFnCrud(options: FnCrudInstallOptions): void {
   fnCrudContext.configure(options);
 }

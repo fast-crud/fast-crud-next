@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "vue-tsc -b"
+    "typecheck": "vue-tsc -b",
+    "docs:dev": "vitepress dev docs --port 5176",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs --port 4176"
   },
   "dependencies": {
     "axios": "^1.21.1",
@@ -27,6 +30,7 @@
     "less": "^4.9.1",
     "typescript": "~6.0.3",
     "vite": "^8.3.6",
+    "vitepress": "2.0.0-alpha.21",
     "vitest": "^5.1.0",
     "vue-tsc": "^3.3.14"
   }

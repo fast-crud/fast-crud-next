@@ -26,6 +26,7 @@ export { default as FnComponentRender } from "./components/render/fn-component-r
 export { default as FnSearch } from "./crud/search/fn-search.vue";
 export { default as FnNotificationHost } from "./components/feedback/fn-notification-host.vue";
 export type * from "./types/index";
+export type { FnCrudLocale } from "./locale";
 export { default as FnTabs } from "./crud/tabs/index.vue";
 export * from "./theme";
 export { DictStore } from "./crud/dict/dict";
@@ -33,6 +34,6 @@ export { compute, isFnComputeValue, resolveComputed, resolveComputedValue, useCo
 export { UnMergeable } from "./components/use";
 export { createFnCrudPreferenceStorage, createFnCrudPreferenceSnapshot, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./crud/use";
 export { model, useFnDialog } from "./components/overlay/dialog";
-export { UiContext, FnCrudContext, uiContext, fnCrudContext, type FnUiServices, type FnFeedbackApi } from "./components/provider/context";
+export { UiContext, FnCrudContext, uiContext, fnCrudContext, type FnUiServices, type FnFeedbackApi, type FnCrudInstallOptions } from "./components/provider/context";
 export { installFnCrud, useFnCrud, type FnCrudOptionsInput, type FnCrudReactiveState, type FnCrudState, type UseFnCrudOptions } from "./crud/use";
 export { useFnUiServices } from "./components/use";

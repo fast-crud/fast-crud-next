@@ -1,5 +1,6 @@
 import type { ComputedRef, InjectionKey } from "vue";
-import { provide } from "vue";
+import { provide, unref, type MaybeRef } from "vue";
+import { fnCrudLocales, type FnCrudLocale } from "../../locale";
 import type { FnCrudOptions, FnCrudSearchState, FnTableProps } from "../../types/index.ts";
 import { createFnNotification } from "../feedback/fn-notification.ts";
 
@@ -38,15 +39,24 @@ export class UiContext {
   }
 }
 
-export class FnCrudContext {
-  private commonOptions: () => Partial<FnCrudOptions> = () => ({});
+export interface FnCrudInstallOptions {
+  locale?: MaybeRef<FnCrudLocale>;
+  commonOptions?: () => Partial<FnCrudOptions>;
+}
 
-  configure(options: { commonOptions: () => Partial<FnCrudOptions> }): void {
-    this.commonOptions = options.commonOptions;
+export class FnCrudContext {
+  private options: FnCrudInstallOptions = {};
+
+  configure(options: FnCrudInstallOptions): void {
+    this.options = options;
   }
 
   getCommonOptions(): Partial<FnCrudOptions> {
-    return this.commonOptions();
+    return this.options.commonOptions?.() ?? {};
+  }
+
+  getMessages() {
+    return fnCrudLocales[unref(this.options.locale) ?? "zh-CN"];
   }
 }
 

@@ -4,7 +4,8 @@ import { RouterView, useRoute, useRouter } from "vue-router";
 import { Avatar, Breadcrumb, Button, Layout, Menu, Space, Tag } from "ant-design-vue";
 import type { VNode } from "vue";
 import { Bell, Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "@lucide/vue";
-import { adminPreferences, adminText, toggleAdminLanguage, toggleAdminTheme } from "@fast-crud/fn-admin-shared/preferences";
+import { adminPreferences, toggleAdminLanguage, toggleAdminTheme } from "@fast-crud/fn-admin-shared/preferences";
+import { adminMessages, type AdminMenuMessageKey } from "../locale";
 import { adminMenuConfig, type AdminPageConfig } from "../router/config";
 
 const route = useRoute();
@@ -14,9 +15,9 @@ const selectedKeys = computed(() => [route.path]);
 const openKeys = computed(() => route.path.startsWith("/crud/") ? ["crud"] : []);
 type AdminMenuItem = { key: string; label: string; disabled?: boolean; icon?: () => VNode; children?: AdminMenuItem[] };
 function toMenuItems(config: AdminPageConfig[]): AdminMenuItem[] {
-  return config.map(({ key, title, icon, disabled, children }) => ({
+  return config.map(({ key, titleKey, icon, disabled, children }) => ({
     key,
-    label: adminText(...title),
+    label: adminMessages.value.menu[titleKey],
     disabled,
     icon: icon ? () => h(icon, { size: 16 }) : undefined,
     children: children ? toMenuItems(children) : undefined,
@@ -24,10 +25,11 @@ function toMenuItems(config: AdminPageConfig[]): AdminMenuItem[] {
 }
 const items = computed(() => toMenuItems(adminMenuConfig));
 const currentTitle = computed(() => {
-  const title = route.meta.title as [string, string] | undefined;
-  const [zh, en] = title || ["工作台", "Dashboard"];
-  return adminText(zh, en);
+  const titleKey = route.meta.titleKey as AdminMenuMessageKey | undefined;
+  const { menu } = adminMessages.value;
+  return (titleKey && menu[titleKey]) || menu.dashboard;
 });
+const layoutText = computed(() => adminMessages.value.layout);
 function onMenuClick({ key }: { key: string | number }): void { const path = String(key); if (path.startsWith("/")) void router.push(path); }
 </script>
 
@@ -36,15 +38,15 @@ function onMenuClick({ key }: { key: string | number }): void { const path = Str
     <Layout.Sider v-model:collapsed="collapsed" collapsible :trigger="null" breakpoint="lg" class="admin-sider">
       <div class="brand"><div class="brand-mark">F</div><span v-if="!collapsed">FN ADMIN</span></div>
       <Menu :selected-keys="selectedKeys" :open-keys="openKeys" :items="items" mode="inline" theme="dark" @click="onMenuClick" />
-      <div v-if="!collapsed" class="sider-foot"><span class="status-dot"></span>服务运行正常</div>
+      <div v-if="!collapsed" class="sider-foot"><span class="status-dot"></span>{{ layoutText.serviceStatus }}</div>
     </Layout.Sider>
     <Layout style="height:100vh">
       <Layout.Header class="admin-header">
-        <div class="header-left"><Button type="text" class="collapse-button" :icon="h(collapsed ? PanelLeftOpen : PanelLeftClose, { size: 17 })" :aria-label="adminText(collapsed ? '展开菜单' : '收起菜单', collapsed ? 'Expand menu' : 'Collapse menu')" @click="collapsed = !collapsed" /><Breadcrumb><Breadcrumb.Item>{{ adminText('控制台', 'Console') }}</Breadcrumb.Item><Breadcrumb.Item>{{ currentTitle }}</Breadcrumb.Item></Breadcrumb></div>
-        <Space size="middle"><Button type="text" :icon="h(Bell, { size: 16 })" :aria-label="adminText('通知', 'Notifications')" /><Button type="text" :icon="h(Languages, { size: 16 })" :aria-label="adminText('切换语言', 'Switch language')" @click="toggleAdminLanguage">{{ adminPreferences.language === 'zh' ? 'EN' : '中文' }}</Button><Button type="text" :icon="h(adminPreferences.dark ? Sun : Moon, { size: 16 })" :aria-label="adminText('切换明暗主题', 'Toggle color theme')" @click="toggleAdminTheme" /><Tag color="blue">ANTDV 4</Tag><Avatar size="small" style="background-color: #155eef">F</Avatar><span class="user-name">{{ adminText('管理员', 'Administrator') }}</span></Space>
+        <div class="header-left"><Button type="text" class="collapse-button" :icon="h(collapsed ? PanelLeftOpen : PanelLeftClose, { size: 17 })" :aria-label="collapsed ? layoutText.expandMenu : layoutText.collapseMenu" @click="collapsed = !collapsed" /><Breadcrumb><Breadcrumb.Item>{{ layoutText.console }}</Breadcrumb.Item><Breadcrumb.Item>{{ currentTitle }}</Breadcrumb.Item></Breadcrumb></div>
+        <Space size="middle"><Button type="text" :icon="h(Bell, { size: 16 })" :aria-label="layoutText.notifications" /><Button type="text" :icon="h(Languages, { size: 16 })" :aria-label="layoutText.switchLanguage" @click="toggleAdminLanguage">{{ layoutText.nextLanguage }}</Button><Button type="text" :icon="h(adminPreferences.dark ? Sun : Moon, { size: 16 })" :aria-label="layoutText.toggleTheme" @click="toggleAdminTheme" /><Tag color="blue">ANTDV 4</Tag><Avatar size="small" style="background-color: #155eef">F</Avatar><span class="user-name">{{ layoutText.administrator }}</span></Space>
       </Layout.Header>
       <Layout.Content class="admin-content" :class="{ 'admin-content--full': route.path.startsWith('/crud/') }"><RouterView /></Layout.Content>
-      <Layout.Footer class="admin-footer">Fn Admin · Vue 3 CRUD 控制台</Layout.Footer>
+      <Layout.Footer class="admin-footer">{{ layoutText.footer }}</Layout.Footer>
     </Layout>
   </Layout>
 </template>

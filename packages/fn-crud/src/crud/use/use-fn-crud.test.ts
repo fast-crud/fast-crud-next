@@ -1,7 +1,70 @@
-import { expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { reactive, ref } from "vue";
-import { FN_CRUD_BLANK_COLUMN_KEY, installFnCrud, useFnCrud } from "./use-fn-crud";
+import { FN_CRUD_BLANK_COLUMN_KEY, installFnCrud, useFnCrud, type FnCrudState } from "./use-fn-crud";
 import { useActionbarProps } from "./use-crud-props";
+
+afterEach(() => installFnCrud({ commonOptions: () => ({}) }));
+
+it("useFnCrud 根据安装语言生成默认文案", () => {
+  installFnCrud({ locale: "en-US" });
+  const state = useFnCrud({ state: reactive<FnCrudState>({ columns: {}, request: { pageRequest: vi.fn() } }) });
+
+  expect(state.actionbar?.buttons).toMatchObject({
+    add: { text: "Add" },
+    batch: { text: "Batch Actions", items: [{ key: "delete", label: "Batch Delete" }] },
+  });
+  expect(state.form).toMatchObject({ dialog: { title: "Edit" } });
+
+  installFnCrud({ locale: "zh-CN" });
+  const chineseState = useFnCrud({ state: reactive<FnCrudState>({ columns: {}, request: { pageRequest: vi.fn() } }) });
+  expect(chineseState.actionbar?.buttons.add).toMatchObject({ text: "添加" });
+  expect(chineseState.form).toMatchObject({ dialog: { title: "编辑" } });
+});
+
+it("useFnCrud 保留公共配置和页面配置对默认译文的覆盖", () => {
+  installFnCrud({
+    locale: "en-US",
+    commonOptions: () => ({ actionbar: { buttons: { add: { text: "Create" }, batch: { text: "Bulk Actions" } } } }),
+  });
+  const state = useFnCrud({
+    state: reactive<FnCrudState>({
+      columns: {},
+      request: { pageRequest: vi.fn() },
+      actionbar: { buttons: { add: { text: "New User" } } },
+    }),
+  });
+
+  expect(state.actionbar?.buttons).toMatchObject({
+    add: { text: "New User" },
+    batch: { text: "Bulk Actions", items: [{ label: "Batch Delete" }] },
+  });
+});
+
+it("响应式语言切换后更新当前操作栏并保留页面配置", () => {
+  const locale = ref<"zh-CN" | "en-US">("zh-CN");
+  installFnCrud({ locale });
+  const state = useFnCrud({
+    state: reactive<FnCrudState>({
+      columns: {},
+      request: { pageRequest: vi.fn() },
+      actionbar: { buttons: { add: { text: "Create" } } },
+    }),
+  });
+  const props = useActionbarProps(
+    { columns: {}, request: { pageRequest: vi.fn() }, actionbar: state.actionbar },
+    vi.fn(),
+    ref(true),
+    vi.fn(),
+  );
+
+  expect(props.value.buttons.batch).toMatchObject({ text: "批量操作", items: [{ label: "批量删除" }] });
+  locale.value = "en-US";
+  expect(props.value.buttons.add.text).toBe("Create");
+  expect(props.value.buttons.batch).toMatchObject({ text: "Batch Actions", items: [{ label: "Batch Delete" }] });
+  expect(state.form).toMatchObject({ dialog: { title: "Edit" } });
+  locale.value = "zh-CN";
+  expect(props.value.buttons.batch.text).toBe("批量操作");
+});
 
 it("useFnCrud 初始化 actionbar 和 rowSelect 默认值并写回可变配置", () => {
   const state = reactive({
@@ -104,6 +167,4 @@ it("useFnCrud 将系统默认、公共配置和用户 state 合并到同一份 s
   stateWithCommonHandler.table["onUpdate:density"]("compact");
   expect(stateWithCommonHandler.table.density).toBe("compact");
   expect(fallbackDensity).toHaveBeenCalledWith("compact");
-
-  installFnCrud({ commonOptions: () => ({}) });
 });

@@ -1,4 +1,5 @@
-import { reactive } from "vue";
+import type { FnCrudLocale } from "@fast-crud/fast-crud-next";
+import { computed, reactive } from "vue";
 
 type AdminPreferences = { language: "zh" | "en"; dark: boolean };
 const storageKey = "fn-admin-preferences";
@@ -14,6 +15,8 @@ export const adminPreferences = reactive<AdminPreferences>({
   language: saved.language === "en" ? "en" : "zh",
   dark: saved.dark === true,
 });
+
+export const adminCrudLocale = computed<FnCrudLocale>(() => adminPreferences.language === "en" ? "en-US" : "zh-CN");
 
 function persist(): void {
   if (typeof localStorage !== "undefined") {
