@@ -1,7 +1,7 @@
 <template>
   <div v-if="show !== false" ref="tabListRef" class="fn-tabs" role="tablist">
     <FnRender v-if="slots?.before" :render="slots.before" :ctx="{ tabs, modelValue }" />
-    <button v-for="item in tabs" :key="item.value" type="button" class="fn-tabs-item" :class="{ active: modelValue === item.value }" role="tab" :aria-selected="modelValue === item.value" @click="selectTab(item.value)">
+    <button v-for="item in tabs" :key="typeof item.value + ':' + item.value" type="button" class="fn-tabs-item" :class="{ active: modelValue === item.value }" role="tab" :aria-selected="modelValue === item.value" @click="selectTab(item.value)">
       <FnRender v-if="slots?.item" :render="slots.item" :ctx="{ item, active: modelValue === item.value }" />
       <template v-else
         >{{ item.label }}<span v-if="showCount" class="fn-tabs-count">{{ item.count || 0 }}</span></template
@@ -14,18 +14,18 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, toRefs, watch } from "vue";
 import FnRender from "../../components/render/fn-render.ts";
-import type { DictOption, FnSlots } from "../../types/index.ts";
-const props = withDefaults(defineProps<{ show?: boolean; tabs: DictOption[]; modelValue?: string; showCount?: boolean; slots?: FnSlots }>(), {
+import type { DictOption, DictValue, FnSlots } from "../../types/index.ts";
+const props = withDefaults(defineProps<{ show?: boolean; tabs: DictOption[]; modelValue?: DictValue; showCount?: boolean; slots?: FnSlots }>(), {
   show: true,
   modelValue: "",
   showCount: true,
   slots: () => ({}),
 });
 const { show, tabs, modelValue, showCount, slots } = toRefs(props);
-const emit = defineEmits<{ "update:modelValue": [value: string] }>();
+const emit = defineEmits<{ "update:modelValue": [value: DictValue] }>();
 const tabListRef = ref<HTMLElement>();
 
-function selectTab(value: string): void {
+function selectTab(value: DictValue): void {
   emit("update:modelValue", value);
 }
 

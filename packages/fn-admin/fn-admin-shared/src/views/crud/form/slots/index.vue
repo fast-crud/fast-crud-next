@@ -45,12 +45,11 @@ const crudState = reactive<FnCrudState<WorkflowRecord>>({
         footer: context => (
           <div class="slot-footer">
             {slotLabel("footer 自定义页脚")}
-            <FnButton text="取消" type="default" click={context?.dialog?.close} />
+            <FnButton text="取消" type="default" click={context?.close} />
             <FnButton
               text="提交"
               type="primary"
-              loading={context?.dialog?.loading?.value}
-              click={context?.dialog?.confirm}
+              click={context?.submit}
             />
           </div>
         ),

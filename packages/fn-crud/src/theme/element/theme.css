@@ -12,6 +12,9 @@
   --fn-color-border: var(--el-border-color);
   --fn-color-border-secondary: var(--el-border-color-light);
   --fn-color-error: var(--el-color-danger);
+  --fn-color-success: var(--el-color-success);
+  --fn-color-warning: var(--el-color-warning);
+  --fn-tag-font-size: var(--el-font-size-extra-small);
   --fn-border-radius: var(--el-border-radius-base);
   --fn-control-height: var(--el-component-size);
   --fn-button-shadow: none;

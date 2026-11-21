@@ -16,6 +16,9 @@ interface NaiveCommonTokens {
     borderRadius?: string;
     heightMedium?: string;
     errorColor?: string;
+    successColor?: string;
+    warningColor?: string;
+    fontSizeSmall?: string;
 }
 
 export interface NaiveThemeTokens extends NaiveCommonTokens {
@@ -48,6 +51,9 @@ export function mapNaiveThemeToFnTokens(theme: NaiveThemeTokens): FnThemeTokens 
   if (dataTable.borderColor || common.borderColor) tokens.colorBorder = dataTable.borderColor || common.borderColor;
   if (common.borderColor) tokens.colorBorderSecondary = common.borderColor;
   if (common.errorColor) tokens.colorError = common.errorColor;
+  if (common.successColor) tokens.colorSuccess = common.successColor;
+  if (common.warningColor) tokens.colorWarning = common.warningColor;
+  if (common.fontSizeSmall) tokens.tagFontSize = common.fontSizeSmall;
   if (common.borderRadius) tokens.borderRadius = common.borderRadius;
   if (common.heightMedium) tokens.controlHeight = common.heightMedium;
 

@@ -8,6 +8,6 @@ import "@fast-crud/fn-admin-shared/mock";
 import { message, notification } from "ant-design-vue";
 import { router } from "./router";
 import { adminI18n } from "./locale";
-installFnCrud({ i18n: adminI18n, commonOptions: () => ({ table: { size: 14, density: "comfort" } }) });
+installFnCrud({ i18n: adminI18n, commonOptions: () => ({ table: { size: 13, density: "comfort" } }) });
 uiContext.setServices({ notification, message });
 createApp(App).use(adminI18n).use(router).mount("#app");

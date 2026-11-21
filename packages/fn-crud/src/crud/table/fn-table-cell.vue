@@ -24,9 +24,6 @@ const componentProps = computed(() => {
   if (component[modelProp] === undefined) {
     component[modelProp] = component.modelValue;
   }
-  if (cell.value.dict && component.options === undefined) {
-    component.options = cell.value.dict.getOptions().value;
-  }
   return component;
 });
 

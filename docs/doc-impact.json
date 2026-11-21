@@ -9,6 +9,9 @@
   ],
   "packages/fn-crud/src/crud/types.ts": [
     "api/fn-crud.md",
+    "api/columns.md",
+    "api/search.md",
+    "api/actions.md",
     "api/requests.md",
     "api/forms.md",
     "api/table.md"
@@ -31,7 +34,14 @@
     "api/fn-crud.md"
   ],
   "packages/fn-crud/src/crud/search/": [
+    "api/search.md",
     "recipes/paging.md"
+  ],
+  "packages/fn-crud/src/crud/tabs/": [
+    "api/search.md"
+  ],
+  "packages/fn-crud/src/crud/actionbar/": [
+    "api/actions.md"
   ],
   "packages/fn-crud/src/crud/dict/": [
     "recipes/selection.md"
@@ -41,6 +51,7 @@
     "recipes/forms.md"
   ],
   "packages/fn-crud/src/crud/toolbar/": [
+    "api/actions.md",
     "api/table.md"
   ],
   "packages/fn-crud/src/components/": [
@@ -48,6 +59,9 @@
   ],
   "packages/fn-crud/src/components/provider/": [
     "guide/installation.md"
+  ],
+  "packages/fn-crud/src/components/button/": [
+    "api/actions.md"
   ],
   "packages/fn-crud/src/components/form/": [
     "api/forms.md",
@@ -64,6 +78,8 @@
   ],
   "packages/fn-crud/package.json": [
     "guide/getting-started.md",
+    "guide/django.md",
+    "guide/from-fast-crud.md",
     "agent-index.md"
   ],
   "packages/fn-admin/*/src/router/**": [

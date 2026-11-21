@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  vite: { server: { port: 5177 } },
   title: 'Fast Crud Next',
   description: '基于 Vue 3 和 TypeScript 的 FnCrud 组件库',
   rewrites: {
@@ -22,13 +23,16 @@ export default defineConfig({
             text: '指南',
             items: [
               { text: '快速开始', link: '/guide/getting-started' },
+              { text: '接入 Django', link: '/guide/django' },
+              { text: '从 Fast Crud 迁移', link: '/guide/from-fast-crud' },
               { text: '核心配置', link: '/guide/configuration' },
-              { text: '字段类型', link: '/guide/column-types' },
               { text: '全局安装与语言', link: '/guide/installation' },
+              { text: '字段类型', link: '/guide/column-types' },
             ],
           },
           {
             text: '功能用法',
+            collapsed: false,
             items: [
               { text: '分页、搜索与排序', link: '/recipes/paging' },
               { text: '新增、编辑和删除', link: '/recipes/mutations' },
@@ -40,14 +44,18 @@ export default defineConfig({
             text: 'API 参考',
             items: [
               { text: 'FnCrud', link: '/api/fn-crud' },
+              { text: '列与动态配置', link: '/api/columns' },
               { text: '请求', link: '/api/requests' },
+              { text: '搜索与 Tabs', link: '/api/search' },
               { text: '表单与弹窗', link: '/api/forms' },
               { text: '表格、选择与偏好', link: '/api/table' },
+              { text: '按钮与操作区', link: '/api/actions' },
               { text: '基础组件', link: '/api/components' },
             ],
           },
           {
             text: '集成与维护',
+            collapsed: true,
             items: [
               { text: '主题集成', link: '/themes/overview' },
               { text: 'Admin 示例', link: '/demos/admin' },
@@ -83,6 +91,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
+    search: { provider: 'local' },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/fast-crud/fast-crud-next' },
     ],

@@ -1,4 +1,5 @@
 import { markRaw, ref } from "vue";
+import get from "lodash-es/get";
 import type { DictOption, DictOptionsRef, FnDictStore, FnTableRow } from "../../types/index.ts";
 import { UnMergeable } from "../../components/use/use-merge";
 
@@ -8,22 +9,22 @@ export class DictStore extends UnMergeable implements FnDictStore {
   __options: DictOptionsRef = ref([]);
   value?: string;
   label?: string | ((row: FnTableRow) => string);
-  getData?: () => Promise<DictOption[]>;
+  getData?: () => Promise<FnTableRow[]>;
   getNodesByValues?: (values: Array<string | number>) => Promise<FnTableRow[]>;
   fetching = false;
   private request?: Promise<void>;
 
   constructor(opts: {
-    data: DictOption[];
+    data?: DictOption[];
     value?: string;
     label?: string | ((row: FnTableRow) => string);
-    getDataFunc?: () => Promise<DictOption[]>;
+    getDataFunc?: () => Promise<FnTableRow[]>;
     getNodesByValues?: (values: Array<string | number>) => Promise<FnTableRow[]>;
     immediate?: boolean;
   }) {
     super();
     markRaw(this);
-    this.__options.value = opts.data;
+    this.__options.value = opts.data ?? [];
     this.value = opts.value;
     this.label = opts.label;
     this.getData = opts.getDataFunc;
@@ -45,8 +46,15 @@ export class DictStore extends UnMergeable implements FnDictStore {
     if (!this.getData) return;
     const getData = this.getData.bind(this);
     this.fetching = true;
-    this.request = Promise.resolve().then(getData).then(options => {
-      this.__options.value = options;
+    this.request = Promise.resolve().then(getData).then(rows => {
+      const valuePath = this.value ?? "value";
+      const label = this.label ?? "label";
+      this.__options.value = rows.flatMap((row): DictOption[] => {
+        const value = get(row, valuePath);
+        if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") return [];
+        const text = typeof label === "function" ? label(row) : get(row, label);
+        return [{ ...row, value, label: String(text ?? value) }];
+      });
     });
     try {
       await this.request;

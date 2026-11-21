@@ -16,12 +16,18 @@ export { default as FnButtonBase } from "./components/button/fn-button-base.vue"
 export { default as FnButtonGroup } from "./components/button/fn-button-group.vue";
 export { default as FnCheckbox } from "./components/selection/fn-checkbox.vue";
 export { default as FnRadio } from "./components/selection/fn-radio.vue";
+export { default as FnSelect } from "./components/selection/fn-select.vue";
+export { default as FnRadioGroup } from "./components/selection/fn-radio-group.vue";
+export { default as FnCheckboxGroup } from "./components/selection/fn-checkbox-group.vue";
+export type { FnOptionValue, FnSelectOption } from "./components/selection/types";
 export type { FnButtonGroupOption } from "./components/button/fn-button-group.vue";
 export { default as FnDrawer } from "./components/overlay/fn-drawer.vue";
 export { default as FnColumnSettings } from "./crud/toolbar/fn-column-settings.vue";
 export { default as FnDropdownButton } from "./components/button/fn-dropdown-button.vue";
 export { default as FnInput } from "./components/input/fn-input.vue";
 export { default as FnIcon } from "./components/icon/fn-icon.vue";
+export { default as FnTag } from "./components/tag/fn-tag.vue";
+export { default as FnDictTag } from "./components/tag/fn-dict-tag.vue";
 export { default as FnComponentRender } from "./components/render/fn-component-render";
 export { default as FnSearch } from "./crud/search/fn-search.vue";
 export { default as FnNotificationHost } from "./components/feedback/fn-notification-host.vue";

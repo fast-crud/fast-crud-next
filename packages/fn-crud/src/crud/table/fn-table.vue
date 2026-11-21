@@ -67,7 +67,14 @@ const columns = computed(() => {
     }
     result.push({ ...cell, key, title: cell.title ?? column.title, sourceCell: column.cell || cell });
   }
-  return result.sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
+  result.sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
+  const blankIndex = result.findIndex(column => column.key === "__fn_blank_column");
+  const firstRightIndex = result.findIndex(column => column.fixed === "right");
+  if (firstRightIndex >= 0 && blankIndex > firstRightIndex) {
+    const [blankColumn] = result.splice(blankIndex, 1);
+    result.splice(firstRightIndex, 0, blankColumn);
+  }
+  return result;
 });
 const leftFixedShadowKey = computed(() => {
   const leftFixedColumns = columns.value.filter(column => column.fixed === "left");
@@ -246,6 +253,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
 
 <style lang="less">
 .fn-table {
+  --fn-table-row-hover-bg: linear-gradient(var(--fn-color-fill-alter), var(--fn-color-fill-alter)), var(--fn-color-bg-container);
   --fn-table-font-size: 14px;
   --fn-table-header-font-size: 14px;
   --fn-table-cell-padding-y: 12px;
@@ -368,7 +376,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     .fn-table-heading-content {
       display: inline-flex;
       align-items: center;
-      min-height: 26px;
+      min-height: 18px;
       gap: 4px;
       svg.fn-table-sort-indicator {
         height: 18px;
@@ -423,11 +431,8 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     align-items: center;
     gap: 8px;
   }
-  tbody tr:hover {
-    background: var(--fn-color-fill-secondary);
-  }
   tbody tr:hover td {
-    background: var(--fn-color-fill-secondary);
+    background: var(--fn-table-row-hover-bg);
   }
   .fn-table-fixed-left,
   .fn-table-fixed-right {
@@ -536,18 +541,6 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       background: linear-gradient(var(--fn-color-fill-alter), var(--fn-color-fill-alter)), var(--fn-color-bg-container);
     }
 
-    tbody tr:hover {
-      background: var(--fn-color-fill-secondary);
-
-      .fn-table-fixed-left,
-      .fn-table-fixed-right {
-        background: var(--fn-color-fill-secondary);
-      }
-    }
-
-    tbody tr:hover td {
-      background: var(--fn-color-fill-secondary);
-    }
   }
 
   .fn-table-spinner {

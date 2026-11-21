@@ -65,9 +65,6 @@ const contextualButtonProps = computed(() => Object.fromEntries(Object.entries(b
 function getComponent(column: FnSearchColumnResolved): Record<string, any> {
   const resolvedComponent = resolveComputedValue(column.component || {}, context.value) as Record<string, any>;
   const component = { ...resolvedComponent };
-  if (column.dict && component.options === undefined) {
-    component.options = column.dict.getOptions().value;
-  }
   if (column.width) {
     let width = column.width;
     if (typeof width === "number") {

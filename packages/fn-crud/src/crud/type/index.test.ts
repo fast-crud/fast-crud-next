@@ -5,6 +5,26 @@ import type { FnCrudOptions } from "../types";
 import { compute, resolveComputedValue } from "../use/use-compute";
 import { useResolvedColumns } from "../use/use-crud-props";
 import { installFnCrud, useFnCrud } from "../use/use-fn-crud";
+import { DictStore } from "../dict/dict";
+import FnRadioGroup from "../../components/selection/fn-radio-group.vue";
+import FnCheckboxGroup from "../../components/selection/fn-checkbox-group.vue";
+import FnSelect from "../../components/selection/fn-select.vue";
+import FnDictTag from "../../components/tag/fn-dict-tag.vue";
+
+it.each([["dict-radio", FnRadioGroup, false], ["dict-checkbox", FnCheckboxGroup, true]] as const)(
+  "%s 搜索使用 FnSelect，表单使用对应选项组",
+  (type, component, multiple) => {
+    const dict = new DictStore({ data: [{ value: 1, label: "一" }] });
+    const override = [{ value: 2, label: "二" }];
+    const props: Pick<FnCrudOptions, "columns"> = {
+      columns: { option: { key: "option", title: "选项", type, dict, search: { component: { options: override } } } },
+    };
+    const column = useResolvedColumns(props).value.option;
+    expect(column.cell).toMatchObject({ component: { name: FnDictTag } });
+    expect(column.form).toMatchObject({ component: { name: component, options: dict.getOptions() } });
+    expect(column.search).toMatchObject({ component: { name: FnSelect, options: override, multiple } });
+  },
+);
 
 it("两个注册入口按注册顺序整体覆盖类型，类型数组允许字段局部覆盖", () => {
   addTypes({ testLayout: { form: { span: 12, value: "old" }, cell: { width: 80 } } });

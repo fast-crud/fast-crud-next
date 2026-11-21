@@ -1,6 +1,6 @@
 import type { FnThemeTokenName, FnThemeTokens } from "../types";
 
-type AntdvThemeTokens = Partial<Record<FnThemeTokenName | "colorTextBase", string | number>>;
+type AntdvThemeTokens = Partial<Record<FnThemeTokenName | "colorTextBase" | "fontSizeSM" | "borderRadiusSM", string | number>>;
 
 export function mapAntdvThemeToFnTokens(tokens: AntdvThemeTokens): FnThemeTokens {
   const fnTokens: FnThemeTokens = {};
@@ -19,6 +19,13 @@ export function mapAntdvThemeToFnTokens(tokens: AntdvThemeTokens): FnThemeTokens
   if (tokens.colorBorder) fnTokens.colorBorder = tokens.colorBorder;
   if (tokens.colorBorderSecondary) fnTokens.colorBorderSecondary = tokens.colorBorderSecondary;
   if (tokens.colorError) fnTokens.colorError = tokens.colorError;
+  if (tokens.colorSuccess) fnTokens.colorSuccess = tokens.colorSuccess;
+  if (tokens.colorWarning) fnTokens.colorWarning = tokens.colorWarning;
+  if (tokens.fontSizeSM) fnTokens.tagFontSize = tokens.fontSizeSM;
+  if (tokens.borderRadiusSM !== undefined) fnTokens.tagBorderRadius = tokens.borderRadiusSM;
+  for (const key of ["colorInfo", "colorSuccessBg", "colorSuccessBorder", "colorWarningBg", "colorWarningBorder", "colorErrorBg", "colorErrorBorder", "colorInfoBg", "colorInfoBorder"] as const) {
+    if (tokens[key] !== undefined) fnTokens[key] = tokens[key];
+  }
   if (tokens.borderRadius) fnTokens.borderRadius = tokens.borderRadius;
   if (tokens.controlHeight) fnTokens.controlHeight = tokens.controlHeight;
 

@@ -3,15 +3,14 @@
 ## 字典
 
 ```ts
-import { markRaw } from 'vue'
 import { DictStore } from '@fast-crud/fast-crud-next'
 
-const statusDict = markRaw(new DictStore({
+const statusDict = new DictStore({
   data: [{ label: '运行中', value: 'running', color: 'success' }],
-}))
+})
 ```
 
-使用 `cell.dict` 给单元格提供字典；展示自定义文本或标签时，可通过 `cell.render` 渲染。打开 `/crud/dict/credentials` 查看状态与筛选的组合。
+在字段上设置 `type: 'dict-select', dict: statusDict`，或把 `statusDict.getOptions()` 直接放在 `component.options`。打开 `/crud/dict/credentials` 查看标签、下拉框和选项组的组合。
 
 ## 跨页选择
 

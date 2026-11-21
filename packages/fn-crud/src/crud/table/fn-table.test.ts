@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
+import { reactive } from "vue";
 import { expect, it, vi } from "vitest";
 import { getFnTableRowKey } from "./row-key.ts";
 import { isFnComputeValue } from "../use/use-compute";
@@ -56,6 +57,24 @@ it("未指定 order 的列保持在明确排序列之后", () => {
   const props = { columns: { actions: { title: "操作", cell: { fixed: "right" as const } }, name: { title: "名称", cell: { order: 1 } } } };
   const setup = module.exports.default.setup(props, { expose: () => {}, emit: () => {} });
   expect(setup.columns.value.map(column => column.key)).toEqual(["name", "actions"]);
+});
+
+it("字段切换为右固定时，空白列移动到右固定区域之前", () => {
+  const props = reactive({
+    columns: {
+      name: { cell: { order: 1, fixed: undefined as "right" | undefined } },
+      __fn_blank_column: { cell: { width: "auto", order: 2 } },
+      rowHandle: { cell: { fixed: "right", order: 2 } },
+    },
+  });
+  const setup = module.exports.default.setup(props, { expose: () => {}, emit: () => {} });
+  const keys = () => setup.columns.value.map((column: { key: string }) => column.key);
+
+  expect(keys()).toEqual(["name", "__fn_blank_column", "rowHandle"]);
+  props.columns.name.cell.fixed = "right";
+  expect(keys()).toEqual(["__fn_blank_column", "name", "rowHandle"]);
+  props.columns.name.cell.fixed = undefined;
+  expect(keys()).toEqual(["name", "__fn_blank_column", "rowHandle"]);
 });
 
 it("column.show 的显式值优先于 cell.show", () => {

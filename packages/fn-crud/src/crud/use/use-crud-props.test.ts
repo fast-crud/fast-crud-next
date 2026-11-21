@@ -10,7 +10,7 @@ describe("useTabsProps", () => {
   it("treats unloaded dictionary options as an empty list", () => {
     const props = {
       columns: {
-        status: { key: "status", title: "状态", cell: { dict: { getOptions: () => ({ value: undefined }) } } },
+        status: { key: "status", title: "状态", cell: { component: { options: ref(undefined) } } },
       },
       request: { pageRequest: async () => ({ records: [], total: 0 }) },
       tabs: { refCol: "status" },

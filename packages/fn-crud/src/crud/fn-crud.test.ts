@@ -173,7 +173,8 @@ it("FnCrud 允许表单配置覆盖默认提交请求", async () => {
 });
 
 it("字段类型更新表格、搜索和 Tabs，表单在下次打开时使用新配置", async () => {
-  const dict = new DictStore({ data: [{ value: "active", label: "生效中" }] });
+  const getDataFunc = vi.fn(async () => [{ key: "active", text: "生效中" }]);
+  const dict = new DictStore({ value: "key", label: "text", getDataFunc, immediate: false });
   const activeType = ref<string | undefined>("dict-select");
   const state = reactive<FnCrudOptions>({
     columns: { status: { key: "status", title: "状态", type: activeType, dict, cell: { width: 90 } } },
@@ -188,24 +189,29 @@ it("字段类型更新表格、搜索和 Tabs，表单在下次打开时使用�
   setup.searchForm.status = "active";
   setup.preferences.saveColumnWidth({ key: "status", width: 140 });
 
-  expect(setup.tableProps.value.columns.status.cell.dict).toBe(dict);
-  expect(setup.tabsProps.value.tabs).toMatchObject([{ value: "active" }]);
+  expect(setup.tableProps.value.columns.status.cell.component.options).toBe(dict.getOptions());
+  expect(setup.tabsProps.value.tabs).toEqual([]);
   const search = () => resolveComputedValue(setup.searchProps.value.columns.status, { type: "search" });
   expect(search()).toMatchObject({ component: { clearable: true } });
   await exposed.form.openAddForm();
   const initial = open.mock.calls[0][0];
-  expect(resolveComputedValue(initial.columns.status, { type: "form" })).toMatchObject({ dict });
+  await dict.__fetch();
+  expect(getDataFunc).toHaveBeenCalledOnce();
+  expect(setup.tabsProps.value.tabs).toMatchObject([{ value: "active", label: "生效中" }]);
+  expect(search()).toMatchObject({ component: { options: [{ value: "active", label: "生效中" }] } });
+  const initialFormColumn = () => resolveComputedValue(initial.columns.status, { type: "form" });
+  expect(initialFormColumn()).toMatchObject({ component: { options: [{ value: "active", label: "生效中" }] } });
 
   activeType.value = "text";
   expect(setup.tableProps.value.columns.status.cell).toEqual({ width: 140 });
   expect(setup.tabsProps.value.tabs).toEqual([]);
-  expect(search()).not.toHaveProperty("dict");
+  expect(search()).not.toHaveProperty("component.options");
   expect(exposed.search.getSearchForm()).toEqual({ status: "active" });
-  expect(resolveComputedValue(initial.columns.status, { type: "form" })).toMatchObject({ dict });
+  expect(initialFormColumn()).toHaveProperty("component.options");
 
   await exposed.form.openEditForm({ status: "active" });
   const edit = open.mock.calls[1][0];
-  expect(resolveComputedValue(edit.columns.status, { type: "form" })).not.toHaveProperty("dict");
+  expect(resolveComputedValue(edit.columns.status, { type: "form" })).not.toHaveProperty("component.options");
   state.columns.status.type = undefined;
   expect(search()).toBeUndefined();
   await exposed.form.openAddForm();

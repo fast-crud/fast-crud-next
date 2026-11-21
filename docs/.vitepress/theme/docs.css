@@ -1,0 +1,117 @@
+:root:lang(zh-CN) {
+  --vp-font-family-base: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+:root {
+  --vp-c-brand-1: #002fa7;
+  --vp-c-brand-2: #214cb5;
+  --vp-c-brand-3: #002fa7;
+  --vp-c-brand-soft: #002fa712;
+}
+
+.dark {
+  --vp-c-brand-1: #a3baff;
+  --vp-c-brand-2: #7e9aff;
+  --vp-c-brand-3: #3158c5;
+  --vp-c-brand-soft: #7e9aff25;
+}
+
+:lang(zh-CN) .VPHome .VPHero {
+  padding-bottom: 2.5rem;
+}
+
+:lang(zh-CN) .VPHome .VPHero .name {
+  margin-bottom: .375rem;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -.035em;
+}
+
+:lang(zh-CN) .VPHome .VPHero .text {
+  max-width: 54rem;
+  font-size: clamp(2rem, 5.5vw, 3.875rem);
+  line-height: 1.2;
+  letter-spacing: -.04em;
+  text-wrap: balance;
+}
+
+:lang(zh-CN) .VPHome .VPHero .tagline {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.65;
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .item {
+  padding: 0;
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .items {
+  margin: 0;
+  border-top: 1px solid var(--vp-c-divider);
+  border-left: 1px solid var(--vp-c-divider);
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .VPFeature {
+  border: 0;
+  border-right: 1px solid var(--vp-c-divider);
+  border-bottom: 1px solid var(--vp-c-divider);
+  border-radius: 0;
+  background: var(--vp-c-bg);
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .VPFeature:hover {
+  background: var(--vp-c-bg-soft);
+}
+
+:lang(zh-CN) .VPHome .VPFeatures .title {
+  color: var(--vp-c-brand-1);
+  font-size: 1.125rem;
+}
+
+:lang(zh-CN) .VPHome .VPHomeContent h2 {
+  margin-top: 3rem;
+  border-top: 0;
+  padding-top: 0;
+}
+
+:lang(zh-CN) .VPDoc .vp-doc :is(p, li) {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+:lang(zh-CN) .VPDoc .vp-doc th {
+  text-align: left;
+  white-space: nowrap;
+}
+
+:lang(zh-CN) .VPDoc .vp-doc td {
+  vertical-align: top;
+  line-height: 1.65;
+}
+
+:lang(zh-CN) .VPDoc .vp-doc td :not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
+:lang(zh-CN) .VPDoc .vp-doc div[class*="language-"] {
+  border: 1px solid var(--vp-c-divider);
+}
+
+:lang(zh-CN) .VPDoc .vp-doc div[class*="language-"] .lang {
+  color: var(--vp-c-text-2);
+}
+
+@media (max-width: 39.99rem) {
+  :lang(zh-CN) .VPDoc .vp-doc :is(th, td) {
+    min-width: 7.5rem;
+  }
+
+  :lang(zh-CN) .VPDoc .vp-doc :is(th, td):last-child {
+    min-width: 11rem;
+  }
+}
+
+@media (min-width: 60rem) {
+  :lang(zh-CN) .VPDoc.has-aside .content-container {
+    max-width: 48rem;
+  }
+}

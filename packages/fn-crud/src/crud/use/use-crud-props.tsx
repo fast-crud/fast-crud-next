@@ -1,12 +1,22 @@
-import { computed, shallowReadonly, unref, type Ref } from "vue";
+import { Check, ListChecks, Pencil, Plus, Trash2, X } from "@lucide/vue";
+import { computed, markRaw, shallowReadonly, unref, type Ref } from "vue";
 import FnButton from "../../components/button/fn-button.vue";
 import { isFnComputeValue, useCompute } from "./use-compute";
 import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
 import { useMerge } from "../../components/use/use-merge";
 import { getColumnType } from "../type";
-import type { DictOption, FnColumnSettingsColumn, FnCrudColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../../types/index";
+import type { DictOption, DictValue, FnColumnSettingsColumn, FnCrudColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../../types/index";
 export { createRowSelectionColumn } from "./use-selection";
 const { compute, resolveComputedValue } = useCompute();
+
+export const defaultCrudButtonIcons = {
+  add: markRaw(Plus),
+  batch: markRaw(ListChecks),
+  edit: markRaw(Pencil),
+  delete: markRaw(Trash2),
+  cancel: markRaw(X),
+  confirm: markRaw(Check),
+};
 
 export function useResolvedColumns<Row>(props: Pick<FnCrudOptions<Row>, "columns">) {
   const { merge } = useMerge();
@@ -54,8 +64,8 @@ export function useRowHandleProps<Row>(props: FnCrudOptions<Row>, editRow: (ctx:
   return computed(() => {
     const { buttons: customButtons, render: customRender, ...options } = props.rowHandle || {};
     const buttons = {
-      edit: { show: true, text: "编辑", type: "link", click: editRow, ...customButtons?.edit },
-      delete: { show: true, text: "删除", type: "link", danger: true, disabled: !props.request.delRequest, click: openDeleteDialog, ...customButtons?.delete },
+      edit: { show: true, text: "编辑", type: "link", icon: defaultCrudButtonIcons.edit, click: editRow, ...customButtons?.edit },
+      delete: { show: true, text: "删除", type: "link", icon: defaultCrudButtonIcons.delete, danger: true, disabled: !props.request.delRequest, click: openDeleteDialog, ...customButtons?.delete },
       ...Object.fromEntries(Object.entries(customButtons || {}).filter(([key]) => key !== "edit" && key !== "delete").map(([key, button]) => [key, { show: true, ...button }])),
     };
     const bindContext = (callback: ((context: FnRowContext<Row>) => unknown) | ((context?: FnRowContext<Row>) => unknown) | undefined, context: FnRowContext<Row>) => callback ? () => callback(context) : undefined;
@@ -186,8 +196,7 @@ export function useTabsProps(props: FnCrudOptions, columns: Ref<FnCrudOptions["c
   return computed(() => {
     const refCol = props.tabs?.refCol;
     const cell = refCol && columns.value[refCol]?.cell;
-    const dict = cell && !isFnComputeValue(cell) ? cell.dict : undefined;
-    const options = dict?.getOptions()?.value;
+    const options = cell && !isFnComputeValue(cell) ? unref(cell.component?.options) : undefined;
     const data: DictOption[] = Array.isArray(options) ? options : [];
     const tabs = new Map(data.map(item => [String(item.value), item]));
     for (const [key, item] of Object.entries(props.tabs?.tabs || {})) tabs.set(key, { ...tabs.get(key), ...item });
@@ -195,10 +204,10 @@ export function useTabsProps(props: FnCrudOptions, columns: Ref<FnCrudOptions["c
       show: props.tabs?.show,
       tabs: Array.from(tabs.values())
         .filter(item => item.show !== false)
-        .map(item => ({ ...item, count: tabsCounts.value[item.value] ?? item.count ?? 0 })),
+        .map(item => ({ ...item, count: tabsCounts.value[String(item.value)] ?? item.count ?? 0 })),
       modelValue: searchForm[refCol || ""] ?? "",
       slots: props.tabs?.slots,
-      "onUpdate:modelValue": (value: string) => {
+      "onUpdate:modelValue": (value: DictValue) => {
         if (refCol) searchForm[refCol] = value;
         applySearch();
       },

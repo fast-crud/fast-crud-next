@@ -25,7 +25,7 @@ defineProps<{ label?: string; error?: string; help?: string; htmlFor?: string }>
   gap: 12px;
 
   .fn-form-item-label {
-    flex: 0 0 var(--fn-form-label-width, 120px);
+    flex: 0 0 var(--fn-form-label-width, 100px);
     display: flex;
     align-items: center;
     justify-content: flex-end;

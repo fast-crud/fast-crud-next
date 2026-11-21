@@ -12,9 +12,11 @@
 </template>
 
 <script setup lang="ts">
+import type { FnOptionValue } from "./types";
+
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<{ modelValue?: string | number; value: string | number; name?: string; disabled?: boolean }>(), { disabled: false });
-const emit = defineEmits<{ "update:modelValue": [value: string | number]; change: [value: string | number, event: Event] }>();
+const props = withDefaults(defineProps<{ modelValue?: FnOptionValue; value: FnOptionValue; name?: string; disabled?: boolean }>(), { modelValue: undefined, disabled: false });
+const emit = defineEmits<{ "update:modelValue": [value: FnOptionValue]; change: [value: FnOptionValue, event: Event] }>();
 
 function change(event: Event): void {
   if ((event.target as HTMLInputElement).checked) {

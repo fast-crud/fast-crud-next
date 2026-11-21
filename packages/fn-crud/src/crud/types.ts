@@ -3,6 +3,7 @@ import type { FnButtonProps } from "../components/button/types";
 import type { FnFormContext, FnFormContextRef, FnFormDialogOptions } from "../components/form/types";
 import type { FnDialogContext } from "../components/overlay/types";
 import type { FnComponentProps, FnSlots } from "../components/render/types";
+import type { FnOptionValue, FnSelectOption } from "../components/selection/types";
 
 export type { FnButtonBaseProps, FnButtonItem, FnButtonProps, FnDropdownButtonProps } from "../components/button/types";
 export type { FnFormContext, FnFormContextRef, FnFormDialogInstance, FnFormDialogOptions, FnFormInstance, FnFormProps } from "../components/form/types";
@@ -18,15 +19,12 @@ export type FnDynamicType<T> = {
 export type FnTableRow = Record<string, any>;
 export type FnTableRowSelectionChange<Row = FnTableRow> = { type: "row"; row: Row; index: number; selected: boolean } | { type: "page"; selected: boolean };
 
-export type DictValue = string | number | boolean;
+export type DictValue = FnOptionValue;
 export type DictComponentType = "select" | "checkbox" | "radio" | "switch";
-export interface DictOption {
-  label: string;
-  value: string;
+export interface DictOption extends FnSelectOption {
   color?: string;
   icon?: string;
   count?: number;
-  show?: boolean;
 }
 export type DictOptionsRef = Ref<DictOption[]>;
 export type GetDictOptionsRef = () => DictOptionsRef;
@@ -35,7 +33,7 @@ export interface FnDictStore {
   __options: DictOptionsRef;
   value?: string;
   label?: string | ((row: FnTableRow) => string);
-  getData?: () => Promise<DictOption[]>;
+  getData?: () => Promise<FnTableRow[]>;
   getNodesByValues?: (values: Array<string | number>) => Promise<FnTableRow[]>;
   fetching: boolean;
   getOptions: () => DictOptionsRef;
@@ -94,7 +92,6 @@ export interface FnFormColumn {
   span?: number;
   show?: FnDynamic<boolean>;
   component?: FnComponentProps;
-  dict?: FnDictStore;
   rules?: any[];
   itemProps?: Record<string, any>;
   slots?: FnSlots;
@@ -126,7 +123,6 @@ export interface FnTableColumn<Row = any> {
   align?: "left" | "center" | "right";
   ellipsis?: boolean;
   fixed?: "left" | "right";
-  dict?: FnDictStore;
   order?: number;
   setting?: FnColumnSettingControl;
   component?: Record<string, any>;
@@ -332,7 +328,6 @@ export interface FnSearchColumn {
   order?: number;
   component?: Record<string, any>;
   width?: number | string;
-  dict?: FnDictStore;
 }
 
 export interface FnSearchProps {

@@ -30,7 +30,7 @@ const state = reactive({
     id: { key: "id", title: "编号", cell: { width: 84 } },
     name: { key: "name", title: "凭证名称", type: ["text", "colspan"], search: { component: { placeholder: "搜索名称或负责人" }, width: 230 }, form: { rules: [{ required: true, message: "请输入凭证名称" }] }, cell: { order: 1 } },
     owner: { key: "owner", title: "负责人", form: { rules: [{ required: true, message: "请输入负责人" }] }, cell: { order: 2, width: 120 } },
-    scope: { key: "scope", title: "环境", type: "dict-select", dict: scopeDict, search: { show: false }, form: { value: "测试" }, cell: { order: 3, width: 100 } },
+    scope: { key: "scope", title: "环境", type: "dict-radio", dict: scopeDict, search: { component: { multiple: true, wrap: false, minWidth: 160 } }, form: { value: "测试" }, cell: { order: 3, width: 100 } },
     status: { key: "status", title: "状态", type: statusType, dict: statusDict, search: { component: { placeholder: "筛选状态" } }, form: { value: "review" }, cell: { order: 4, width: 100 } },
     expiresAt: { key: "expiresAt", title: "到期日期", form: { rules: [{ required: true, message: "请输入到期日期" }] }, cell: { order: 5, width: 130 } },
   },

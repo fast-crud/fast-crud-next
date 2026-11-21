@@ -7,6 +7,7 @@ import { fnCrudContext, type FnCrudInstallOptions } from "../../components/provi
 import { useMerge } from "../../components/use/use-merge";
 import type { FnCrudI18n } from "../../locale";
 import { addTypes } from "../type";
+import { defaultCrudButtonIcons } from "./use-crud-props";
 
 export type FnCrudOptionsInput<Row = any> = FnDynamicType<FnCrudOptions<Row>>;
 
@@ -43,6 +44,7 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
       show: true,
       buttons: {
         add: {
+          icon: defaultCrudButtonIcons.add,
           text: computed(() => t("fnCrud.crud.actionbar.add")),
           click: crudRef ? () => crudRef.value?.form.openAddForm() : undefined,
           type: "primary",
@@ -50,18 +52,23 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
           order: -100,
         },
         batch: {
+          icon: defaultCrudButtonIcons.batch,
           text: computed(() => t("fnCrud.crud.actionbar.batch")),
           type: "default",
           show: true,
           order: 0,
           buttonType: "dropdown",
-          items: [{ key: "delete", label: computed(() => t("fnCrud.crud.actionbar.batchDelete")), danger: true }],
+          items: [{ key: "delete", label: computed(() => t("fnCrud.crud.actionbar.batchDelete")), icon: defaultCrudButtonIcons.delete, danger: true }],
         },
       },
     },
     form:{
       dialog: {
         title: computed(() => t("fnCrud.crud.formDialog.edit")),
+        buttons: {
+          cancel: { icon: defaultCrudButtonIcons.cancel },
+          confirm: { icon: defaultCrudButtonIcons.confirm },
+        },
       },
     },
     rowSelect: {
@@ -72,6 +79,7 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
       fixed: "left",
     },
     table: {
+      size: 13,
       "onUpdate:density": density => {
         state.table!.density = density;
       },

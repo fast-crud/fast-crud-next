@@ -4,10 +4,14 @@
   </span>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
+import type { PropType } from "vue";
 import type { FnIconProps } from "./types";
 
-withDefaults(defineProps<FnIconProps>(), { size: 16 });
+defineProps({
+  icon: { type: [Object, Function] as PropType<FnIconProps["icon"]>, required: true },
+  size: { type: [Number, String], default: "1em" },
+});
 </script>
 
 <style lang="less">

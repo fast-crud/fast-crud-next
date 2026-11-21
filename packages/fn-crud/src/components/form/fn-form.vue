@@ -4,7 +4,7 @@
       <div v-for="column in formColumns" :key="column.key" class="fn-form-column" :style="{ gridColumn: `span ${column.span ?? 12}` }">
         <FnFormItem v-if="column.show !== false" :label="column.title" :error="errors[column.key]" :help="column.helper" :html-for="column.key" v-bind="column.itemProps">
           <slot :name="column.key" :column="column" :form="formState" :value="formState[column.key]">
-            <FnComponentRender v-if="column.component" :name="column.component.name!" v-bind="getComponentProps(column)" v-model:model-value="formState[column.key]" scope="form" :field-key="column.key" />
+            <FnComponentRender v-if="column.component" :name="column.component.name!" v-bind="column.component" v-model:model-value="formState[column.key]" scope="form" :field-key="column.key" />
             <FnInput v-else :id="column.key" v-model="formState[column.key]" @update:model-value="validateField(column.key)" @blur="validateField(column.key)" />
           </slot>
         </FnFormItem>
@@ -63,7 +63,7 @@ const formColumns = computed<ResolvedFormColumn[]>(() =>
     .map(([key, column]) => ({ ...resolveComputedValue(column, { type: "form", form: formState, mode: mode.value }), key }) as ResolvedFormColumn)
     .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
 );
-const formStyle = computed(() => ({ ...((props.formProps.style as Record<string, string>) || {}), "--fn-form-label-width": (props.labelCol?.style?.width as string) || "120px" }));
+const formStyle = computed(() => ({ ...((props.formProps.style as Record<string, string>) || {}), "--fn-form-label-width": (props.labelCol?.style?.width as string) || "100px" }));
 
 provide(fnFormContextKey, { validateField });
 
@@ -74,14 +74,6 @@ async function validateField(key: string): Promise<void> {
     return;
   }
   errors[key] = error;
-}
-
-function getComponentProps(column: FnFormColumn): Record<string, any> {
-  const component = { ...(column.component || {}) };
-  if (column.dict && component.options === undefined) {
-    component.options = column.dict.getOptions().value;
-  }
-  return component;
 }
 
 function getForm(): Record<string, any> {
