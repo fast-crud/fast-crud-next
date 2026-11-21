@@ -127,6 +127,43 @@ it("固定列阴影在滚动离开对应边缘时显示", () => {
   expect(setup.columnClasses(rightColumn)).not.toContain("fn-table-fixed-right-shadow");
 });
 
+it("横向滚动条按内容比例计算滑块并同步拖动位置", () => {
+  const setup = module.exports.default.setup({ columns: {}, data: [] }, { expose: () => {}, emit: () => {} });
+  const element = { scrollWidth: 600, clientWidth: 300, scrollLeft: 100 } as HTMLElement;
+  setup.scrollElement.value = element;
+  setup.updateScrollEdge();
+
+  expect(setup.hasHorizontalScroll.value).toBe(true);
+  expect(setup.scrollbarThumbWidth.value).toBeCloseTo(161.35);
+  expect(setup.scrollbarThumbLeft.value).toBeCloseTo(44.22);
+
+  const track = { setPointerCapture: vi.fn() } as unknown as HTMLElement;
+  const thumb = { classList: { contains: (name: string) => name === "fn-table-sticky-scroll-thumb" } } as unknown as HTMLElement;
+  setup.startHorizontalScroll({ currentTarget: track, target: thumb, pointerId: 7, clientX: 100, preventDefault: vi.fn() } as unknown as PointerEvent);
+  setup.moveHorizontalScroll({ pointerId: 7, clientX: 150 } as PointerEvent);
+
+  expect(element.scrollLeft).toBeCloseTo(213.08);
+  setup.updateScrollEdge();
+  expect(setup.scrollbarThumbLeft.value).toBeCloseTo(94.22);
+  setup.endHorizontalScroll({ pointerId: 7 } as PointerEvent);
+});
+
+it("从滚动轨道空白处按下后可以继续拖动", () => {
+  const setup = module.exports.default.setup({ columns: {}, data: [] }, { expose: () => {}, emit: () => {} });
+  const element = { scrollWidth: 600, clientWidth: 300, scrollLeft: 100 } as HTMLElement;
+  setup.scrollElement.value = element;
+  setup.updateScrollEdge();
+
+  const track = { setPointerCapture: vi.fn(), getBoundingClientRect: () => ({ left: 0 }) } as unknown as HTMLElement;
+  const hitArea = { classList: { contains: () => false } } as unknown as HTMLElement;
+  setup.startHorizontalScroll({ currentTarget: track, target: hitArea, pointerId: 8, clientX: 150, preventDefault: vi.fn() } as unknown as PointerEvent);
+  setup.moveHorizontalScroll({ pointerId: 8, clientX: 170 } as PointerEvent);
+
+  expect(element.scrollLeft).toBeCloseTo(195.23);
+  expect(track.setPointerCapture).toHaveBeenCalledWith(8);
+  setup.endHorizontalScroll({ pointerId: 8 } as PointerEvent);
+});
+
 it("固定列使用组内累计宽度计算 sticky 偏移", () => {
   const setup = module.exports.default.setup(
     {

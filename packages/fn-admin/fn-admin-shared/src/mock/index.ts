@@ -7,7 +7,7 @@ interface MockHandler {
   handle: (request: { body: any; params: Record<string, any> }) => any | Promise<any>
 }
 
-const modules = import.meta.glob<{ default?: MockHandler[] }>(['./common/mock.*.ts', './*.mock.ts'], { eager: true })
+const modules = import.meta.glob<{ default?: MockHandler[] }>(['./common/mock.*.ts', './*.mock.ts', '../views/crud/**/mock.ts'], { eager: true })
 const mock = new AxiosMockAdapter(mockAxios, { delayResponse: 180 })
 
 export function registerMockModules(modulesToRegister: Record<string, { default?: MockHandler[] }>): void {

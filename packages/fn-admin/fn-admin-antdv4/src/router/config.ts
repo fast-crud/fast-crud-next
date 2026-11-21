@@ -2,13 +2,13 @@ import type { RouteRecordRaw } from "vue-router";
 import type { Component } from "vue";
 import { Database, LayoutDashboard, Settings } from "@lucide/vue";
 import DashboardView from "../views/DashboardView.vue";
-import BasicCrudView from "../views/crud/basis/basic/index.vue";
-import ComputeCrudView from "../views/crud/basis/compute/index.vue";
-import RequestMockCrud from "../views/crud/basis/request-mock/index.vue";
-import DictionaryCrud from "../views/crud/dict/credentials/index.vue";
-import SelectionCrud from "../views/crud/feature/selection/index.vue";
-import ConditionalFormCrud from "../views/crud/form/conditional/index.vue";
-import FormSlotsCrud from "../views/crud/form/slots/index.vue";
+import BasicCrudView from "@fast-crud/fn-admin-shared/views/crud/basis/basic/index.vue";
+import ComputeCrudView from "@fast-crud/fn-admin-shared/views/crud/basis/compute/index.vue";
+import RequestMockCrud from "@fast-crud/fn-admin-shared/views/crud/basis/request-mock/index.vue";
+import DictionaryCrud from "@fast-crud/fn-admin-shared/views/crud/dict/credentials/index.vue";
+import SelectionCrud from "@fast-crud/fn-admin-shared/views/crud/feature/selection/index.vue";
+import ConditionalFormCrud from "@fast-crud/fn-admin-shared/views/crud/form/conditional/index.vue";
+import FormSlotsCrud from "@fast-crud/fn-admin-shared/views/crud/form/slots/index.vue";
 import ComponentComparisonView from "../views/ComponentComparisonView.vue";
 
 export type AdminPageConfig = {

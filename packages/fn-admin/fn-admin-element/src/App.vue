@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
 import { FnConfigProvider } from '@fast-crud/fast-crud-next'
+import AdminLayout from './layouts/AdminLayout.vue'
 </script>
 
-<template><FnConfigProvider><RouterView /></FnConfigProvider></template>
+<template><FnConfigProvider><AdminLayout /></FnConfigProvider></template>

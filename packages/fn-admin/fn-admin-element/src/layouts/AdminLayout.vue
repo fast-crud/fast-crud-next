@@ -6,17 +6,21 @@
         <span v-if="!collapsed" class="brand-mark__name">FN ADMIN</span>
       </div>
       <el-menu :default-active="route.path" :collapse="collapsed" class="admin-menu" @select="goTo">
-        <el-menu-item index="/dashboard"><span>{{ adminText('工作台', 'Dashboard') }}</span></el-menu-item>
-        <el-menu-item-group :title="adminText('CRUD 示例', 'CRUD examples')">
-          <el-menu-item index="/crud/basic"><span>{{ adminText('基础列表', 'Basic list') }}</span></el-menu-item>
-          <el-menu-item index="/crud/mock"><span>{{ adminText('请求 Mock', 'Request mock') }}</span></el-menu-item>
-          <el-menu-item index="/crud/compute"><span>{{ adminText('动态计算', 'Dynamic calculations') }}</span></el-menu-item>
-          <el-menu-item index="/crud/dictionary"><span>{{ adminText('字典与筛选', 'Dictionary and filters') }}</span></el-menu-item>
-          <el-menu-item index="/crud/selection"><span>{{ adminText('跨页批量操作', 'Cross-page batch actions') }}</span></el-menu-item>
-          <el-menu-item index="/crud/conditional-form"><span>{{ adminText('条件表单', 'Conditional forms') }}</span></el-menu-item>
-        </el-menu-item-group>
-        <el-menu-item index="/components/table-buttons"><span>{{ adminText('组件对比', 'Component comparison') }}</span></el-menu-item>
-        <el-menu-item index="/settings"><span>{{ adminText('系统设置', 'Settings') }}</span></el-menu-item>
+        <template v-for="page in adminMenuConfig" :key="page.key">
+          <el-sub-menu v-if="page.children" :index="page.key">
+            <template #title>
+              <el-icon v-if="page.icon"><component :is="page.icon" /></el-icon>
+              <span>{{ adminText(...page.title) }}</span>
+            </template>
+            <el-menu-item v-for="child in page.children" :key="child.key" :index="child.path || child.key" :disabled="child.disabled">
+              <span>{{ adminText(...child.title) }}</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item v-else-if="page.path || page.disabled" :index="page.path || page.key" :disabled="page.disabled">
+            <el-icon v-if="page.icon"><component :is="page.icon" /></el-icon>
+            <span>{{ adminText(...page.title) }}</span>
+          </el-menu-item>
+        </template>
       </el-menu>
       <div v-if="!collapsed" class="aside-footer">Vue 3 · FnCrud</div>
     </el-aside>
@@ -44,17 +48,15 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from '@lucide/vue'
 import { adminPreferences, adminText, toggleAdminLanguage, toggleAdminTheme } from '@fast-crud/fn-admin-shared/preferences'
+import { adminMenuConfig } from '../router/config'
 
 const route = useRoute()
 const router = useRouter()
 const collapsed = ref(false)
-const titles: Record<string, [string, string]> = {
-  '/dashboard': ['工作台', 'Dashboard'], '/crud/basic': ['基础列表', 'Basic list'], '/crud/mock': ['请求 Mock', 'Request mock'],
-  '/crud/compute': ['动态计算', 'Dynamic calculations'], '/crud/dictionary': ['字典与筛选', 'Dictionary and filters'],
-  '/crud/selection': ['跨页批量操作', 'Cross-page batch actions'], '/crud/conditional-form': ['条件表单', 'Conditional forms'],
-  '/components/table-buttons': ['组件对比', 'Component comparison'], '/settings': ['系统设置', 'Settings'],
-}
-const currentTitle = computed(() => { const [zh, en] = titles[route.path] || ['管理控制台', 'Admin console']; return adminText(zh, en) })
+const currentTitle = computed(() => {
+  const [zh, en] = route.meta.title as [string, string] | undefined || ['管理控制台', 'Admin console']
+  return adminText(zh, en)
+})
 
 function goTo(path: string): void {
   if (path !== route.path) void router.push(path)
