@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { computed, reactive, ref } from "vue";
-import { compute, resolveComputed, resolveComputedValue } from "./compute";
+import { useCompute } from "./use-compute";
+
+const { compute, resolveComputed, resolveComputedValue } = useCompute();
 
 describe("fn-crud compute", () => {
   it("resolves compute and refs on leaf properties", () => {

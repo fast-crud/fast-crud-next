@@ -21,7 +21,7 @@ import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { Search, X } from "@lucide/vue";
 import FnCrud from "../fn-crud.vue";
 import FnModal from "../../components/overlay/fn-modal.vue";
-import { useFnUiServices } from "../../use/use-fn-ui-services.ts";
+import { useFnUiServices } from "../../components/use/use-fn-ui-services";
 import type { FnCrudOptions, FnTablePageQuery, FnTablePageResult, FnTableRow, FnTableSelectProps } from "../../types/index.ts";
 
 const props = withDefaults(defineProps<FnTableSelectProps>(), { title: "选择记录", placeholder: "请选择", disabled: false, allowClear: true });

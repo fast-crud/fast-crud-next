@@ -1,6 +1,6 @@
 import { isArray, cloneDeepWith, mergeWith } from "lodash-es";
 import { isRef, isShallow } from "vue";
-import { isFnComputeValue } from "./compute";
+import { isFnComputeValue } from "../../crud/use/use-compute";
 function isUnMergeable(srcValue: any) {
   return srcValue != null && (srcValue instanceof UnMergeable || isRef(srcValue) || isShallow(srcValue) || isFnComputeValue(srcValue));
 }

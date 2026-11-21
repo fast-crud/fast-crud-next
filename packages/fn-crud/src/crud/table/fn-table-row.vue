@@ -17,7 +17,7 @@ import get from "lodash-es/get";
 import { computed } from "vue";
 import FnRender from "../../components/render/fn-render.ts";
 import type { FnDynamic, FnRenderSlot, FnRowContext, FnTableColumn, FnTableRow } from "../../types/index.ts";
-import { resolveComputedValue } from "../../use/compute.ts";
+import { useCompute } from "../use/use-compute";
 import FnTableCell from "./fn-table-cell.vue";
 
 interface FnTableRowColumn extends FnTableColumn<FnTableRow> {
@@ -34,6 +34,7 @@ const props = defineProps<{
   columnStyle: (column: FnTableRowColumn, key: string) => Record<string, any>;
 }>();
 
+const { resolveComputedValue } = useCompute();
 const componentRefs = new Map<string, unknown>();
 const rowContext = computed<FnRowContext>(() => ({
   type: "row",

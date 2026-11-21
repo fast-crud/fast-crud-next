@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
-import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useRowHandleProps, useSearchProps, useTabsProps } from "./crud/use-crud-props";
-import { compute, isFnComputeValue } from "./use/compute";
-import type { FnCrudOptions, FnRowContext } from "./types/index";
+import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useRowHandleProps, useSearchProps, useTabsProps } from "./use-crud-props";
+import { isFnComputeValue, useCompute } from "./use-compute";
+import type { FnCrudOptions, FnRowContext } from "../../types/index";
+
+const { compute } = useCompute();
 
 describe("useTabsProps", () => {
   it("treats unloaded dictionary options as an empty list", () => {

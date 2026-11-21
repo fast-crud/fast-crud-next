@@ -1,23 +1,12 @@
 <script setup lang="ts">
-import { computed, defineComponent, h, markRaw, reactive, ref } from "vue";
-import { FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
+import { computed, markRaw, reactive, ref } from "vue";
+import { FnCheckbox, FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type Order } from "./api";
 
 const tier = ref("标准");
 const disabledRef = ref(false);
-const PriceSwitch = markRaw(defineComponent({
-  props: { modelValue: Boolean },
-  emits: { "update:modelValue": (value: boolean) => typeof value === "boolean" },
-  setup: (props, { emit }) => () => h("input", {
-    class: "compute-price-switch",
-    type: "checkbox",
-    role: "switch",
-    "aria-label": "自定义单价",
-    checked: props.modelValue,
-    onChange: (event: Event) => emit("update:modelValue", (event.target as HTMLInputElement).checked),
-  }),
-}));
 const inputComponent = markRaw(FnInput);
+const priceCheckbox = markRaw(FnCheckbox);
 const numberInput = { name: inputComponent, vModel: "modelValue", type: "number" };
 
 const crudState = reactive<FnCrudState<Order>>({
@@ -45,11 +34,11 @@ const crudState = reactive<FnCrudState<Order>>({
     customPrice: {
       key: "customPrice",
       title: "自定义单价",
-      form: { value: false, component: { name: PriceSwitch, id: "customPrice" } },
+      form: { value: false, component: { name: priceCheckbox, id: "customPrice", "aria-label": "自定义单价" } },
       cell: {
         order: 3,
         width: 110,
-        component: { name: PriceSwitch },
+        component: { name: priceCheckbox, "aria-label": "自定义单价" },
       },
     },
     unitPrice: {
@@ -102,70 +91,12 @@ useFnCrud({ state: crudState });
 </script>
 
 <template>
-  <div class="view-stack compute-page">
-    <label class="tier-switch">
-      <span>计价层级</span>
-      <select v-model="tier">
-        <option>标准</option>
-        <option>批量</option>
-        <option>企业</option>
-      </select>
-    </label>
-    <section class="panel"><FnCrud v-bind="crudState" /></section>
+  <div class="crud-page compute-page">
+    <FnCrud v-bind="crudState" />
   </div>
 </template>
 
 <style lang="less">
 .compute-page {
-  .tier-switch {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 8px 12px;
-    color: var(--fn-color-text-secondary);
-    font-size: 13px;
-
-    select {
-      min-height: 32px;
-      padding: 0 10px;
-      border: 1px solid var(--fn-color-border);
-      border-radius: 6px;
-      color: var(--fn-color-text);
-      background: var(--fn-color-bg-container);
-    }
-  }
-
-  .compute-price-switch {
-    appearance: none;
-    display: inline-flex;
-    align-items: center;
-    width: 36px;
-    height: 22px;
-    padding: 2px;
-    margin: 0;
-    border-radius: 999px;
-    background: var(--fn-color-text-tertiary);
-    cursor: pointer;
-    vertical-align: middle;
-
-    &::before {
-      content: "";
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #fff;
-    }
-
-    &:checked {
-      justify-content: flex-end;
-      background: var(--fn-color-primary);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--fn-color-primary);
-      outline-offset: 2px;
-    }
-  }
 }
 </style>

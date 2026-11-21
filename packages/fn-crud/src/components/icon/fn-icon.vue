@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FnIconProps } from "../types/index";
+import type { FnIconProps } from "./types";
 
 withDefaults(defineProps<FnIconProps>(), { size: 16 });
 </script>

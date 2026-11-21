@@ -20,10 +20,12 @@ import FnInput from "../input/fn-input.vue";
 import FnFormItem from "./fn-form-item.vue";
 import { fnFormContextKey } from "./context.ts";
 import { validateFnFormField } from "./validation.ts";
-import { resolveComputedValue } from "../../use/compute.ts";
-import type { FnFormColumn, FnFormProps, FnFormContext } from "../../types/index.ts";
+import { useCompute } from "../../crud/use/use-compute";
+import type { FnFormColumn } from "../../types/index.ts";
+import type { FnFormContext, FnFormProps } from "./types";
 
 type ResolvedFormColumn = Omit<FnFormColumn, "title" | "show"> & { title?: string; show?: boolean };
+const { resolveComputedValue } = useCompute();
 
 const props = withDefaults(
   defineProps<

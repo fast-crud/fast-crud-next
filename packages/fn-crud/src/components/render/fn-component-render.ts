@@ -5,7 +5,7 @@ export default defineComponent({
   name: "FnComponentRender",
   inheritAttrs: false,
   props: {
-    name: { type: [String, Object] as unknown as () => string | Component, required: true },
+    name: { type: [String, Object, Function] as unknown as () => string | Component, required: true },
     vModel: { type: String, default: "modelValue" },
     modelValue: { type: null as unknown as () => any },
     scope: String,

@@ -1,1 +1,4 @@
 :root{font-family:Inter,"Segoe UI",system-ui,sans-serif;color:#1d2a3a;background:#f4f7fb;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}html,body,#app{min-width:320px;min-height:100%;margin:0}body{min-height:100vh}.fn-config-provider{display:contents}
+.crud-page {
+  height: 100%;
+}

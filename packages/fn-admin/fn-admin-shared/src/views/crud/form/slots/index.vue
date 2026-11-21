@@ -65,73 +65,51 @@ useFnCrud({ state: crudState });
 </script>
 
 <template>
-  <div class="view-stack">
-    <section class="panel">
-      <FnCrud v-bind="crudState" />
-    </section>
+  <div class="crud-page slots-page">
+    <FnCrud v-bind="crudState" />
   </div>
 </template>
 
 <style lang="less">
-.form-slot-header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.slot-label {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 0 8px;
-  border: 1px solid #ffccc7;
-  border-radius: 4px;
-  color: #cf1322;
-  background: #fff2f0;
-  white-space: nowrap;
-}
-
-.slot-band {
-  padding: 10px 12px;
-  border: 1px solid #ffe58f;
-  border-radius: 6px;
-  color: #694b00;
-  background: #fffbe6;
-}
-
-.slot-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.form-slot-preview {
-  max-width: 240px;
-  overflow: hidden;
-  color: var(--fn-color-text-secondary, #667085);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.workflow-custom-table {
-  min-height: 0;
-  flex: 1;
-  overflow: auto;
-  border-top: 1px solid var(--fn-color-border-secondary, #e4e7ec);
-  border-bottom: 1px solid var(--fn-color-border-secondary, #e4e7ec);
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
+.slots-page {
+  .form-slot-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  th,
-  td {
+
+  .slot-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 8px;
+    border: 1px solid #ffccc7;
+    border-radius: 4px;
+    color: #cf1322;
+    background: #fff2f0;
+    white-space: nowrap;
+  }
+
+  .slot-band {
     padding: 10px 12px;
-    border-bottom: 1px solid var(--fn-color-border-secondary, #e4e7ec);
+    border: 1px solid #ffe58f;
+    border-radius: 6px;
+    color: #694b00;
+    background: #fffbe6;
   }
-  th {
+
+  .slot-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-slot-preview {
+    max-width: 240px;
+    overflow: hidden;
     color: var(--fn-color-text-secondary, #667085);
-    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fnCrudContext, UiContext } from "./context.ts";
-import { installFnCrud } from "../../use/use-fn-crud.ts";
+import { installFnCrud } from "../../crud/use/use-fn-crud";
 
 describe("Fn UI contexts", () => {
   it("initializes default notification and message services", () => {

@@ -1,10 +1,11 @@
 import { computed, ref } from "vue";
 import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
-import { compute, isFnComputeValue, resolveComputedValue } from "./compute";
-import type { FnFeedbackApi } from "../components/provider/context";
-import type { FnColumnSettingsColumn, FnCrudColumn, FnCrudOptions, FnCrudPreferenceStorage, FnCrudPreferences, FnTableColumn } from "../types/index";
+import { isFnComputeValue, useCompute } from "./use-compute";
+import type { FnFeedbackApi } from "../../components/provider/context";
+import type { FnColumnSettingsColumn, FnCrudColumn, FnCrudOptions, FnCrudPreferenceStorage, FnCrudPreferences, FnTableColumn } from "../../types/index";
 
 const storagePrefix = "fn-crud:";
+const { compute, resolveComputedValue } = useCompute();
 
 export function getFnCrudPreferenceKey(id: string | undefined, href: string): string {
   if (id) return `${storagePrefix}${id}`;

@@ -33,22 +33,11 @@ useFnCrud({ state });
 </script>
 
 <template>
-  <div class="showcase-page"><section class="showcase-panel"><FnCrud v-bind="state" /></section></div>
+  <div class="crud-page showcase-page"><FnCrud v-bind="state" /></div>
 </template>
 
 <style lang="less">
 .showcase-page {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  .showcase-panel {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    border: 1px solid var(--fn-color-border, #e1e7ef);
-    border-radius: 0;
-    background: var(--fn-color-bg-container, #fff);
-  }
+  
 }
 </style>

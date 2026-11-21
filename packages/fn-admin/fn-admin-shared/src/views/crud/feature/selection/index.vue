@@ -30,36 +30,11 @@ async function publishSelected(): Promise<void> { await api.publish(selectedKeys
 </script>
 
 <template>
-  <div class="showcase-page"><header class="showcase-actions"><span>已选 {{ selectedKeys.length }} 条</span><button type="button" :disabled="!selectedKeys.length" @click="publishSelected">批量发布</button></header><section class="showcase-panel"><FnCrud ref="crud" v-bind="state" /></section></div>
+  <div class="crud-page showcase-page"><header class="showcase-actions"><span>已选 {{ selectedKeys.length }} 条</span><button type="button" :disabled="!selectedKeys.length" @click="publishSelected">批量发布</button></header><section class="showcase-panel"><FnCrud ref="crud" v-bind="state" /></section></div>
 </template>
 
 <style lang="less">
 .showcase-page {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  flex-direction: column;
-  .showcase-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 8px 16px;
-    color: #667085;
-    font-size: 13px;
-    button {
-      min-height: 34px;
-      padding: 0 13px;
-      border: 1px solid var(--fn-color-primary, #315efb);
-      border-radius: 5px;
-      color: #fff;
-      background: var(--fn-color-primary, #315efb);
-      font: inherit;
-      cursor: pointer;
-      &:disabled { border-color: var(--fn-color-border, #d0d5dd); color: var(--fn-color-text-quaternary, #98a2b3); background: var(--fn-color-fill-secondary, #f2f4f7); cursor: not-allowed; }
-    }
-  }
-  .showcase-panel { flex: 1; min-height: 0; overflow: hidden; border: 1px solid var(--fn-color-border, #e1e7ef); border-radius: 0; background: var(--fn-color-bg-container, #fff); }
-  @media (max-width: 600px) { .showcase-actions { justify-content: space-between; } }
+ 
 }
 </style>

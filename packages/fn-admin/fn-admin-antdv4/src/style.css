@@ -12,3 +12,6 @@ body { margin: 0; min-width: 320px; }
 .panel-header h2 { margin: 0 0 4px; color: #101828; font-size: 16px; }
 .panel-header p { margin: 0; color: #667085; font-size: 13px; }
 @media (max-width: 560px) { .view-heading { display: block; } }
+.crud-page {
+  height: 100%;
+}

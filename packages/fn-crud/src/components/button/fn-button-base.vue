@@ -24,9 +24,9 @@
 <script setup lang="ts">
 import { computed, ref, toValue } from "vue";
 import type { CSSProperties } from "vue";
-import FnIcon from "../fn-icon.vue";
+import FnIcon from "../icon/fn-icon.vue";
 import { useFnButtonRipple } from "./use-fn-button-ripple.ts";
-import type { FnButtonBaseProps } from "../../types/index.ts";
+import type { FnButtonBaseProps } from "./types";
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<FnButtonBaseProps>(), { type: "primary", shape: "default", loading: false, disabled: false, danger: false });

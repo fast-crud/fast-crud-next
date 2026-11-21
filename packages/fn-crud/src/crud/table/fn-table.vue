@@ -42,7 +42,7 @@ import { ArrowDown, ArrowUp } from "@lucide/vue";
 import { computed, onBeforeUnmount, onMounted, onUpdated, provide, ref, type CSSProperties } from "vue";
 import FnTableRowComponent from "./fn-table-row.vue";
 import FnRender from "../../components/render/fn-render.ts";
-import { isFnComputeValue } from "../../use/compute.ts";
+import { isFnComputeValue } from "../use/use-compute";
 import type { FnDynamic, FnTableColumn, FnTableProps, FnTableRow as FnTableRowRecord } from "../../types/index.ts";
 import { getFnTableRowKey } from "./row-key.ts";
 import { fnTableSizeKey } from "../../components/provider/context.ts";

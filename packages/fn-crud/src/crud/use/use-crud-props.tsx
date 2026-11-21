@@ -1,10 +1,11 @@
 import { computed, type Ref } from "vue";
-import FnButton from "../components/button/fn-button.vue";
-import { compute, isFnComputeValue, resolveComputedValue } from "../use/compute.ts";
-import { FN_CRUD_BLANK_COLUMN_KEY } from "../use/use-fn-crud.ts";
-import { useMerge } from "../use/use-merge.ts";
-import type { DictOption, FnColumnSettingsColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../types/index.ts";
-export { createRowSelectionColumn } from "../use/use-selection.tsx";
+import FnButton from "../../components/button/fn-button.vue";
+import { isFnComputeValue, useCompute } from "./use-compute";
+import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
+import { useMerge } from "../../components/use/use-merge";
+import type { DictOption, FnColumnSettingsColumn, FnCrudOptions, FnDynamic, FnFormColumn, FnRenderSlot, FnRowContext, FnSearchColumn, FnSearchProps, FnTableLayoutRow, FnTableProps, FnTableRow } from "../../types/index";
+export { createRowSelectionColumn } from "./use-selection";
+const { compute, resolveComputedValue } = useCompute();
 
 export function useSearchProps(props: FnCrudOptions, searchSlot?: FnRenderSlot): Ref<FnSearchProps> {
   const { merge } = useMerge();

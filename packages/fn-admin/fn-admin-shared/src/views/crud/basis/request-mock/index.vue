@@ -28,20 +28,13 @@ useFnCrud({ state })
 </script>
 
 <template>
-  <section class="mock-panel"><FnCrud v-bind="state" /></section>
+  <div class="crud-page mock-panel">
+    <FnCrud v-bind="state" />
+  </div>
 </template>
 
 <style lang="less">
 .mock-panel {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  border: 1px solid #e1e7ef;
-  border-radius: 0;
-  background: #fff;
-  .mock-status { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: 4px; font-size: 12px; }
-  .mock-status--active { color: #087443; background: #e7f6ee; }
-  .mock-status--pending { color: #9a6700; background: #fff4d6; }
-  .mock-status--paused { color: #667085; background: #f2f4f7; }
+  
 }
 </style>

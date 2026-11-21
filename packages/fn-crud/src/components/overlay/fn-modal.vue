@@ -55,8 +55,9 @@ import { Maximize2, Minimize2, X } from "@lucide/vue";
 import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from "vue";
 import FnButton from "../button/fn-button.vue";
 import FnRender from "../render/fn-render.ts";
-import type { FnModalProps, FnSlots } from "../../types/index.ts";
-import { useMerge } from "../../use/use-merge.ts";
+import type { FnModalProps } from "./types";
+import type { FnSlots } from "../render/types";
+import { useMerge } from "../use/use-merge";
 
 defineOptions({ inheritAttrs: false });
 

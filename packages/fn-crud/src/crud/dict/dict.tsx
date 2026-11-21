@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { DictOption, DictOptionsRef, FnDictStore, FnTableRow } from "../../types/index.ts";
-import { UnMergeable } from "../../use/use-merge.ts";
+import { UnMergeable } from "../../components/use/use-merge";
 
 export type { DictComponentType, DictOption, DictOptionsRef as DictPropsRef, DictValue, GetDictOptionsRef as GetDictPropsRef } from "../../types/index.ts";
 

@@ -1,7 +1,9 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./use/use-preferences";
-import type { FnCrudPreferences } from "./types/index";
-import { compute, resolveComputedValue } from "./use/compute";
+import { createFnCrudPreferenceSnapshot, createFnCrudPreferenceStorage, getFnCrudPreferenceKey, mergeFnCrudPreferences } from "./use-preferences";
+import type { FnCrudPreferences } from "../../types/index";
+import { useCompute } from "./use-compute";
+
+const { compute, resolveComputedValue } = useCompute();
 
 afterEach(() => {
   vi.restoreAllMocks();

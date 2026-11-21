@@ -33,10 +33,10 @@ import FnFormDialog from "./form/fn-form-dialog.vue";
 import FnRender from "../components/render/fn-render.ts";
 import { model } from "../components/overlay/dialog.ts";
 import { fnCrudSearchKey, uiContext } from "../components/provider/context.ts";
-import { useMerge } from "../use/use-merge.ts";
-import { useActionbarProps, useFormProps, useHeadingProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableRenderProps, useTabsProps, useToolbarProps } from "./use-crud-props.tsx";
-import { useTable } from "../use/use-table.ts";
-import { useFnCrudPreferences, type FnCrudPreferencesController } from "../use/use-preferences.ts";
+import { useMerge } from "../components/use/use-merge";
+import { useActionbarProps, useFormProps, useHeadingProps, useLayoutProps, usePaginationProps, useRowHandleProps, useSearchProps, useTableRenderProps, useTabsProps, useToolbarProps } from "./use/use-crud-props.tsx";
+import { useTable } from "./use/use-table";
+import { useFnCrudPreferences, type FnCrudPreferencesController } from "./use/use-preferences";
 import type { FnCrudExpose, FnCrudOptions, FnFormDialogOptions, FnFormContext, FnRowContext, FnTableRow } from "../types/index.ts";
 
 const rawProps = defineProps<FnCrudOptions & { rowHandle?: any; columns: Record<string, any> }>();
@@ -228,6 +228,8 @@ defineExpose(exposed);
   }
   .fn-crud-footer {
     padding: 10px 20px;
+    background-color: var(--fn-color-bg-container);
+    color: var(--fn-color-text-secondary);
   }
   .fn-crud-layout-row {
     display: flex;

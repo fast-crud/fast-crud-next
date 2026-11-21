@@ -7,7 +7,6 @@ import App from "./App.vue";
 import "@fast-crud/fn-admin-shared/mock";
 import { message, notification } from "ant-design-vue";
 import { router } from "./router";
-
 installFnCrud({ commonOptions: () => ({ table: { size: 14, density: "comfort" } }) });
 uiContext.setServices({ notification, message });
 createApp(App).use(router).mount("#app");

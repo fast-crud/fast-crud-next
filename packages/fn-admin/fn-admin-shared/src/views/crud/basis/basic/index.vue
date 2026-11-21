@@ -39,19 +39,12 @@ function toggleStatusSetting(): void {
 }
 </script>
 <template>
-  <div class="view-stack">
-    <section class="panel">
+  <div class="crud-page view-stack">
       <FnCrud v-bind="crudState" />
-    </section>
   </div>
 </template>
 
 <style lang="less">
 .view-stack {
-  .column-setting-examples {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
 }
 </style>

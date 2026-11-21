@@ -5,7 +5,9 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { reactive } from "vue";
-import { compute, resolveComputedValue } from "../../use/compute.ts";
+import { useCompute } from "../use/use-compute";
+
+const { compute } = useCompute();
 
 const filename = fileURLToPath(new URL("./fn-table-row.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -15,7 +17,7 @@ const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
 const loadDependency = (name: string) => {
   if (["./fn-table-cell.vue", "../../components/render/fn-render.ts", "../../components/selection/fn-checkbox.vue", "../../components/selection/fn-radio.vue"].includes(name)) return {};
-  if (name === "../../use/compute.ts") return { resolveComputedValue };
+  if (name === "../use/use-compute") return { useCompute };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);

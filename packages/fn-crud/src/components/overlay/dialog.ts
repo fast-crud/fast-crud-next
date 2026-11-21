@@ -1,6 +1,7 @@
 import { inject, onUnmounted, provide } from "vue";
-import type { FnDialogProps, FnModalService } from "../../types/index.ts";
-export type { FnDialogContext, FnDialogProps, FnFormProps, FnModalService, FnFormInstance } from "../../types/index.ts";
+import type { FnDialogProps, FnModalService } from "./types";
+export type { FnDialogContext, FnDialogProps, FnModalService } from "./types";
+export type { FnFormProps, FnFormInstance } from "../form/types";
 
 const fnModalKey = Symbol("FnModal");
 const modalServices: FnModalService[] = [];

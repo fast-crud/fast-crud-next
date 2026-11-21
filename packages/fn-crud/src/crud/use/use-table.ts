@@ -1,10 +1,10 @@
 import { computed, reactive, ref, type Ref } from "vue";
-import { useTableColumns, useTableProps } from "../crud/use-crud-props";
+import { useTableColumns, useTableProps } from "./use-crud-props";
 import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
 import { useSelection } from "./use-selection";
-import { isFnComputeValue } from "./compute";
+import { isFnComputeValue } from "./use-compute";
 import type { FnCrudPreferencesController } from "./use-preferences";
-import type { FnColumnSettingsColumn, FnCrudOptions, FnTableRow } from "../types/index";
+import type { FnColumnSettingsColumn, FnCrudOptions, FnTableRow } from "../../types/index";
 
 export function useTable(props: FnCrudOptions, rowHandleProps: Ref<Record<string, any>>, searchForm: Record<string, any>, getPreferences: () => FnCrudPreferencesController) {
   const data = ref<FnTableRow[]>([]);

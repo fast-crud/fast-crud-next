@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 vi.mock("vue", () => ({ inject: vi.fn(), provide: vi.fn(), onUnmounted: vi.fn() }));
 import { model, provideFnModal } from "./dialog.ts";
-import type { FnDialogProps } from "../../types/index.ts";
+import type { FnDialogProps } from "./types";
 
 const formDialog: FnDialogProps<{ id: number }> = {
   title: "编辑",

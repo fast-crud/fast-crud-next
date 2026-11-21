@@ -15,7 +15,7 @@ const loadDependency = (name: string) => {
   if (name === "vue") {
     return require(name);
   }
-  if (name === "@lucide/vue" || name === "../fn-icon.vue" || name === "./fn-dropdown-button.vue") {
+  if (name === "@lucide/vue" || name === "../icon/fn-icon.vue" || name === "./fn-dropdown-button.vue") {
     return {};
   }
   if (name === "./use-fn-button-ripple") {

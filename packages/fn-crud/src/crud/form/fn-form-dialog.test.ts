@@ -4,8 +4,10 @@ import { createRequire } from "node:module";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
-import { compute, resolveComputedValue } from "../../use/compute.ts";
-import { useMerge } from "../../use/use-merge.ts";
+import { useCompute } from "../use/use-compute";
+import { useMerge } from "../../components/use/use-merge";
+
+const { compute } = useCompute();
 
 const filename = fileURLToPath(new URL("./fn-form-dialog.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -15,9 +17,9 @@ const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
 const loadDependency = (name: string) => {
   if (name === "../../components/overlay/fn-modal.vue" || name === "../../components/form/fn-form.vue") return {};
-  if (name === "../../use/compute.ts") return { resolveComputedValue };
-  if (name === "../../use/use-merge.ts") return { useMerge };
-  if (name === "../../use/use-fn-ui-services.ts") return { useFnUiServices: () => ({ notification: { error: vi.fn() }, message: { error: vi.fn() } }) };
+  if (name === "../use/use-compute") return { useCompute };
+  if (name === "../../components/use/use-merge") return { useMerge };
+  if (name === "../../components/use/use-fn-ui-services") return { useFnUiServices: () => ({ notification: { error: vi.fn() }, message: { error: vi.fn() } }) };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);

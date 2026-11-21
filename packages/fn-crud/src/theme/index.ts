@@ -5,6 +5,7 @@ import type { FnThemeStyle, FnThemeTokens } from "./types";
 export type { FnThemeTokenName, FnThemeStyle, FnThemeTokens } from "./types";
 export { mapAntdvThemeToFnTokens } from "./antdv/antdv";
 export { useAntdvTheme } from "./antdv/use-antdv-theme";
+export { useElementTheme } from "./element/use-element-theme";
 export { mapNaiveThemeToFnTokens, type NaiveThemeTokens } from "./naive/naive";
 export { useNaiveTheme } from "./naive/use-naive-theme";
 

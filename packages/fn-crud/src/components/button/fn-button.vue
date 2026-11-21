@@ -7,7 +7,7 @@
 import { computed, toValue } from "vue";
 import FnButtonBase from "./fn-button-base.vue";
 import FnDropdownButton from "./fn-dropdown-button.vue";
-import type { FnButtonProps } from "../../types/index.ts";
+import type { FnButtonProps } from "./types";
 
 defineOptions({ inheritAttrs: false });
 

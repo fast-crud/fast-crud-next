@@ -1,8 +1,20 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createFnThemeStyle, mapAntdvThemeToFnTokens } from "./index";
+import { useElementTheme } from "./element/use-element-theme";
 import { mapNaiveThemeToFnTokens } from "./naive/naive";
 
+afterEach(() => vi.unstubAllGlobals());
+
 describe("Fn theme adapters", () => {
+  it("enables the Element CSS variable mapping on the document root", () => {
+    const dataset: Record<string, string> = {};
+    vi.stubGlobal("document", { documentElement: { dataset } });
+
+    useElementTheme();
+
+    expect(dataset.fnTheme).toBe("element");
+  });
+
   it("uses Fn-prefixed AntDV token names as CSS variables", () => {
     const tokens = mapAntdvThemeToFnTokens({ colorPrimary: "#1677ff", colorBgContainer: "#141210", borderRadius: 6 });
 

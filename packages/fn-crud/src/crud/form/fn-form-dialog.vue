@@ -14,14 +14,17 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, nextTick, ref, useSlots } from "vue";
 import FnModal from "../../components/overlay/fn-modal.vue";
-import type { FnFormContext, FnFormDialogInstance, FnFormDialogOptions, FnFormInstance, FnFormProps, FnModalInstance, FnRenderSlot } from "../../types/index.ts";
-import { resolveComputedValue } from "../../use/compute.ts";
-import { useFnUiServices } from "../../use/use-fn-ui-services.ts";
-import { useMerge } from "../../use/use-merge.ts";
+import type { FnFormContext, FnFormDialogInstance, FnFormDialogOptions, FnFormInstance, FnFormProps } from "../../components/form/types";
+import type { FnModalInstance } from "../../components/overlay/types";
+import type { FnRenderSlot } from "../../components/render/types";
+import { useCompute } from "../use/use-compute";
+import { useFnUiServices } from "../../components/use/use-fn-ui-services";
+import { useMerge } from "../../components/use/use-merge";
 import FnForm from "../../components/form/fn-form.vue";
 
 const { notification } = useFnUiServices();
 const { merge } = useMerge();
+const { resolveComputedValue } = useCompute();
 const formRef = ref<FnFormInstance>();
 const modalRef = ref<FnModalInstance>();
 const formLoading = ref(false);

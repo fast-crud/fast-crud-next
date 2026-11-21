@@ -1,4 +1,4 @@
-:root {
+:root[data-fn-theme="element"] {
   --fn-color-primary: var(--el-color-primary);
   --fn-color-text: var(--el-text-color-primary);
   --fn-color-text-secondary: var(--el-text-color-regular);

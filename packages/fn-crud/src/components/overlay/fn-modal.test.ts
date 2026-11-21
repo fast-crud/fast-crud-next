@@ -5,7 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { describe, it, expect, vi } from "vitest";
 import { reactive } from "vue";
-import { useMerge } from "../../use/use-merge.ts";
+import { useMerge } from "../use/use-merge";
 
 const filename = fileURLToPath(new URL("./fn-modal.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -17,7 +17,7 @@ const loadDependency = (name: string) => {
   if (name === "@lucide/vue" || name === "../button/fn-button.vue" || name === "../render/fn-render.ts") {
     return {};
   }
-  if (name === "../../use/use-merge.ts") return { useMerge };
+  if (name === "../use/use-merge") return { useMerge };
   return require(name);
 };
 new Function("require", "module", "exports", compiled.outputText)(loadDependency, module, module.exports);

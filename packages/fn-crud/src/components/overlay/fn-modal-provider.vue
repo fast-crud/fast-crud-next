@@ -25,8 +25,8 @@
 import { nextTick, reactive, shallowReactive, toRef } from "vue";
 import FnModal from "./fn-modal.vue";
 import { provideFnModal } from "./dialog.ts";
-import { useFnUiServices } from "../../use/use-fn-ui-services.ts";
-import type { FnDialogContext, FnDialogProps, FnModalService, FnDialogRecord } from "../../types/index.ts";
+import { useFnUiServices } from "../use/use-fn-ui-services";
+import type { FnDialogContext, FnDialogProps, FnModalService, FnDialogRecord } from "./types";
 
 const dialogs = shallowReactive<FnDialogRecord[]>([]);
 const { notification } = useFnUiServices();

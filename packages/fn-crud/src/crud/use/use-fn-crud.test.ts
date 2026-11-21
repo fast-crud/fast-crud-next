@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { reactive, ref } from "vue";
 import { FN_CRUD_BLANK_COLUMN_KEY, installFnCrud, useFnCrud } from "./use-fn-crud";
-import { useActionbarProps } from "../crud/use-crud-props";
+import { useActionbarProps } from "./use-crud-props";
 
 it("useFnCrud 初始化 actionbar 和 rowSelect 默认值并写回可变配置", () => {
   const state = reactive({

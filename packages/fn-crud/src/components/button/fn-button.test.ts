@@ -5,7 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
-import type { FnButtonProps } from "../../types/index.ts";
+import type { FnButtonProps } from "./types";
 
 const filename = fileURLToPath(new URL("./fn-button.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });

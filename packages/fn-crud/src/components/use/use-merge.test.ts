@@ -1,9 +1,11 @@
 import { expect, it, vi } from "vitest";
-import { compute, resolveComputedValue } from "./compute";
+import { useCompute } from "../../crud/use/use-compute";
 import { useMerge } from "./use-merge";
-import { DictStore } from "../crud/dict/dict";
+import { DictStore } from "../../crud/dict/dict";
 import { reactive, ref } from "vue";
-import { useFnCrud } from "./use-fn-crud";
+import { useFnCrud } from "../../crud/use/use-fn-crud";
+
+const { compute, resolveComputedValue } = useCompute();
 const { merge } = useMerge();
 
 it("merge 支持多级来源并保留最后一个 state 来源的用户值", () => {

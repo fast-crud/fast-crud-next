@@ -19,7 +19,7 @@ function loadComponent(name: string, dependencies: Record<string, unknown> = {})
 
 const FnCheckbox = loadComponent("fn-checkbox");
 const FnRadio = loadComponent("fn-radio");
-const FnButtonGroup = loadComponent("fn-button-group", { "../fn-icon.vue": {} });
+const FnButtonGroup = loadComponent("fn-button-group", { "../icon/fn-icon.vue": {} });
 
 it("FnCheckbox 把受控布尔值变化通过 update 和 change 发出", () => {
   const emit = vi.fn();

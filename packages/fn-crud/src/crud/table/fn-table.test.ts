@@ -5,7 +5,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { getFnTableRowKey } from "./row-key.ts";
-import { isFnComputeValue } from "../../use/compute.ts";
+import { isFnComputeValue } from "../use/use-compute";
 
 const filename = fileURLToPath(new URL("./fn-table.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -16,7 +16,7 @@ const module = { exports: {} as any };
 const loadDependency = (name: string) => {
   if (name === "@lucide/vue" || name === "./fn-table-row.vue" || name === "../../components/render/fn-render.ts") return {};
   if (name === "./row-key") return { getFnTableRowKey };
-  if (name === "../../use/compute.ts") return { isFnComputeValue };
+  if (name === "../use/use-compute") return { isFnComputeValue };
   if (name === "../../components/provider/context.ts") return { fnTableSizeKey: "size" };
   return require(name);
 };

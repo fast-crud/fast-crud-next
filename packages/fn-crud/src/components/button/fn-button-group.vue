@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import type { Component } from "vue";
-import FnIcon from "../fn-icon.vue";
+import FnIcon from "../icon/fn-icon.vue";
 
 export interface FnButtonGroupOption {
   value: string | number;

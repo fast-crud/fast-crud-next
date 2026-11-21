@@ -1,8 +1,8 @@
-import type { FnCrudExpose, FnCrudOptions } from "../types/index";
-import type { FnDynamicType } from "../types/index";
+import type { FnCrudExpose, FnCrudOptions } from "../../types/index";
+import type { FnDynamicType } from "../../types/index";
 import type { Ref, UnwrapNestedRefs } from "vue";
-import { fnCrudContext } from "../components/provider/context";
-import { useMerge } from "./use-merge";
+import { fnCrudContext } from "../../components/provider/context";
+import { useMerge } from "../../components/use/use-merge";
 
 export type FnCrudOptionsInput<Row = any> = FnDynamicType<FnCrudOptions<Row>>;
 

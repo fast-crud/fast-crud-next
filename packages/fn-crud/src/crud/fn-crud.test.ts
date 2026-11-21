@@ -6,16 +6,17 @@ import ts from "typescript";
 import { expect, it, vi } from "vitest";
 import { computed, reactive, ref } from "vue";
 import { getFnTableRowKey } from "./table/row-key.ts";
-import { compute, isFnComputeValue, resolveComputedValue } from "../use/compute.ts";
-import * as crudUse from "./use-crud-props.tsx";
-import * as tableUse from "../use/use-table.ts";
+import { isFnComputeValue, useCompute } from "./use/use-compute";
+import * as crudUse from "./use/use-crud-props.tsx";
+import * as tableUse from "./use/use-table";
 import { fnCrudContext, uiContext } from "../components/provider/context.ts";
-import { FN_CRUD_BLANK_COLUMN_KEY, useFnCrud } from "../use/use-fn-crud.ts";
-import { useMerge } from "../use/use-merge.ts";
-import * as crudPreferences from "../use/use-preferences.ts";
+import { FN_CRUD_BLANK_COLUMN_KEY, useFnCrud } from "./use/use-fn-crud";
+import { useMerge } from "../components/use/use-merge";
+import * as crudPreferences from "./use/use-preferences";
 import type { FnCrudExpose } from "../types/index.ts";
 
 const confirmDelete = vi.fn();
+const { compute } = useCompute();
 
 const filename = fileURLToPath(new URL("./fn-crud.vue", import.meta.url));
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
@@ -42,18 +43,18 @@ const loadDependency = (name: string) => {
     return {};
   if (name === "../components/selection/fn-checkbox.vue") return { default: { name: "FnCheckbox" } };
   if (name === "../components/selection/fn-radio.vue") return { default: { name: "FnRadio" } };
-  if (name === "./use/compute") return { compute, isFnComputeValue, resolveComputedValue };
+  if (name === "../use/use-compute") return { isFnComputeValue, useCompute };
   if (name === "../components/provider/context.ts")
     return {
       fnCrudSearchKey: "search",
       fnCrudContext,
       uiContext,
     };
-  if (name === "./use-crud-props.tsx") return crudUse;
-  if (name === "../use/use-table.ts") return tableUse;
-  if (name === "../use/use-preferences.ts") return crudPreferences;
-  if (name === "../use/use-fn-crud.ts") return { FN_CRUD_BLANK_COLUMN_KEY };
-  if (name === "../use/use-merge.ts") return { useMerge };
+  if (name === "./use/use-crud-props.tsx") return crudUse;
+  if (name === "./use/use-table") return tableUse;
+  if (name === "./use/use-preferences") return crudPreferences;
+  if (name === "./use-fn-crud.ts") return { FN_CRUD_BLANK_COLUMN_KEY };
+  if (name === "../components/use/use-merge") return { useMerge };
   if (name === "./table/row-key.ts") return { getFnTableRowKey };
   if (name === "../components/overlay/dialog.ts") return { model: { confirm: confirmDelete } };
   if (name === "ant-design-vue") return { notification: { success: vi.fn(), error: vi.fn() } };

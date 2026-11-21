@@ -23,9 +23,10 @@ import FnComponentRender from "../../components/render/fn-component-render.ts";
 import FnButton from "../../components/button/fn-button.vue";
 import FnRender from "../../components/render/fn-render.ts";
 import type { FnButtonItem, FnSearchProps, FnSearchColumn, FnSearchColumnResolved, FnSearchContext } from "../../types/index.ts";
-import { resolveComputedValue } from "../../use/compute.ts";
+import { useCompute } from "../use/use-compute";
 import { fnCrudSearchKey } from "../../components/provider/context.ts";
 const props = defineProps<FnSearchProps>();
+const { resolveComputedValue } = useCompute();
 const searchState = inject(fnCrudSearchKey);
 if (!searchState) {
   throw new Error("FnSearch 必须在 FnCrud 内使用");

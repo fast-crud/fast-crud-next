@@ -26,7 +26,7 @@
 import { ChevronDown } from "@lucide/vue";
 import { computed, getCurrentInstance, nextTick, onBeforeUnmount, ref, toValue, watch, type CSSProperties } from "vue";
 import FnButtonBase from "./fn-button-base.vue";
-import type { FnButtonItem, FnDropdownButtonProps } from "../../types/index.ts";
+import type { FnButtonItem, FnDropdownButtonProps } from "./types";
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<FnDropdownButtonProps<void>>(), { type: "primary", shape: "default", loading: false, disabled: false, danger: false });
