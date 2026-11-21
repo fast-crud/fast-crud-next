@@ -1,5 +1,5 @@
-import { useAntdvTheme } from "..";
-import { uiContext, type FnFeedbackApi } from "../../provider/context";
+import { useAntdvTheme } from "../index";
+import { uiContext, type FnFeedbackApi } from "../../components/provider/context";
 
 export function useFnAntdvUi(options: { theme: Parameters<typeof useAntdvTheme>[0]; notification: FnFeedbackApi; message: FnFeedbackApi }): void {
   useAntdvTheme(options.theme);

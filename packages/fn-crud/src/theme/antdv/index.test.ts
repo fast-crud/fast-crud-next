@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { FnUiServices } from "../../provider/context";
-import { UiContext, uiContext } from "../../provider/context";
+import type { FnUiServices } from "../../components/provider/context";
+import { UiContext, uiContext } from "../../components/provider/context";
 
 const { useAntdvTheme } = vi.hoisted(() => ({ useAntdvTheme: vi.fn() }));
 vi.mock("..", () => ({ useAntdvTheme }));

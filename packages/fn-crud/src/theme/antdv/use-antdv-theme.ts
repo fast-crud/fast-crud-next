@@ -1,5 +1,5 @@
 import { computed, unref, watch, type MaybeRefOrGetter } from "vue";
-import { applyFnThemeTokens } from "..";
+import { applyFnThemeTokens } from "../index";
 import { mapAntdvThemeToFnTokens } from "./antdv";
 
 type AntdvThemeTokens = Parameters<typeof mapAntdvThemeToFnTokens>[0];

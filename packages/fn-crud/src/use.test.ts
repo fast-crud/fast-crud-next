@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
-import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useRowHandleProps, useSearchProps, useTabsProps } from "./use.tsx";
+import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useRowHandleProps, useSearchProps, useTabsProps } from "./crud/use-crud-props";
 import { compute, isFnComputeValue } from "./use/compute";
 import type { FnCrudOptions, FnRowContext } from "./types/index";
 

@@ -1,7 +1,7 @@
 import { computed, useId, type Ref } from "vue";
-import FnCheckbox from "../components/fn-checkbox.vue";
-import FnRadio from "../components/fn-radio.vue";
-import { getFnTableRowKey } from "../table/row-key";
+import FnCheckbox from "../components/selection/fn-checkbox.vue";
+import FnRadio from "../components/selection/fn-radio.vue";
+import { getFnTableRowKey } from "../crud/table/row-key";
 import type { FnCrudColumn, FnCrudOptions, FnRowContext, FnRowSelectOptions, FnTableRow, FnTableRowSelectionChange } from "../types/index";
 
 export function createRowSelectionColumn(options: {

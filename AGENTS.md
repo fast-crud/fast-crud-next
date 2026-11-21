@@ -21,6 +21,9 @@
 
 ## 实现约定
 
+- `packages/fn-crud/src` 按组件职责区分 `components` 与 `crud`：与 CRUD 业务无关、可作为页面通用基础元素复用的组件放入 `components`；服务 FnCrud 配置、列表操作或 CRUD 数据流程的组件放入 `crud`。
+- 同一类组件及其配套文件应聚合到同一功能目录，例如按钮组件、按钮基础组件、按钮组、下拉按钮及相关 composable / 测试统一放在 `components/button`；表格、搜索、CRUD 表单、操作栏和工具栏等按 CRUD 领域放在 `crud` 下对应目录。
+- 新增或迁移组件时优先按职责和复用边界分类，不按文件类型拆目录；组件实现、样式、测试、类型辅助文件和专属 composable 应尽量就近归档。调整内部目录后同步更新所有引用及包入口导出。
 - Vue 单文件组件使用 Vue 3 Composition API 和 `<script setup lang="tsx">`；公开配置、事件和组合式函数保留明确的 TypeScript 类型。
 - 配置示例优先保留静态对象结构；动态值优先使用叶子节点属性上的 `ref`、`computed` 或 `compute(...)`，不要仅为动态单个属性包装整块 `form`、`cell` 或 `component`。只有对象结构本身确实随上下文变化时才整体使用 `compute(...)`。
 - 所有返回 VNode 的 render 方法使用 TSX/JSX 语法编写，不使用 `h()` 拼接 render 树。

@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { compute, resolveComputedValue } from "./compute";
 import { useMerge } from "./use-merge";
-import { DictStore } from "../dict";
+import { DictStore } from "../crud/dict/dict";
 import { reactive, ref } from "vue";
 import { useFnCrud } from "./use-fn-crud";
 const { merge } = useMerge();

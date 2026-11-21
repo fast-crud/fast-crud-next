@@ -1,5 +1,5 @@
 import { computed, reactive, ref, type Ref } from "vue";
-import { useTableColumns, useTableProps } from "../use.tsx";
+import { useTableColumns, useTableProps } from "../crud/use-crud-props";
 import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
 import { useSelection } from "./use-selection";
 import { isFnComputeValue } from "./compute";
