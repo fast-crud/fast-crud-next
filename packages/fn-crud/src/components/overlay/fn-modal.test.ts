@@ -124,7 +124,7 @@ describe("FnModal 状态归属", () => {
 
 describe("FnModal 过渡", () => {
   it("使用 Vue 离场过渡，并在离场完成后通知 closed", () => {
-    expect(descriptor.template?.content).toContain('<Transition name="fn-modal" @after-leave="emit(\'closed\')">');
+    expect(descriptor.template?.content).toContain('<Transition name="fn-modal" appear @after-leave="emit(\'closed\')">');
     expect(descriptor.styles[0]?.content).toContain(".fn-modal-enter-from");
     expect(descriptor.styles[0]?.content).toContain("transition: background-color 180ms ease");
     expect(descriptor.styles[0]?.content).toContain("background-color: transparent");

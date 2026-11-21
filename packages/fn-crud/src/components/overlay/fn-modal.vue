@@ -1,5 +1,5 @@
 <template>
-  <Transition name="fn-modal" @after-leave="emit('closed')">
+  <Transition name="fn-modal" appear @after-leave="emit('closed')">
   <div v-if="props.open" class="fn-modal-mask" @mousedown.self="close">
     <div ref="modalElementRef" :class="['fn-modal', { 'fn-modal-maximized': fullscreenState }]" :style="{ width: fullscreenState ? '100%' : typeof width === 'number' ? `${width}px` : width }" v-bind="$attrs">
       <div ref="headerRef" class="fn-modal-titlebar">

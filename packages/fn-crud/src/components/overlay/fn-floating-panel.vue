@@ -232,14 +232,22 @@ watch(panel, (element, _, onCleanup) => {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    &-enter-active,
+    &-enter-active {
+      transition: opacity 160ms ease-out, translate 160ms ease-out;
+    }
+
     &-leave-active {
-      transition: opacity 120ms ease;
+      transition: opacity 120ms ease-in, translate 120ms ease-in;
     }
 
     &-enter-from,
     &-leave-to {
       opacity: 0;
+
+      &[data-placement="top"] { translate: 0 4px; }
+      &[data-placement="bottom"] { translate: 0 -4px; }
+      &[data-placement="left"] { translate: 4px 0; }
+      &[data-placement="right"] { translate: -4px 0; }
     }
   }
 }

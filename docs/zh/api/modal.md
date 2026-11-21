@@ -4,6 +4,8 @@
 
 ## 在页面里打开弹窗
 
+弹窗首次挂载时如果已经打开，也会播放遮罩淡入和弹窗缩放动画。
+
 ```vue
 <script setup lang="tsx">
 import { ref } from 'vue'
