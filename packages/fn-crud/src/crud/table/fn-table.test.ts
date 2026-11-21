@@ -15,7 +15,7 @@ const compiled = ts.transpileModule(script.content, { compilerOptions: { module:
 const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
 const loadDependency = (name: string) => {
-  if (name === "@lucide/vue" || name === "./fn-table-row.vue" || name === "../../components/render/fn-render.ts") return {};
+  if (name === "@lucide/vue" || name === "./fn-table-row.vue" || name === "./fn-table-header-filter.vue" || name === "../../components/render/fn-render.ts") return {};
   if (name === "./row-key") return { getFnTableRowKey };
   if (name === "../use/use-compute") return { isFnComputeValue };
   if (name === "../../components/provider/context.ts") return { fnTableSizeKey: "size" };
@@ -31,19 +31,23 @@ it("按 columns 对象生成有序渲染列", () => {
 
 it("点击同一列头依次切换正序、逆序和取消排序", () => {
   const emitted: Array<[string, unknown]> = [];
-  const props = { columns: {}, data: [], sort: { prop: "name", asc: true } };
+  const props = {
+    columns: { name: { title: "名称", cell: { sortable: true, resizable: false } } },
+    data: [], sort: { prop: "name", asc: true },
+  };
   const setup = module.exports.default.setup(
     props,
     { expose: () => {}, emit: (name: string, value: unknown) => emitted.push([name, value]) }
   );
 
-  setup.sortColumn("name");
+  const column = setup.columns.value[0];
+  setup.sortColumn(column);
   props.sort = emitted.at(-1)?.[1] as typeof props.sort;
-  setup.sortColumn("name");
+  setup.sortColumn(column);
   props.sort = emitted.at(-1)?.[1] as typeof props.sort;
-  setup.sortColumn("name");
+  setup.sortColumn(column);
   props.sort = emitted.at(-1)?.[1] as typeof props.sort;
-  setup.sortColumn("name");
+  setup.sortColumn(column);
 
   expect(emitted).toEqual([
     ["sort", { prop: "name", asc: false }],
@@ -51,6 +55,37 @@ it("点击同一列头依次切换正序、逆序和取消排序", () => {
     ["sort", { prop: "name", asc: true }],
     ["sort", { prop: "name", asc: false }],
   ]);
+});
+
+it.each([undefined, false])("sortable 为 %s 时不发出排序事件，也不高亮", (sortable) => {
+  const emit = vi.fn();
+  const setup = module.exports.default.setup({
+    columns: { name: { title: "名称", cell: { sortable } } },
+    sort: { prop: "name", asc: true },
+  }, { expose: () => {}, emit });
+  const column = setup.columns.value[0];
+  setup.sortColumn(column);
+  expect(emit).not.toHaveBeenCalled();
+  expect(setup.columnClasses(column)).not.toContain("fn-table-column-sorted");
+});
+
+it("排序列高亮随排序字段切换和清除", () => {
+  const props = reactive({
+    columns: { name: { title: "名称", cell: { sortable: true } }, age: { title: "年龄", cell: { sortable: true } } },
+    sort: { prop: "name", asc: true },
+  });
+  const setup = module.exports.default.setup(props, { expose: () => {}, emit: () => {} });
+  const [name, age] = setup.columns.value;
+
+  expect(setup.columnClasses(name)).toContain("fn-table-column-sorted");
+  expect(setup.columnClasses(age)).not.toContain("fn-table-column-sorted");
+
+  props.sort = { prop: "age", asc: false };
+  expect(setup.columnClasses(name)).not.toContain("fn-table-column-sorted");
+  expect(setup.columnClasses(age)).toContain("fn-table-column-sorted");
+
+  props.sort = { prop: "", asc: true };
+  expect(setup.columnClasses(age)).not.toContain("fn-table-column-sorted");
 });
 
 it("未指定 order 的列保持在明确排序列之后", () => {
@@ -222,5 +257,4 @@ it("不可调整宽度列使用自动宽度且不渲染拖动手柄", () => {
   expect(setup.columnStyle(column, column.key).width).toBe("auto");
   expect(setup.columnClasses(column)).toContain("fn-table-column-unresizable");
   expect(readFileSync(filename, "utf8")).toContain('v-if="column.resizable !== false"');
-  expect(readFileSync(filename, "utf8")).toContain('column.resizable === false ? undefined : sortColumn(column.key)');
 });

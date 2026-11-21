@@ -4,6 +4,8 @@
 
 表格行悬停时，普通列和固定列统一使用主题的浅填充色。
 
+在 `columns.<字段>.cell` 中设置 `sortable: true` 后，点击该列的表头可在升序、降序和取消排序之间切换。未排序时箭头为灰色，排序后箭头使用主题主色，表头和整列单元格同时高亮。可在[分页、搜索与排序示例](../recipes/paging.md)中查看。
+
 | 路径 | 类型或默认值 | 用途 |
 | --- | --- | --- |
 | `table.rowKey` | 字段名或 `(row) => string \| number` | 省略时取行的 `id`，找不到有效键时回退到行序号。跨页选择和请求删除应使用稳定的行键。 |
@@ -19,6 +21,30 @@
 | `pagination.simple` | 布尔值，默认 `false` | 使用简洁分页。 |
 
 用户切页或修改页大小时，分别调用 `pagination['onUpdate:current']` 和 `pagination['onUpdate:pageSize']`。用户修改密度时调用 `table['onUpdate:density']`。`useFnCrud` 将变更写回 state，并调用当前列表配置的回调。当前列表没有定义回调时，调用全局回调。
+
+## 表头筛选
+
+通过 `columns.<字段>.cell.filter.options` 为列启用多选筛选。选项使用 `{ label, value }`，也支持 `disabled` 和 `show`。
+
+```ts
+columns: {
+  status: {
+    title: "状态",
+    cell: {
+      filter: {
+        options: [
+          { label: "运行中", value: "运行中" },
+          { label: "已暂停", value: "已暂停" },
+        ],
+      },
+    },
+  },
+}
+```
+
+确认后，`FnTable` 发出 `filter-change`，参数为 `{ key, values }`。独立使用 `FnTable` 时，通过 `filterValues` 传入已应用的条件。使用 `FnCrud` 时，条件按列键写入 `searchForm`，回到第一页并查询，`table.onFilterChange` 可监听变更。点击面板中的「重置」会清除该列条件并立即查询。
+
+重新打开筛选面板时，复选框显示当前已应用的条件。关闭面板会丢弃未确认的改动。在 Admin 的 `/crud/basis/request-mock` 可试用「状态」列筛选，并悬停或聚焦「服务名称」列的文本，通过 `FnTooltip` 查看被省略的长名称。
 
 ## 行选择
 

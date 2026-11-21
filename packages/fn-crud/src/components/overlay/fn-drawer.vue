@@ -158,4 +158,14 @@ onBeforeUnmount(() => {
     width: 100vw !important;
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  .fn-drawer-enter-active,
+  .fn-drawer-leave-active {
+    transition: none;
+
+    .fn-drawer {
+      transition: none;
+    }
+  }
+}
 </style>

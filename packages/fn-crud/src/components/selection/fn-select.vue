@@ -49,6 +49,7 @@
     </div>
   </div>
   <Teleport to="body">
+    <Transition name="fn-select-panel">
     <div v-if="open" ref="panel" class="fn-select-panel" :style="panelStyle">
       <div :id="listId" role="listbox" :aria-label="String($attrs['aria-label'] || placeholder)" :aria-multiselectable="multiple || undefined">
         <div
@@ -70,6 +71,7 @@
       </div>
       <div v-if="filteredOptions.length === 0" class="fn-select-empty" role="status">无匹配选项</div>
     </div>
+    </Transition>
   </Teleport>
 </template>
 
@@ -281,6 +283,7 @@ function updatePanelPosition(): void {
   const upward = below < Math.min(panel.value.scrollHeight, 240) && above > below;
   const width = Math.min(Math.max(rect.width, 160), window.innerWidth - margin * 2);
   panelStyle.value = {
+    "--fn-select-panel-offset": upward ? "4px" : "-4px",
     left: Math.min(Math.max(rect.left, margin), window.innerWidth - width - margin) + "px",
     width: width + "px",
     top: upward ? undefined : rect.bottom + gap + "px",
@@ -541,5 +544,25 @@ watch(() => props.disabled, disabled => { if (disabled) close(); });
 @media (prefers-reduced-motion: reduce) {
   .fn-select,
   .fn-select .fn-select-toggle svg { transition: none; }
+}
+.fn-select-panel {
+  &-enter-active,
+  &-leave-active {
+    transition: opacity 120ms ease, translate 120ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &-leave-active {
+    pointer-events: none;
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    translate: 0 var(--fn-select-panel-offset, -4px);
+  }
 }
 </style>

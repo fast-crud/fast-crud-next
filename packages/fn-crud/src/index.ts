@@ -15,6 +15,7 @@ export { default as FnButton } from "./components/button/fn-button.vue";
 export { default as FnButtonBase } from "./components/button/fn-button-base.vue";
 export { default as FnButtonGroup } from "./components/button/fn-button-group.vue";
 export { default as FnCheckbox } from "./components/selection/fn-checkbox.vue";
+export { default as FnSwitch } from "./components/selection/fn-switch.vue";
 export { default as FnRadio } from "./components/selection/fn-radio.vue";
 export { default as FnSelect } from "./components/selection/fn-select.vue";
 export { default as FnRadioGroup } from "./components/selection/fn-radio-group.vue";
@@ -22,6 +23,9 @@ export { default as FnCheckboxGroup } from "./components/selection/fn-checkbox-g
 export type { FnOptionValue, FnSelectOption } from "./components/selection/types";
 export type { FnButtonGroupOption } from "./components/button/fn-button-group.vue";
 export { default as FnDrawer } from "./components/overlay/fn-drawer.vue";
+export { default as FnTooltip } from "./components/overlay/fn-tooltip.vue";
+export { default as FnPopover } from "./components/overlay/fn-popover.vue";
+export type { FnFloatingPlacement } from "./components/overlay/floating-position";
 export { default as FnColumnSettings } from "./crud/toolbar/fn-column-settings.vue";
 export { default as FnDropdownButton } from "./components/button/fn-dropdown-button.vue";
 export { default as FnInput } from "./components/input/fn-input.vue";

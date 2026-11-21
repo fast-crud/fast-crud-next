@@ -1,5 +1,5 @@
 <template>
-  <span class="fn-checkbox-control" :class="{ 'is-disabled': disabled }">
+  <component :is="label ? 'label' : 'span'" class="fn-checkbox-control" :class="{ 'is-disabled': disabled, 'has-label': label }">
     <input
       ref="input"
       class="fn-checkbox"
@@ -11,15 +11,16 @@
     />
     <Minus v-if="indeterminate" class="fn-checkbox-icon" :size="11" :stroke-width="3" aria-hidden="true" />
     <Check v-else-if="modelValue" class="fn-checkbox-icon" :size="11" :stroke-width="3" aria-hidden="true" />
-  </span>
+    <span v-if="label" class="fn-checkbox-label">{{ label }}</span>
+  </component>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { Check, Minus } from "@lucide/vue";
 import { useTemplateRef, watchPostEffect } from "vue";
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<{ modelValue?: boolean; disabled?: boolean; indeterminate?: boolean }>(), { modelValue: false, disabled: false, indeterminate: false });
+const props = withDefaults(defineProps<{ modelValue?: boolean; disabled?: boolean; indeterminate?: boolean; label?: string }>(), { modelValue: false, disabled: false, indeterminate: false });
 const emit = defineEmits<{ "update:modelValue": [value: boolean]; change: [value: boolean, event: Event] }>();
 const input = useTemplateRef<HTMLInputElement>("input");
 
@@ -64,22 +65,38 @@ function change(event: Event): void {
 }
 
 .fn-checkbox-control {
-  position: relative;
-  display: inline-flex;
+  display: inline-grid;
   width: 16px;
   height: 16px;
   flex: none;
-  align-items: center;
-  justify-content: center;
+  place-items: center;
   vertical-align: middle;
+
+  &.has-label {
+    width: auto;
+    height: auto;
+    grid-template-columns: auto auto;
+    column-gap: 6px;
+    cursor: pointer;
+
+    &.is-disabled {
+      color: var(--fn-color-text-tertiary, #98a2b1);
+      cursor: not-allowed;
+    }
+
+    .fn-checkbox-label {
+      grid-area: 1 / 2;
+    }
+  }
+
+  .fn-checkbox,
   .fn-checkbox-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 1;
+    grid-area: 1 / 1;
+  }
+
+  .fn-checkbox-icon {
     color: #fff;
     pointer-events: none;
-    transform: translate(-50%, -50%);
   }
   &.is-disabled .fn-checkbox-icon {
     color: var(--fn-color-text-tertiary, #98a2b1);

@@ -32,13 +32,11 @@ async function publishSelected(): Promise<void> { await api.publish(selectedKeys
 
 <template>
   <div class="crud-page showcase-page">
-    <section class="showcase-panel">
       <FnCrud ref="crud" v-bind="state">
         <template #actionRight="{ selectedRowKeys }">
           <span>已选 {{ selectedRowKeys.length }} 条</span>
           <FnButtonBase type="default" text="批量发布" :disabled="!selectedRowKeys.length" @click="publishSelected" />
         </template>
       </FnCrud>
-    </section>
   </div>
 </template>

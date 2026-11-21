@@ -111,7 +111,9 @@ export function useTableProps(
   size: Ref<number>,
   density: Ref<"compact" | "comfort">,
   onSort: (sort: { prop: string; asc: boolean }) => void,
-  onColumnResize: (size: { key: string; width: number }) => void
+  onColumnResize: (size: { key: string; width: number }) => void,
+  filterValues: NonNullable<FnTableProps["filterValues"]>,
+  onFilterChange: NonNullable<NonNullable<FnCrudOptions["table"]>["onFilterChange"]>,
 ): Ref<FnTableProps> {
   return computed(() => {
     const { "onUpdate:density": _onUpdateDensity, "onUpdate:size": _onUpdateSize, ...table } = props.table || {};
@@ -125,6 +127,8 @@ export function useTableProps(
       density: density.value,
       onSort,
       onColumnResize,
+      filterValues,
+      onFilterChange,
     };
   });
 }

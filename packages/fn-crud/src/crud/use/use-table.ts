@@ -4,7 +4,7 @@ import { FN_CRUD_BLANK_COLUMN_KEY } from "./use-fn-crud";
 import { useSelection } from "./use-selection";
 import { isFnComputeValue } from "./use-compute";
 import type { FnCrudPreferencesController } from "./use-preferences";
-import type { FnColumnSettingsColumn, FnCrudOptions, FnTableRow } from "../../types/index";
+import type { FnColumnSettingsColumn, FnCrudOptions, FnTableFilterChange, FnTableRow } from "../../types/index";
 
 export function useTable(props: FnCrudOptions, resolvedColumns: Ref<FnCrudOptions["columns"]>, rowHandleProps: Ref<Record<string, any>>, searchForm: Record<string, any>, getPreferences: () => FnCrudPreferencesController) {
   const data = ref<FnTableRow[]>([]);
@@ -25,7 +25,7 @@ export function useTable(props: FnCrudOptions, resolvedColumns: Ref<FnCrudOption
   });
   const columnSettingsColumns = computed<FnColumnSettingsColumn[]>(() => getColumnSettings(tableColumns.value));
   const defaultColumnSettings = computed<FnColumnSettingsColumn[]>(() => getColumnSettings(baseTableColumns.value, true));
-  const tableProps = useTableProps(props, tableColumns, data, loading, sort, size, density, changeSort, saveColumnWidth);
+  const tableProps = useTableProps(props, tableColumns, data, loading, sort, size, density, changeSort, saveColumnWidth, searchForm, changeFilter);
   const columnSettingsProps = computed(() => ({
     modelValue: columnSettingsOpen.value,
     columns: columnSettingsColumns.value,
@@ -89,6 +89,16 @@ export function useTable(props: FnCrudOptions, resolvedColumns: Ref<FnCrudOption
   function changeSort(value: { prop: string; asc: boolean }): void {
     sort.value = value;
     applySearch();
+  }
+
+  function changeFilter(change: FnTableFilterChange): void {
+    if (change.values.length) {
+      searchForm[change.key] = [...change.values];
+    } else {
+      delete searchForm[change.key];
+    }
+    applySearch();
+    props.table?.onFilterChange?.(change);
   }
 
   async function turnPage({ current, pageSize: nextPageSize }: { current: number; pageSize: number }): Promise<void> {

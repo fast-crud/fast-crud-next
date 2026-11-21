@@ -114,11 +114,13 @@ export type FnCrudColumnTypeOptions = Pick<FnCrudColumn, "cell" | "search" | "fo
 export type FnCrudColumnType = FnCrudColumnTypeOptions | ((column: Readonly<FnCrudColumn>) => FnCrudColumnTypeOptions);
 
 export interface FnTableColumn<Row = any> {
+  filter?: { options: FnSelectOption[] };
   buttons?: Record<string, FnButtonProps<FnRowContext<Row>>>;
   show?: boolean;
   title?: string;
   width?: number | string;
   resizable?: boolean;
+  sortable?: boolean;
   class?: string;
   align?: "left" | "center" | "right";
   ellipsis?: boolean;
@@ -212,7 +214,13 @@ export interface FnRowSelectOptions {
   crossPage?: boolean;
 }
 
+export interface FnTableFilterChange {
+  key: string;
+  values: FnOptionValue[];
+}
+
 export interface FnTableProps {
+  filterValues?: Readonly<Record<string, unknown>>;
   columns?: Record<string, FnCrudColumn<FnTableRow>>;
   data: FnTableRow[];
   size?: number;
@@ -226,7 +234,8 @@ export interface FnTableProps {
   slots?: FnSlots;
 }
 
-export interface FnCrudTableOptions extends Omit<FnTableProps, "columns" | "data" | "sort"> {
+export interface FnCrudTableOptions extends Omit<FnTableProps, "columns" | "data" | "sort" | "filterValues"> {
+  onFilterChange?: (change: FnTableFilterChange) => void;
   "onUpdate:density"?: (density: "compact" | "comfort") => void;
   "onUpdate:size"?: (size: number) => void;
 }

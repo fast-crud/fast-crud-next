@@ -7,7 +7,8 @@
 | 组件 | 值与事件 | 常用属性 |
 | --- | --- | --- |
 | `FnInput` | `v-model` 绑定字符串或数字，`blur` 收到焦点事件。 | `type` 默认 `text`。设置 `type="number"` 后更新值为数字，清空时为 `undefined`。`multiline` 渲染文本域。 |
-| `FnCheckbox` | `v-model` 绑定布尔值，`change` 接收 `(checked, event)`。 | `indeterminate` 设置半选，`disabled` 禁用。 |
+| `FnCheckbox` | `v-model` 绑定布尔值，`change` 接收 `(checked, event)`。 | `label` 显示可点击的标签文字，`indeterminate` 设置半选，`disabled` 禁用。 |
+| `FnSwitch` | `v-model` 绑定布尔值，默认 `false`。`change` 接收 `(checked, event)`。 | `disabled` 禁用。使用 `aria-label` 或 `aria-labelledby` 提供名称。 |
 | `FnRadio` | `v-model` 绑定当前选项，`change` 接收 `(value, event)`。 | 必填 `value` 为字符串、数字或布尔值。同组使用同一个 `name`。 |
 | `FnRadioGroup` | `v-model` 绑定单个值。 | `options` 接受含 `value`、`label` 的数组。可对整组或单个选项设置 `disabled`。 |
 | `FnCheckboxGroup` | `v-model` 更新选中值数组。 | `options` 与单选组相同。 |
@@ -18,12 +19,57 @@
 | `FnButton`、`FnDropdownButton` | `FnButton` 接收 `click` 回调，下拉按钮可监听 `select` 取得菜单键。 | 常用 `text`、`type`、`disabled`、`loading`、`items`。见[按钮配置](./actions.md)。 |
 | `FnModal`、`FnDrawer` | 独立控制浮层。CRUD 提交表单见[表单与弹窗](./forms.md)。 | 受控弹窗和纯确认操作见[独立弹窗与确认框](./modal.md)。 |
 
+## Tooltip 和 Popover
+
+从包入口导入 `FnTooltip` 和 `FnPopover`。两者都支持 `content` 文本、`placement`（`top`、`bottom`、`left`、`right`）、`disabled` 和 `v-model:open`。靠近视口边缘时会自动调整位置。默认插槽提供 `attrs`，绑定到实际触发元素即可关联浮层和触发器。
+
+- `FnTooltip` 默认在上方显示。悬停或键盘焦点进入时显示说明，`#content` 可提供自定义说明内容。
+- `FnPopover` 默认在下方显示，`label` 为弹出面板提供可访问名称。点击触发器打开，按 Escape 或点击外部关闭。`#content` 提供 `close()`，用于在完成操作后关闭并将焦点移回触发器。
+
+```vue
+<FnTooltip content="动态总价 = 数量 × 单价">
+  <template #default="{ attrs }">
+    <button type="button" v-bind="attrs">计价公式</button>
+  </template>
+</FnTooltip>
+
+<FnPopover label="计价设置">
+  <template #default="{ attrs }">
+    <button type="button" v-bind="attrs">计价设置</button>
+  </template>
+  <template #content="{ close }">
+    <button type="button" @click="close()">完成</button>
+  </template>
+</FnPopover>
+```
+
+启动任一 [Admin](../demos/admin.md)，打开 `/crud/basis/compute`。操作栏的「计价公式」展示提示内容，「计价设置」可修改新增订单的默认计价层级。
+
+## 开关
+
+`FnSwitch` 支持鼠标点击和键盘的空格键、回车键。开关位置和轨道颜色随绑定值更新，过渡遵循系统的减弱动效设置。
+
+```vue
+<script setup lang="ts">
+import { FnSwitch } from "@fast-crud/fast-crud-next";
+import { ref } from "vue";
+
+const enabled = ref(false);
+</script>
+
+<template>
+  <FnSwitch v-model="enabled" aria-label="启用通知" />
+</template>
+```
+
+在 CRUD 字段的 `form.component` 或 `cell.component` 中使用 `{ name: markRaw(FnSwitch), "aria-label": "自定义单价" }`。布尔字段可通过 `form.value: false` 设置初始值。启动任一 [Admin](../demos/admin.md)，打开 `/crud/basis/compute`，可在列表和新增、编辑表单中切换「自定义单价」。
+
 ## 复选框、单选框与按钮组
 
 下面的片段假设已从包入口导入 `FnCheckbox`、`FnRadio` 和 `FnButtonGroup`，并在页面中声明相应的响应式值。
 
 ```vue
-<FnCheckbox v-model="allVisible" :indeterminate="someVisible && !allVisible" aria-label="显示全部列" />
+<FnCheckbox v-model="allVisible" :indeterminate="someVisible && !allVisible" label="显示全部列" />
 
 <FnRadio v-model="alignment" name="alignment" value="left" aria-label="左对齐" />
 <FnRadio v-model="alignment" name="alignment" value="right" aria-label="右对齐" />

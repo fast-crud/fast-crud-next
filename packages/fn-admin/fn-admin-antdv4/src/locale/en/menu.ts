@@ -8,6 +8,7 @@ export default {
   compute: "Dynamic calculations",
   dictionary: "Dictionary and filters",
   selection: "Cross-page batch actions",
+  largeTable: "1000 rows × 100 columns",
   conditionalForm: "Conditional forms",
   formSlots: "Form slots",
   componentComparison: "Component comparison",

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, markRaw, reactive, ref } from "vue";
-import { FnCheckbox, FnCrud, FnInput, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
+import { FnButtonBase, FnCrud, FnInput, FnPopover, FnSwitch, FnTooltip, compute, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type Order } from "./api";
 
 const tier = ref("标准");
 const disabledRef = ref(false);
 const inputComponent = markRaw(FnInput);
-const priceCheckbox = markRaw(FnCheckbox);
+const priceSwitch = markRaw(FnSwitch);
 const numberInput = { name: inputComponent, vModel: "modelValue", type: "number" };
 
 const crudState = reactive<FnCrudState<Order>>({
@@ -34,11 +34,11 @@ const crudState = reactive<FnCrudState<Order>>({
     customPrice: {
       key: "customPrice",
       title: "自定义单价",
-      form: { value: false, component: { name: priceCheckbox, id: "customPrice", "aria-label": "自定义单价" } },
+      form: { value: false, component: { name: priceSwitch, id: "customPrice", "aria-label": "自定义单价" } },
       cell: {
         order: 3,
         width: 110,
-        component: { name: priceCheckbox, "aria-label": "自定义单价" },
+        component: { name: priceSwitch, "aria-label": "自定义单价" },
       },
     },
     unitPrice: {
@@ -92,11 +92,45 @@ useFnCrud({ state: crudState });
 
 <template>
   <div class="crud-page compute-page">
-    <FnCrud v-bind="crudState" />
+    <FnCrud v-bind="crudState">
+      <template #actionRight>
+        <FnTooltip placement="bottom">
+          <template #default="{ attrs }">
+            <FnButtonBase v-bind="attrs" text="计价公式" />
+          </template>
+          <template #content>动态总价 = 数量 × 单价</template>
+        </FnTooltip>
+        <FnPopover label="计价设置">
+          <template #default="{ attrs }">
+            <FnButtonBase v-bind="attrs" text="计价设置" />
+          </template>
+          <template #content="{ close }">
+            <label class="compute-page-price-setting">
+              计价层级
+              <select v-model="tier">
+                <option>标准</option>
+                <option>高级</option>
+              </select>
+            </label>
+            <FnButtonBase text="完成" @click="close" />
+          </template>
+        </FnPopover>
+      </template>
+    </FnCrud>
   </div>
 </template>
 
 <style lang="less">
-.compute-page {
+.compute-page-price-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-end: 8px;
+
+  select {
+    color: var(--fn-color-text);
+    background: var(--fn-color-bg-container);
+    border: 1px solid var(--fn-color-border);
+  }
 }
 </style>

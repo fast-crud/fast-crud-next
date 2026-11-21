@@ -33,7 +33,8 @@
 | `cell.show` | 默认显示 | 隐藏单元格内容。静态配置下，外层 `show` 未设置时也参与表头显隐。 |
 | `cell.width`、`cell.order` | `number \| string`、`number` | 宽度与列顺序，较小的 `order` 在前。数字宽度以 px 计。 |
 | `cell.fixed`、`cell.align` | `left \| right`、`left \| center \| right` | 固定列与内容对齐。 |
-| `cell.resizable` | 默认允许 | 设为 `false` 时关闭拖宽，并禁用这一列的表头排序。 |
+| `cell.resizable` | 默认允许 | 设为 `false` 时关闭拖宽。 |
+| `cell.sortable` | `boolean`，默认关闭 | 设为 `true` 时开启该列的表头排序。 |
 | `cell.ellipsis` | 布尔值 | 显示单行省略内容。 |
 | `cell.setting` | `{ show?: boolean, disabled?: boolean }` | 隐藏该列的设置项，或禁止在面板中修改该列。 |
 | `cell.render` | `(ctx: FnRowContext<Row>) => VNodeChild` | 自定义内容，优先于组件渲染。 |

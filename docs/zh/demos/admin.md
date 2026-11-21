@@ -25,6 +25,7 @@
 | `/crud/form/slots` | 输入流程名称，查看标题区域更新，再用自定义页脚提交。[插槽上下文](../api/forms.md#自定义弹窗插槽) |
 | `/crud/dict/credentials` | 用字典筛选环境和状态，切换状态字段的[类型](../guide/column-types.md)。 |
 | `/crud/feature/selection` | 在两页各选择一条记录，验证[跨页选择](../recipes/selection.md)和批量操作。 |
+| `/crud/feature/large-table` | 查看 1000 行 × 100 列的模拟数据（含固定行号列）。默认每页 20 条，可切换到每页 1000 条，并横向滚动查看最后一列。 |
 | `/components/table-buttons` | 对照各宿主 UI 框架的原生表格和按钮表现。 |
 
 ### 动态计算示例怎么验证

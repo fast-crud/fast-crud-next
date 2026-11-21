@@ -20,4 +20,4 @@ const request: FnCrudState<User>['request'] = {
 
 这里的 `api.listUsers` 是应用自己的请求函数。先按搜索条件过滤，再排序并分页。返回过滤后的总数，分页器据此计算页数。取消排序时，`sort` 为 `undefined`。
 
-**运行示例。** 启动任一 [Admin](../demos/admin.md)，打开 `/crud/basis/request-mock`，搜索服务名称，点击列标题切换排序，再清除条件切换页码。请求适配器与列表位于共享 Admin 的 `views/crud/basis/request-mock`。请求类型见[请求 API](../api/requests.md)。
+**运行示例。** 启动任一 [Admin](../demos/admin.md)，打开 `/crud/basis/request-mock`。搜索服务名称，点击启用了 `cell.sortable: true` 的「最近更新」列切换排序，或用「状态」列的[表头筛选](../api/table.md#表头筛选)选中多个状态。确认后 `query.status` 为选中值数组，服务端按任一匹配状态返回结果。面板内的「重置」会清除该列条件。请求类型见[请求 API](../api/requests.md)。

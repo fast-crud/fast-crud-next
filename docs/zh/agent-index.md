@@ -17,7 +17,7 @@
 | `FnModal`、`FnModal.confirm`、`v-model:open`、`closed` | [独立弹窗与确认框](./api/modal.md) |
 | `DictStore`、`rowSelect.selectedRowKeys`、`crossPage` | [字典与选择](./recipes/selection.md) |
 | `FnTable`、`preferenceStorage`、列宽、密度 | [表格与偏好](./api/table.md) |
-| `FnButton`、`FnInput`、`FnCheckbox`、`FnRadio` | [基础组件](./api/components.md) |
+| `FnButton`、`FnInput`、`FnCheckbox`、`FnRadio`、`FnSwitch` | [基础组件](./api/components.md) |
 | `actionbar.buttons`、`toolbar`、`rowHandle.buttons` | [按钮与操作区](./api/actions.md) |
 | `useAntdvTheme`、`useElementTheme`、`useNaiveTheme`、`--fn-*` | [主题集成](./themes/overview.md) |
 | 本地路由、Axios Mock、可运行验证 | [Admin 示例](./demos/admin.md) |

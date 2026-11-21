@@ -2,7 +2,7 @@
 import { computed, h, ref } from "vue";
 import { RouterView, useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { Avatar, Breadcrumb, Button, Layout, Menu, Space, Tag } from "ant-design-vue";
+import { Avatar, Breadcrumb, Button, Dropdown, Layout, Menu, Space, Tag } from "ant-design-vue";
 import type { VNode } from "vue";
 import { Bell, Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "@lucide/vue";
 import { adminPreferences, toggleAdminLanguage, toggleAdminTheme } from "@fast-crud/fn-admin-shared/preferences";
@@ -43,7 +43,15 @@ function onMenuClick({ key }: { key: string | number }): void { const path = Str
     <Layout style="height:100vh">
       <Layout.Header class="admin-header">
         <div class="header-left"><Button type="text" class="collapse-button" :icon="h(collapsed ? PanelLeftOpen : PanelLeftClose, { size: 17 })" :aria-label="collapsed ? t('layout.expandMenu') : t('layout.collapseMenu')" @click="collapsed = !collapsed" /><Breadcrumb><Breadcrumb.Item>{{ t('layout.console') }}</Breadcrumb.Item><Breadcrumb.Item>{{ currentTitle }}</Breadcrumb.Item></Breadcrumb></div>
-        <Space size="middle"><Button type="text" :icon="h(Bell, { size: 16 })" :aria-label="t('layout.notifications')" /><Button type="text" :icon="h(Languages, { size: 16 })" :aria-label="t('layout.switchLanguage')" @click="toggleAdminLanguage">{{ t('layout.nextLanguage') }}</Button><Button type="text" :icon="h(adminPreferences.dark ? Sun : Moon, { size: 16 })" :aria-label="t('layout.toggleTheme')" @click="toggleAdminTheme" /><Tag color="blue">ANTDV 4</Tag><Avatar size="small" style="background-color: #155eef">F</Avatar><span class="user-name">{{ t('layout.administrator') }}</span></Space>
+                <Space size="middle"><Button type="text" :icon="h(Bell, { size: 16 })" :aria-label="t('layout.notifications')" /><Dropdown :trigger="['click']">
+          <Button type="text" :icon="h(Languages, { size: 16 })" :aria-label="t('layout.switchLanguage')" aria-haspopup="menu">{{ adminPreferences.language === 'zh' ? '中文' : 'EN' }}</Button>
+          <template #overlay>
+            <Menu :selected-keys="[adminPreferences.language]" selectable @click="({ key }) => key !== adminPreferences.language && toggleAdminLanguage()">
+              <Menu.Item key="zh">中文</Menu.Item>
+              <Menu.Item key="en">English</Menu.Item>
+            </Menu>
+          </template>
+        </Dropdown><Button type="text" :icon="h(adminPreferences.dark ? Sun : Moon, { size: 16 })" :aria-label="t('layout.toggleTheme')" @click="toggleAdminTheme" /><Tag color="blue">ANTDV 4</Tag><Avatar size="small" style="background-color: #155eef">F</Avatar><span class="user-name">{{ t('layout.administrator') }}</span></Space>
       </Layout.Header>
       <Layout.Content class="admin-content" :class="{ 'admin-content--full': route.path.startsWith('/crud/') }"><RouterView /></Layout.Content>
       <Layout.Footer class="admin-footer">{{ t('layout.footer') }}</Layout.Footer>

@@ -6,6 +6,7 @@ export default {
   compute: "动态计算",
   dictionary: "字典与筛选",
   selection: "跨页批量操作",
+  largeTable: "1000 行 × 100 列",
   conditionalForm: "条件表单",
   formSlots: "表单插槽",
   componentComparison: "组件对比",

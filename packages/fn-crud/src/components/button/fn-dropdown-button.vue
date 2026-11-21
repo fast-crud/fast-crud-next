@@ -10,14 +10,14 @@
       <ChevronDown :size="14" />
     </FnButtonBase>
     <Teleport to="body">
-      <template v-if="menuOpen">
-        <div class="fn-button-menu-mask" aria-hidden="true" @click="closeMenu"></div>
-        <div ref="menuRef" class="fn-button-menu" :style="menuStyle" role="menu">
+      <div v-if="menuOpen" class="fn-button-menu-mask" aria-hidden="true" @click="closeMenu"></div>
+      <Transition name="fn-button-menu">
+        <div v-if="menuOpen" ref="menuRef" class="fn-button-menu" :style="menuStyle" role="menu">
           <button v-for="item in visibleItems" :key="item.key" class="fn-button-menu-item" :class="{ danger: item.danger }" type="button" role="menuitem" :disabled="item.disabled" @click="handleMenuClick(item)">
             {{ item.label }}
           </button>
         </div>
-      </template>
+      </Transition>
     </Teleport>
   </span>
 </template>
@@ -164,6 +164,26 @@ body.dark .fn-button-menu-item {
   }
   &.danger {
     color: #ff7b87;
+  }
+}
+.fn-button-menu {
+  &-enter-active,
+  &-leave-active {
+    transition: opacity 120ms ease, translate 120ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &-leave-active {
+    pointer-events: none;
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    translate: 0 -4px;
   }
 }
 </style>

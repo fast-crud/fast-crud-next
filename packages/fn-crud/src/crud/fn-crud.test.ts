@@ -237,6 +237,25 @@ it("table.turnPage 使用当前搜索和排序条件并请求指定分页", asyn
   expect(Object.keys(exposed)).toEqual(["search", "form", "table"]);
 });
 
+it("表头筛选写回搜索表单并从第一页查询，重置仅清除对应字段", () => {
+  const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
+  const onFilterChange = vi.fn();
+  const setup = module.exports.default.setup({
+    columns: {}, request: { pageRequest }, pagination: { current: 3 }, table: { onFilterChange },
+  }, { emit: () => {}, expose: () => {} });
+  setup.searchForm.name = "证书";
+  const change = { key: "status", values: ["运行中", "已暂停"] };
+  setup.tableProps.value.onFilterChange(change);
+
+  expect(setup.tableProps.value.filterValues).toBe(setup.searchForm);
+  expect(pageRequest).toHaveBeenLastCalledWith({ page: { offset: 0, limit: 10 }, query: { name: "证书", status: change.values }, sort: undefined });
+  expect(onFilterChange).toHaveBeenCalledWith(change);
+
+  setup.tableProps.value.onFilterChange({ key: "status", values: [] });
+  expect(setup.searchForm).toEqual({ name: "证书" });
+  expect(pageRequest).toHaveBeenLastCalledWith({ page: { offset: 0, limit: 10 }, query: { name: "证书" }, sort: undefined });
+});
+
 it("取消排序后 pageRequest 不再接收排序参数", async () => {
   const pageRequest = vi.fn(async () => ({ records: [], total: 0 }));
   const setup = module.exports.default.setup({ columns: {}, request: { pageRequest } }, { emit: () => {}, expose: () => {} });

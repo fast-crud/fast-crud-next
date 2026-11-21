@@ -7,6 +7,7 @@ import ComputeCrudView from "@fast-crud/fn-admin-shared/views/crud/basis/compute
 import RequestMockCrud from "@fast-crud/fn-admin-shared/views/crud/basis/request-mock/index.vue";
 import DictionaryCrud from "@fast-crud/fn-admin-shared/views/crud/dict/credentials/index.vue";
 import SelectionCrud from "@fast-crud/fn-admin-shared/views/crud/feature/selection/index.vue";
+import LargeTableCrud from "@fast-crud/fn-admin-shared/views/crud/feature/large-table/index.vue";
 import ConditionalFormCrud from "@fast-crud/fn-admin-shared/views/crud/form/conditional/index.vue";
 import FormSlotsCrud from "@fast-crud/fn-admin-shared/views/crud/form/slots/index.vue";
 import ComponentComparisonView from "../views/ComponentComparisonView.vue";
@@ -35,6 +36,7 @@ export const adminPageConfig: AdminPageConfig[] = [
       { key: "/crud/basis/compute", path: "/crud/basis/compute", titleKey: "compute", component: ComputeCrudView },
       { key: "/crud/dict/credentials", path: "/crud/dict/credentials", titleKey: "dictionary", component: DictionaryCrud },
       { key: "/crud/feature/selection", path: "/crud/feature/selection", titleKey: "selection", component: SelectionCrud },
+      { key: "/crud/feature/large-table", path: "/crud/feature/large-table", titleKey: "largeTable", component: LargeTableCrud },
       { key: "/crud/form/conditional", path: "/crud/form/conditional", titleKey: "conditionalForm", component: ConditionalFormCrud },
       { key: "/crud/form/slots", path: "/crud/form/slots", titleKey: "formSlots", component: FormSlotsCrud },
     ],

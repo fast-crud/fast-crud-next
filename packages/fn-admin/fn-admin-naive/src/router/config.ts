@@ -8,6 +8,7 @@ import ComputeCrud from "@fast-crud/fn-admin-shared/views/crud/basis/compute/ind
 import RequestMockCrud from "@fast-crud/fn-admin-shared/views/crud/basis/request-mock/index.vue";
 import DictionaryCrud from "@fast-crud/fn-admin-shared/views/crud/dict/credentials/index.vue";
 import SelectionCrud from "@fast-crud/fn-admin-shared/views/crud/feature/selection/index.vue";
+import LargeTableCrud from "@fast-crud/fn-admin-shared/views/crud/feature/large-table/index.vue";
 import ConditionalFormCrud from "@fast-crud/fn-admin-shared/views/crud/form/conditional/index.vue";
 import FormSlotsCrud from "@fast-crud/fn-admin-shared/views/crud/form/slots/index.vue";
 
@@ -34,6 +35,7 @@ export const adminPageConfig: AdminPageConfig[] = [
       { key: "/crud/basis/compute", path: "/crud/basis/compute", title: ["动态计算", "Dynamic calculations"], component: ComputeCrud },
       { key: "/crud/dict/credentials", path: "/crud/dict/credentials", title: ["字典与筛选", "Dictionary and filters"], component: DictionaryCrud },
       { key: "/crud/feature/selection", path: "/crud/feature/selection", title: ["跨页批量操作", "Cross-page batch actions"], component: SelectionCrud },
+      { key: "/crud/feature/large-table", path: "/crud/feature/large-table", title: ["1000 行 × 100 列", "1000 rows × 100 columns"], component: LargeTableCrud },
       { key: "/crud/form/conditional", path: "/crud/form/conditional", title: ["条件表单", "Conditional forms"], component: ConditionalFormCrud },
       { key: "/crud/form/slots", path: "/crud/form/slots", title: ["表单插槽", "Form slots"], component: FormSlotsCrud },
     ],

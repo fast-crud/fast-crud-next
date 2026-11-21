@@ -5,15 +5,19 @@
       <table :style="tableStyle">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column.key" :class="columnClasses(column)" :style="columnStyle(column, column.key)" :title="column.title" @click="column.resizable === false ? undefined : sortColumn(column.key)">
-                <span class="fn-table-heading-content">
+            <th v-for="column in columns" :key="column.key" :class="[columnClasses(column), { 'fn-table-column-sortable': column.sortable === true }]" :style="columnStyle(column, column.key)" :title="column.title" :aria-sort="column.sortable === true && sort.prop === column.key ? (sort.asc ? 'ascending' : 'descending') : undefined" @click="sortColumn(column)">
+              <span class="fn-table-heading-content">
+                <span class="fn-table-heading-label">
                   <FnRender v-if="column.slots?.header" :render="column.slots.header" :ctx="{ column }" />
                   <template v-else>
                   {{ column.title }}
                   </template>
-                  <ArrowUp v-if="sort.prop === column.key && sort.asc" class="fn-table-sort-indicator" />
-                  <ArrowDown v-else-if="sort.prop === column.key" class="fn-table-sort-indicator" />
                 </span>
+                <span v-if="column.sortable === true || column.filter" class="fn-table-heading-actions">
+                  <ArrowDown v-if="column.sortable === true" class="fn-table-sort-indicator" :size="14" :stroke-width="1.5" aria-hidden="true" />
+                  <FnTableHeaderFilter v-if="column.filter" :options="column.filter.options" :value="filterValues?.[column.key]" :title="column.title ?? column.key" @change="emit('filter-change', { key: column.key, values: $event })" />
+                </span>
+              </span>
               <span v-if="column.resizable !== false" class="fn-table-resize-handle" title="调节列宽度" @pointerdown.stop="startResize($event, column)" @click.stop />
             </th>
           </tr>
@@ -30,20 +34,23 @@
       <div v-if="resizeIndicatorLeft !== null" class="fn-table-resize-indicator" :style="{ left: `${resizeIndicatorLeft}px` }" aria-hidden="true"></div>
     </div>
     <FnRender v-if="slots?.bottom" :render="slots.bottom" :ctx="{ data, loading }" />
+    <Transition name="fn-table-loading">
     <div v-if="loading" class="fn-table-loading" role="status" aria-live="polite">
       <span class="fn-table-spinner" aria-hidden="true"></span>
       <span>加载中...</span>
     </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowUp } from "@lucide/vue";
+import { ArrowDown } from "@lucide/vue";
 import { computed, onBeforeUnmount, onMounted, onUpdated, provide, ref, type CSSProperties } from "vue";
 import FnTableRowComponent from "./fn-table-row.vue";
+import FnTableHeaderFilter from "./fn-table-header-filter.vue";
 import FnRender from "../../components/render/fn-render.ts";
 import { isFnComputeValue } from "../use/use-compute";
-import type { FnDynamic, FnTableColumn, FnTableProps, FnTableRow as FnTableRowRecord } from "../../types/index.ts";
+import type { FnDynamic, FnTableColumn, FnTableFilterChange, FnTableProps, FnTableRow as FnTableRowRecord } from "../../types/index.ts";
 import { getFnTableRowKey } from "./row-key.ts";
 import { fnTableSizeKey } from "../../components/provider/context.ts";
 
@@ -82,6 +89,7 @@ const leftFixedShadowKey = computed(() => {
 });
 const rightFixedShadowKey = computed(() => columns.value.find(column => column.fixed === "right")?.key);
 const emit = defineEmits<{
+  "filter-change": [change: FnTableFilterChange];
   sort: [value: { prop: string; asc: boolean }];
   "column-resize": [value: { key: string; width: number }];
 }>();
@@ -155,10 +163,11 @@ function getFixedColumnWidth(column: FnTableColumnConfig): number {
   return 120;
 }
 
-function sortColumn(prop: string): void {
-  if (resizing.value) {
+function sortColumn(column: FnTableColumnConfig): void {
+  if (column.sortable !== true || resizing.value) {
     return;
   }
+  const prop = column.key;
   if (props.sort?.prop !== prop) {
     emit("sort", { prop, asc: true });
   } else if (props.sort.asc) {
@@ -220,6 +229,7 @@ function getColumnWidth(width: number | string | undefined): number {
 function columnClasses(column: FnTableColumnConfig): Array<string | undefined> {
   return [
     column.class,
+    column.sortable === true && column.key === props.sort?.prop ? "fn-table-column-sorted" : undefined,
     column.resizable === false ? "fn-table-column-unresizable" : undefined,
     column.fixed ? `fn-table-fixed-${column.fixed}` : undefined,
     column.key === leftFixedShadowKey.value && !isAtLeftEdge.value ? "fn-table-fixed-left-shadow" : undefined,
@@ -365,7 +375,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       position: sticky;
       z-index: 1;
       top: 0;
-      cursor: pointer;
+      cursor: default;
       user-select: none;
       color: var(--fn-color-text-secondary);
       background: linear-gradient(var(--fn-color-fill-alter), var(--fn-color-fill-alter)), var(--fn-color-bg-container);
@@ -374,18 +384,42 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     }
 
     .fn-table-heading-content {
-      display: inline-flex;
+      display: flex;
       align-items: center;
+      // justify-content: space-between;
       min-height: 18px;
       gap: 4px;
-      svg.fn-table-sort-indicator {
-        height: 18px;
-      }
+    }
+
+    .fn-table-heading-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .fn-table-heading-actions {
+      display: inline-flex;
+      align-items: center;
+      flex: none;
+      gap: 4px;
     }
 
     .fn-table-sort-indicator {
-      color: var(--fn-color-text-tertiary);
-      width: 12px;
+      flex: none;
+      color: var(--fn-color-text-quaternary);
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: color 120ms ease, transform 120ms ease;
+      }
+    }
+
+    th[aria-sort] .fn-table-sort-indicator {
+      color: var(--fn-color-primary);
+    }
+
+    th[aria-sort="ascending"] .fn-table-sort-indicator {
+      transform: rotate(180deg);
     }
 
     .fn-table-resize-handle {
@@ -543,6 +577,21 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
 
   }
 
+  table {
+    th.fn-table-column-sorted[aria-sort],
+    th.fn-table-column-sortable:hover {
+      background: linear-gradient(var(--fn-color-fill-secondary), var(--fn-color-fill-secondary)), var(--fn-color-bg-container);
+    }
+
+    th.fn-table-column-sortable {
+      cursor: pointer;
+    }
+
+    tbody tr:not(:hover) > td.fn-table-column-sorted {
+      background: var(--fn-table-row-hover-bg);
+    }
+  }
+
   .fn-table-spinner {
     width: 22px;
     height: 22px;
@@ -555,5 +604,24 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
 
 @keyframes fn-table-spin {
   to { transform: rotate(360deg); }
+}
+.fn-table-loading {
+  &-enter-active,
+  &-leave-active {
+    transition: opacity 120ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &-leave-active {
+    pointer-events: none;
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+  }
 }
 </style>
