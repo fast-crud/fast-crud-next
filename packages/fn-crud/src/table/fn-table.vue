@@ -258,7 +258,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
   flex: 1;
   flex-direction: column;
   color: var(--fn-color-text);
-  margin: 0 -20px;
+  margin: 0;
 
   .fn-table-loading {
     position: absolute;

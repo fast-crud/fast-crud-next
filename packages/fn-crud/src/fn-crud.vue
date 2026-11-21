@@ -1,8 +1,8 @@
 <template>
   <div class="fn-crud" :data-density="density">
     <header class="fn-crud-header">
-      <div v-for="(row, rowIndex) in layoutProps" :key="rowIndex" class="fn-crud-row" :style="row.style">
-        <div v-for="(col, colIndex) in row.cols" :key="colIndex" class="fn-crud-col" :class="col.type ? `fn-crud-col--${col.type}` : undefined" :style="col.style">
+      <div v-for="(row, rowIndex) in layoutProps" :key="rowIndex" class="fn-crud-layout-row" :style="row.style">
+        <div v-for="(col, colIndex) in row.cols" :key="colIndex" class="fn-crud-layout-col" :class="col.type ? `fn-crud-layout-col--${col.type}` : undefined" :style="col.style">
           <FnHeading v-if="(col.type === 'header' || col.type === 'heading') && headingProps.show !== false" v-bind="headingProps" />
           <FnTabs v-else-if="col.type === 'tabs' && tabsProps.show !== false" v-bind="tabsProps" />
           <FnSearch v-else-if="col.type === 'search' && searchProps.show !== false" v-bind="searchProps" />
@@ -213,29 +213,33 @@ defineExpose(exposed);
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  padding: 10px 20px;
+  padding: 0;
   height: 100%;
   min-height: 300px;
-  .fn-crud-row {
+  .fn-crud-header {
+    padding: 10px 20px;
+    gap: 10px;
+    background: var(--fn-color-bg-container, #fff);
+    display: flex;
+    flex-direction: column;
+    .fn-tabs {
+      margin-bottom: -3px;
+    }
+  }
+  .fn-crud-footer {
+    padding: 10px 20px;
+  }
+  .fn-crud-layout-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
   }
-  .fn-crud-header {
-    margin-bottom: 8px;
-    .fn-tabs {
-      margin-bottom: -3px;
-    }
-  }
-  .fn-crud-col {
+  .fn-crud-layout-col {
     min-width: 0;
   }
-  .fn-crud-col--tabs {
+  .fn-crud-layout-col--tabs {
     flex: 1;
-  }
-  .fn-crud-footer {
-    padding-top: 12px;
   }
   .fn-crud-body {
     display: flex;

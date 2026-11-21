@@ -6,7 +6,6 @@ body { margin: 0; min-width: 320px; }
 .view-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
 .view-heading h1 { margin: 0 0 6px; color: #101828; font-size: 24px; line-height: 1.25; }
 .view-heading p { margin: 0; color: #667085; }
-.fn-crud { padding: 10px 20px; }
 .metric-grid { margin-bottom: 24px; }
 .panel { flex:1; min-height:0; border: 1px solid var(--fn-color-border, #e4e7ec); border-radius: 0; background: var(--fn-color-bg-container, #fff); overflow: hidden; }
 .panel-header { padding: 18px 20px; border-bottom: 1px solid #eaecf0; }

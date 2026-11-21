@@ -26,7 +26,7 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 10px 0;
+  margin : 10px 0;
   h2 {
     margin: 0;
     font-size: 18px;

@@ -111,8 +111,8 @@ function submitJump(): void {
   background-color: var(--fn-color-bg-container);
   align-items: center;
   justify-content: flex-start;
-  gap: 24px;
-  min-height: 36px;
+  gap: 20px;
+  min-height: 30px;
   color: var(--fn-color-text-secondary);
   font-size: 13px;
   .fn-pagination-summary,
@@ -138,8 +138,8 @@ function submitJump(): void {
   .fn-pagination-arrow,
   .fn-pagination-page {
     display: inline-flex;
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     align-items: center;
     justify-content: center;
     padding: 0;
@@ -192,7 +192,7 @@ function submitJump(): void {
   .fn-pagination-size {
     position: relative;
     select {
-      height: 30px;
+      height: 26px;
       appearance: none;
       padding: 0 26px 0 9px;
       border: 1px solid var(--fn-color-border);
