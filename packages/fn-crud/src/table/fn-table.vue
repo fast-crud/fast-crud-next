@@ -1,11 +1,12 @@
 <template>
   <div class="fn-table" :style="tableDensityStyle" :data-density="density" :aria-busy="loading">
     <FnRender v-if="slots?.top" :render="slots.top" :ctx="{ data, loading }" />
-    <div ref="scrollElement" class="fn-table-scroll" @scroll="updateScrollEdge">
-      <table :style="tableStyle">
-        <thead>
-          <tr>
-            <th v-for="column in columns" :key="column.key" :class="columnClasses(column)" :style="columnStyle(column, column.key)" :title="column.title" @click="column.resizable === false ? undefined : sortColumn(column.key)">
+    <div class="fn-table-scroll-wrap">
+      <div :id="scrollId" ref="scrollElement" class="fn-table-scroll" @scroll="updateScrollEdge">
+        <table :style="tableStyle">
+          <thead>
+            <tr>
+              <th v-for="column in columns" :key="column.key" :class="columnClasses(column)" :style="columnStyle(column, column.key)" :title="column.title" @click="column.resizable === false ? undefined : sortColumn(column.key)">
                 <span class="fn-table-heading-content">
                   <FnRender v-if="column.slots?.header" :render="column.slots.header" :ctx="{ column }" />
                   <template v-else>
@@ -14,20 +15,43 @@
                   <ArrowUp v-if="sort.prop === column.key && sort.asc" class="fn-table-sort-indicator" />
                   <ArrowDown v-else-if="sort.prop === column.key" class="fn-table-sort-indicator" />
                 </span>
-              <span v-if="column.resizable !== false" class="fn-table-resize-handle" title="调节列宽度" @pointerdown.stop="startResize($event, column)" @click.stop />
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <FnTableRowComponent v-for="(row, index) in data" :key="getRowKey(row, index)" :row="row" :index="index" :columns="columns" :slots="slots" :get-component-ref="key => getCellComponentRef(row, key)" :set-component-ref="(key, instance) => setCellComponentRef(row, key, instance)"  :column-classes="columnClasses" :column-style="columnStyle" />
-          <tr v-if="!data.length">
-            <td :colspan="columns.length" class="fn-table-empty">
-              <FnRender v-if="slots?.empty" :render="slots.empty" :ctx="{ columns, loading }" /><template v-else>{{ emptyText || "暂无数据" }}</template>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-if="resizeIndicatorLeft !== null" class="fn-table-resize-indicator" :style="{ left: `${resizeIndicatorLeft}px` }" aria-hidden="true"></div>
+                <span v-if="column.resizable !== false" class="fn-table-resize-handle" title="调节列宽度" @pointerdown.stop="startResize($event, column)" @click.stop />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <FnTableRowComponent v-for="(row, index) in data" :key="getRowKey(row, index)" :row="row" :index="index" :columns="columns" :slots="slots" :get-component-ref="key => getCellComponentRef(row, key)" :set-component-ref="(key, instance) => setCellComponentRef(row, key, instance)"  :column-classes="columnClasses" :column-style="columnStyle" />
+            <tr v-if="!data.length">
+              <td :colspan="columns.length" class="fn-table-empty">
+                <FnRender v-if="slots?.empty" :render="slots.empty" :ctx="{ columns, loading }" /><template v-else>{{ emptyText || "暂无数据" }}</template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="resizeIndicatorLeft !== null" class="fn-table-resize-indicator" :style="{ left: `${resizeIndicatorLeft}px` }" aria-hidden="true"></div>
+      </div>
+      <div
+        v-if="hasHorizontalScroll"
+        class="fn-table-sticky-scroll"
+        role="scrollbar"
+        tabindex="0"
+        aria-label="横向滚动表格"
+        aria-orientation="horizontal"
+        :aria-controls="scrollId"
+        :aria-valuemin="0"
+        :aria-valuemax="maxScrollLeft"
+        :aria-valuenow="scrollMetrics.left"
+        :style="{ width: `${scrollMetrics.clientWidth}px` }"
+        @pointerdown="startHorizontalScroll"
+        @pointermove="moveHorizontalScroll"
+        @pointerup="endHorizontalScroll"
+        @pointercancel="endHorizontalScroll"
+        @keydown="handleHorizontalScrollKeydown"
+      >
+        <div class="fn-table-sticky-scroll-bar">
+          <div class="fn-table-sticky-scroll-thumb" :style="{ width: `${scrollbarThumbWidth}px`, transform: `translateX(${scrollbarThumbLeft}px)` }" />
+        </div>
+      </div>
     </div>
     <FnRender v-if="slots?.bottom" :render="slots.bottom" :ctx="{ data, loading }" />
     <div v-if="loading" class="fn-table-loading" role="status" aria-live="polite">
@@ -39,7 +63,7 @@
 
 <script setup lang="ts">
 import { ArrowDown, ArrowUp } from "@lucide/vue";
-import { computed, onBeforeUnmount, onMounted, onUpdated, provide, ref, type CSSProperties } from "vue";
+import { computed, onBeforeUnmount, onMounted, onUpdated, provide, reactive, ref, useId, type CSSProperties } from "vue";
 import FnTableRowComponent from "./fn-table-row.vue";
 import FnRender from "../components/fn-render";
 import { isFnComputeValue } from "../use/compute";
@@ -79,26 +103,100 @@ const emit = defineEmits<{
   "column-resize": [value: { key: string; width: number }];
 }>();
 const scrollElement = ref<HTMLElement | null>(null);
+const scrollId = useId();
+const scrollMetrics = reactive({ left: 0, scrollWidth: 0, clientWidth: 0 });
+const hasHorizontalScroll = computed(() => scrollMetrics.scrollWidth > scrollMetrics.clientWidth);
+const maxScrollLeft = computed(() => Math.max(0, scrollMetrics.scrollWidth - scrollMetrics.clientWidth));
+const scrollbarTrackInnerWidth = computed(() => Math.max(0, scrollMetrics.clientWidth - 6));
+const scrollbarThumbWidth = computed(() => scrollMetrics.scrollWidth > 0 ? Math.min(scrollbarTrackInnerWidth.value, Math.max(40, scrollbarTrackInnerWidth.value ** 2 / scrollMetrics.scrollWidth * 1.12)) : 0);
+const scrollbarThumbLeft = computed(() => {
+  const trackRange = scrollbarTrackInnerWidth.value - scrollbarThumbWidth.value;
+  return maxScrollLeft.value > 0 ? Math.max(0, Math.min(trackRange, scrollMetrics.left / maxScrollLeft.value * trackRange)) : 0;
+});
 const isAtLeftEdge = ref(true);
 const isAtRightEdge = ref(false);
 const resizing = ref(false);
 const resizeIndicatorLeft = ref<number | null>(null);
 const cellComponentRefs = new Map<string, unknown>();
+let horizontalScrollDrag: { pointerId: number; startX: number; startScrollLeft: number } | null = null;
+let scrollResizeObserver: ResizeObserver | undefined;
 function updateScrollEdge(event?: Event): void {
   const element = (event?.currentTarget as HTMLElement | null) ?? scrollElement.value;
   if (!element) {
     return;
   }
+  scrollMetrics.left = element.scrollLeft;
+  scrollMetrics.scrollWidth = element.scrollWidth;
+  scrollMetrics.clientWidth = element.clientWidth;
   isAtLeftEdge.value = element.scrollLeft <= 1;
   isAtRightEdge.value = element.scrollWidth <= element.clientWidth || element.scrollLeft + element.clientWidth >= element.scrollWidth - 1;
 }
 
 onMounted(() => {
   updateScrollEdge();
+  if (scrollElement.value) {
+    scrollResizeObserver = new ResizeObserver(() => updateScrollEdge());
+    scrollResizeObserver.observe(scrollElement.value);
+  }
   window.addEventListener("resize", updateScrollEdge);
 });
 onUpdated(updateScrollEdge);
-onBeforeUnmount(() => window.removeEventListener("resize", updateScrollEdge));
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateScrollEdge);
+  scrollResizeObserver?.disconnect();
+});
+
+function startHorizontalScroll(event: PointerEvent): void {
+  const track = event.currentTarget as HTMLElement;
+  const element = scrollElement.value;
+  if (!element) return;
+  event.preventDefault();
+
+  const target = event.target as HTMLElement | null;
+  if (!target?.classList?.contains("fn-table-sticky-scroll-thumb")) {
+    const trackRange = element.clientWidth - 6 - scrollbarThumbWidth.value;
+    const scrollRange = element.scrollWidth - element.clientWidth;
+    const offset = event.clientX - track.getBoundingClientRect().left - 3 - scrollbarThumbWidth.value / 2;
+    const startScrollLeft = trackRange > 0 ? Math.max(0, Math.min(trackRange, offset)) / trackRange * scrollRange : 0;
+    element.scrollLeft = startScrollLeft;
+    horizontalScrollDrag = { pointerId: event.pointerId, startX: event.clientX, startScrollLeft };
+    track.setPointerCapture(event.pointerId);
+    return;
+  }
+
+  horizontalScrollDrag = { pointerId: event.pointerId, startX: event.clientX, startScrollLeft: element.scrollLeft };
+  track.setPointerCapture(event.pointerId);
+}
+
+function moveHorizontalScroll(event: PointerEvent): void {
+  const element = scrollElement.value;
+  if (!element || !horizontalScrollDrag || event.pointerId !== horizontalScrollDrag.pointerId) return;
+  const trackRange = element.clientWidth - 6 - scrollbarThumbWidth.value;
+  const scrollRange = element.scrollWidth - element.clientWidth;
+  if (trackRange <= 0) return;
+  element.scrollLeft = Math.max(0, Math.min(scrollRange, horizontalScrollDrag.startScrollLeft + (event.clientX - horizontalScrollDrag.startX) * scrollRange / trackRange));
+}
+
+function endHorizontalScroll(event: PointerEvent): void {
+  if (horizontalScrollDrag?.pointerId === event.pointerId) horizontalScrollDrag = null;
+}
+
+function handleHorizontalScrollKeydown(event: KeyboardEvent): void {
+  const element = scrollElement.value;
+  if (!element) return;
+  const step = event.key.startsWith("Page") ? element.clientWidth : 40;
+  const nextScrollLeft = {
+    ArrowLeft: element.scrollLeft - step,
+    ArrowRight: element.scrollLeft + step,
+    PageUp: element.scrollLeft - step,
+    PageDown: element.scrollLeft + step,
+    Home: 0,
+    End: maxScrollLeft.value,
+  }[event.key];
+  if (nextScrollLeft === undefined) return;
+  event.preventDefault();
+  element.scrollLeft = nextScrollLeft;
+}
 
 const tableStyle = computed(() => {
   if (typeof props.minWidth === "number") {
@@ -273,30 +371,43 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     background: color-mix(in srgb, var(--fn-color-bg-container) 75%, transparent);
   }
 
-  .fn-table-scroll {
+  .fn-table-scroll-wrap {
     position: relative;
     min-height: 0;
     flex: 1;
+  }
+  .fn-table-scroll {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+    box-sizing: border-box;
     overflow: auto;
-    scrollbar-color: var(--fn-color-text-tertiary) var(--fn-color-fill-alter);
-    scrollbar-width: thin;
     border-top: 1px solid var(--fn-color-border-secondary);
     border-bottom: 1px solid var(--fn-color-border-secondary);
     margin: 0;
 
     &::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 12px;
+    }
+
+    &::-webkit-scrollbar:horizontal {
+      height: 0;
     }
 
     &::-webkit-scrollbar-track {
-      background: var(--fn-color-fill-alter);
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb:horizontal {
+      border-color: transparent;
+      background: transparent;
     }
 
     &::-webkit-scrollbar-thumb {
-      border: 3px solid transparent;
+      border: 2px solid transparent;
       border-radius: 999px;
-      background: var(--fn-color-text-tertiary);
+      background: color-mix(in srgb, var(--fn-color-text-tertiary) 65%, transparent);
       background-clip: padding-box;
     }
 
@@ -306,8 +417,71 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     }
 
     &::-webkit-scrollbar-corner {
-      background: var(--fn-color-fill-alter);
+      background: transparent;
     }
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    .fn-table-scroll {
+      scrollbar-color: var(--fn-color-text-tertiary) transparent;
+      scrollbar-width: thin;
+    }
+    .fn-table-sticky-scroll {
+      display: none;
+    }
+  }
+  .fn-table-sticky-scroll {
+    position: absolute;
+    z-index: 5;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    height: 12px;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    &:hover .fn-table-sticky-scroll-thumb,
+    &:focus-visible .fn-table-sticky-scroll-thumb,
+    &:active .fn-table-sticky-scroll-thumb {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--fn-color-primary);
+      outline-offset: -2px;
+    }
+  }
+  .fn-table-sticky-scroll-bar {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 3px;
+    border-radius: 999px;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+  }
+  .fn-table-sticky-scroll-thumb {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--fn-color-text) 35%, transparent);
+    cursor: grab;
+    opacity: 0;
+    transition: background-color 120ms ease, opacity 180ms ease;
+  }
+  .fn-table-sticky-scroll:hover .fn-table-sticky-scroll-thumb,
+  .fn-table-sticky-scroll:focus-visible .fn-table-sticky-scroll-thumb,
+  .fn-table-sticky-scroll:active .fn-table-sticky-scroll-thumb {
+    background: var(--fn-color-primary);
+    cursor: grabbing;
   }
   .fn-table-resize-indicator {
     position: absolute;
