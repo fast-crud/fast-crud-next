@@ -17,6 +17,10 @@ export const adminPreferences = reactive<AdminPreferences>({
 });
 
 export const adminCrudLocale = computed<FnCrudLocale>(() => adminPreferences.language === "en" ? "en-US" : "zh-CN");
+export const adminLanguageOptions = [
+  { key: "zh", label: "中文" },
+  { key: "en", label: "English" },
+];
 
 function persist(): void {
   if (typeof localStorage !== "undefined") {
@@ -24,9 +28,15 @@ function persist(): void {
   }
 }
 
-export function toggleAdminLanguage(): void {
-  adminPreferences.language = adminPreferences.language === "zh" ? "en" : "zh";
+export function setAdminLanguage(language: unknown): void {
+  if (language !== "zh" && language !== "en") return;
+  if (adminPreferences.language === language) return;
+  adminPreferences.language = language;
   persist();
+}
+
+export function toggleAdminLanguage(): void {
+  setAdminLanguage(adminPreferences.language === "zh" ? "en" : "zh");
 }
 
 export function toggleAdminTheme(): void {

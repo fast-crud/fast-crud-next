@@ -53,6 +53,8 @@ views/crud/basis/request-mock/
 
 三套宿主以 `workspace:*` 引入 `@fast-crud/fn-admin-shared`。共享包将 Vue 声明为 peer dependency。宿主通过 `@fast-crud/fn-admin-shared/views/crud/basis/request-mock/index.vue` 导入页面，通过 `@fast-crud/fn-admin-shared/preferences` 共用语言和主题偏好。
 
+在 Naive UI 和 Element Plus Admin 中，点击顶栏语言按钮展开菜单，再选择「中文」或「English」。菜单会标出当前语言，选择会保存到本地。
+
 宿主入口加载 `@fast-crud/fn-admin-shared/mock`。共享包的 `src/mock/index.ts` 收集各页面的 `mock.ts`，由 Axios Mock Adapter 在浏览器内拦截请求。请求 Mock 页使用 `createCrudApi('FnAdminRequestMock')`，对应路径前缀为 `/mock/FnAdminRequestMock`。刷新页面后，数据恢复初始值。
 
 接入真实后端时，先在 `api.ts` 对照[请求 API](../api/requests.md)替换分页和写操作，页面仍可使用原来的列配置与状态。新增 CRUD 示例时，在对应分类建立这三个文件，并在需要展示该页的宿主路由中注册。

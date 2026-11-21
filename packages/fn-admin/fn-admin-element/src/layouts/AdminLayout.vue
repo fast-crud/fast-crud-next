@@ -31,7 +31,18 @@
           <el-breadcrumb separator="/"><el-breadcrumb-item>{{ adminText('控制台', 'Console') }}</el-breadcrumb-item><el-breadcrumb-item>{{ currentTitle }}</el-breadcrumb-item></el-breadcrumb>
         </div>
         <div class="header-right">
-          <el-button text @click="toggleAdminLanguage"><el-icon><Languages /></el-icon>{{ adminPreferences.language === 'zh' ? 'EN' : '中文' }}</el-button>
+          <el-dropdown trigger="click" :teleported="false" @command="setAdminLanguage">
+            <el-button text :aria-label="adminText('切换语言', 'Switch language')">
+              <el-icon><Languages /></el-icon>{{ adminText('中文', 'EN') }}<el-icon><ChevronDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item v-for="option in adminLanguageOptions" :key="option.key" :command="option.key">
+                  <el-icon v-if="option.key === adminPreferences.language"><Check /></el-icon>{{ option.label }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-button text :aria-label="adminText('切换明暗主题', 'Toggle color theme')" @click="toggleAdminTheme"><el-icon><component :is="adminPreferences.dark ? Sun : Moon" /></el-icon></el-button>
           <el-tag type="success" effect="plain">{{ adminText('本地演示', 'Local demo') }}</el-tag>
           <span class="user-name">{{ adminText('管理员', 'Administrator') }}</span>
@@ -46,8 +57,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from '@lucide/vue'
-import { adminPreferences, adminText, toggleAdminLanguage, toggleAdminTheme } from '@fast-crud/fn-admin-shared/preferences'
+import { Check, ChevronDown, Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from '@lucide/vue'
+import { adminLanguageOptions, adminPreferences, adminText, setAdminLanguage, toggleAdminTheme } from '@fast-crud/fn-admin-shared/preferences'
 import { adminMenuConfig } from '../router/config'
 
 const route = useRoute()

@@ -2,3 +2,9 @@
 .crud-page {
   height: 100%;
 }
+
+.fn-table{
+.fn-tag{
+font-size: 12px !important;
+}
+}
