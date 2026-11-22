@@ -5,7 +5,7 @@ import DemoSelect from "@fast-crud/fn-admin-shared/components/DemoSelect.vue";
 import { api, type Rotation } from "./api";
 const state = reactive({
   id: "shared-conditional-form-rotation",
-  heading: { title: "条件表单示例", description: "切换轮换方式，观察宽限天数字段按条件显示。" },
+  heading: { title: "条件表单示例", description: "打开任意行的「编辑」，切换轮换方式，观察宽限天数字段的显隐。" },
   columns: {
     id: { key: "id", title: "编号", cell: { width: 78 } },
     name: { key: "name", title: "策略名称", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索策略名称" }, width: 220 }, form: { rules: [{ required: true, message: "请输入策略名称" }] }, cell: { order: 1 } },

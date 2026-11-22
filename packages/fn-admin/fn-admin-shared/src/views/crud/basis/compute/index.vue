@@ -11,7 +11,7 @@ const numberInput = { name: inputComponent, vModel: "modelValue", type: "number"
 
 const crudState = reactive<FnCrudState<Order>>({
   id: "shared-compute-orders",
-  heading: { title: "动态计算示例", description: "切换自定义单价并调整数量，查看订单总价实时计算。" },
+  heading: { title: "动态计算示例", description: "打开某行的「自定义单价」，修改数量或单价，观察总价实时更新。" },
   table: { rowKey: "id", minWidth: 920 },
   rowHandle: { width: 140 },
   columns: {
@@ -26,7 +26,6 @@ const crudState = reactive<FnCrudState<Order>>({
         width: 90,
         component: {
           ...numberInput,
-          "aria-label": "数量",
           disabled: disabledRef,
         },
       },
@@ -34,11 +33,11 @@ const crudState = reactive<FnCrudState<Order>>({
     customPrice: {
       key: "customPrice",
       title: "自定义单价",
-      form: { value: false, component: { name: priceSwitch, id: "customPrice", "aria-label": "自定义单价" } },
+      form: { value: false, component: { name: priceSwitch } },
       cell: {
         order: 3,
         width: 110,
-        component: { name: priceSwitch, "aria-label": "自定义单价" },
+        component: { name: priceSwitch },
       },
     },
     unitPrice: {
@@ -47,14 +46,13 @@ const crudState = reactive<FnCrudState<Order>>({
       form: {
         show: compute(({ form }) => Boolean(form?.customPrice)),
         value: 100,
-        component: { ...numberInput, id: "unitPrice" },
+        component: numberInput,
       },
       cell: {
         order: 4,
         width: 100,
         component: {
           ...numberInput,
-          "aria-label": "单价",
           disabled: compute(({ row }: { row?: Order }) => !row?.customPrice),
         },
       },

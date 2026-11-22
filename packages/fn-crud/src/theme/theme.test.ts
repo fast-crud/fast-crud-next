@@ -25,6 +25,31 @@ describe("Fn theme adapters", () => {
     });
   });
 
+  it("maps AntDV feedback corner radii and info color", () => {
+    const tokens = mapAntdvThemeToFnTokens({ borderRadius: 0, borderRadiusLG: 10, borderRadiusSM: 0, colorInfo: "#3366aa" });
+
+    expect(createFnThemeStyle(tokens)).toMatchObject({
+      "--fn-border-radius": "0px",
+      "--fn-feedback-border-radius": "10px",
+      "--fn-feedback-close-border-radius": "0px",
+      "--fn-color-info": "#3366aa",
+    });
+  });
+
+  it("uses dedicated tooltip colors from the host themes", () => {
+    const antdv = mapAntdvThemeToFnTokens({ colorBgSpotlight: "#202020", colorTextLightSolid: "#fefefe" });
+    expect(createFnThemeStyle(antdv)).toMatchObject({
+      "--fn-tooltip-bg": "#202020",
+      "--fn-tooltip-text": "#fefefe",
+    });
+
+    const naive = mapNaiveThemeToFnTokens({ Tooltip: { color: "#24242a", textColor: "#fafafa" } });
+    expect(createFnThemeStyle(naive)).toMatchObject({
+      "--fn-tooltip-bg": "#24242a",
+      "--fn-tooltip-text": "#fafafa",
+    });
+  });
+
   it("maps Naive common and DataTable tokens to Fn table tokens", () => {
     const tokens = mapNaiveThemeToFnTokens({
       common: { primaryColor: "#18a058", bodyColor: "#101010", tableColor: "#181818", textColor1: "#eeeeee", borderColor: "#333333", borderRadius: "8px" },
@@ -44,12 +69,22 @@ describe("Fn theme adapters", () => {
   });
 
   it("maps the flat token shape returned by Naive useThemeVars", () => {
-    const tokens = mapNaiveThemeToFnTokens({ primaryColor: "#63e2b7", bodyColor: "#101014", tableColor: "#18181c" });
+    const tokens = mapNaiveThemeToFnTokens({
+      primaryColor: "#63e2b7",
+      bodyColor: "#101014",
+      tableColor: "#18181c",
+      popoverColor: "#292933",
+      infoColor: "#70c0e8",
+      borderRadius: "3px",
+    });
 
     expect(tokens).toMatchObject({
       colorPrimary: "#63e2b7",
       colorBgBase: "#101014",
       colorBgContainer: "#18181c",
+      feedbackBg: "#292933",
+      colorInfo: "#70c0e8",
+      borderRadius: "3px",
     });
   });
 

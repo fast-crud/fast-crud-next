@@ -4,7 +4,7 @@
       <div class="fn-column-settings-list">
         <div class="fn-column-settings-list-header">
           <label class="fn-column-settings-select-all">
-            <FnCheckbox :model-value="allVisible" :indeterminate="someVisible && !allVisible" :disabled="editableRows.length === 0" aria-label="全选可设置列" @change="toggleAll" />
+            <FnCheckbox :model-value="allVisible" :indeterminate="someVisible && !allVisible" :disabled="editableRows.length === 0" text="全选可设置列" @change="toggleAll" />
             <span>{{ visibleCount }} / {{ visibleRows.length }}</span>
           </label>
           <span class="fn-column-settings-label">固定 / 排序</span>
@@ -18,7 +18,7 @@
           @drop.prevent="dropColumn(column.key)"
         >
           <label class="fn-column-settings-name">
-            <FnCheckbox v-model="column.show" :disabled="isDisabled(column)" :aria-label="`显示${column.title}`" />
+            <FnCheckbox v-model="column.show" :disabled="isDisabled(column)" :text="`显示${column.title}`" />
             <span :title="column.title">{{ column.title }}</span>
           </label>
           <div class="fn-column-settings-actions">
@@ -27,7 +27,7 @@
               class="fn-column-settings-fixed"
               :label="`${column.title}固定位置`"
               :disabled="isDisabled(column)"
-              :options="fixedPositionOptions(column.title)"
+              :options="fixedPositionOptions"
               @update:model-value="value => setFixed(column, value === 'left' || value === 'right' ? value : undefined)"
             />
             <button
@@ -79,13 +79,11 @@ const visibleCount = computed(() => visibleRows.value.filter(column => column.sh
 const allVisible = computed(() => editableRows.value.length > 0 && editableRows.value.every(column => column.show));
 const someVisible = computed(() => editableRows.value.some(column => column.show));
 const committedRows = computed(() => props.columns.map(column => (column.setting ? { ...column, setting: { ...column.setting } } : { ...column })));
-function fixedPositionOptions(title: string): FnButtonGroupOption[] {
-  return [
-    { value: "left", icon: ChevronLeft, title: "固定到左侧", ariaLabel: `${title}固定到左侧` },
-    { value: "", icon: X, title: "取消固定", ariaLabel: `${title}取消固定` },
-    { value: "right", icon: ChevronRight, title: "固定到右侧", ariaLabel: `${title}固定到右侧` },
-  ];
-}
+const fixedPositionOptions: FnButtonGroupOption[] = [
+  { value: "left", icon: ChevronLeft, title: "固定到左侧" },
+  { value: "", icon: X, title: "取消固定" },
+  { value: "right", icon: ChevronRight, title: "固定到右侧" },
+];
 
 watch(
   [() => props.modelValue, committedRows],

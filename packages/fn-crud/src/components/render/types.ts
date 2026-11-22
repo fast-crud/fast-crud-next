@@ -1,6 +1,4 @@
-import type { VNodeChild } from "vue";
-
-export type FnRenderSlot = (ctx?: Record<string, any>) => VNodeChild;
+export type FnRenderSlot = (ctx?: Record<string, any>) => any;
 export type FnSlots = Partial<Record<string, FnRenderSlot>>;
 
 export type FnComponentProps = {

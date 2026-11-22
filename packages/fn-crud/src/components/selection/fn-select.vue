@@ -28,7 +28,7 @@
         role="combobox"
         autocomplete="off"
         aria-autocomplete="list"
-        :aria-label="String($attrs['aria-label'] || placeholder)"
+        :aria-label="String($attrs['aria-label'] || label || fieldLabel || placeholder)"
         :aria-expanded="open"
         :aria-controls="open ? listId : undefined"
         :aria-activedescendant="open && activeIndex >= 0 ? optionId(activeIndex) : undefined"
@@ -51,7 +51,7 @@
   <Teleport to="body">
     <Transition name="fn-select-panel">
     <div v-if="open" ref="panel" class="fn-select-panel" :style="panelStyle">
-      <div :id="listId" role="listbox" :aria-label="String($attrs['aria-label'] || placeholder)" :aria-multiselectable="multiple || undefined">
+      <div :id="listId" role="listbox" :aria-label="String($attrs['aria-label'] || label || fieldLabel || placeholder)" :aria-labelledby="$attrs['aria-labelledby'] as string | undefined" :aria-multiselectable="multiple || undefined">
         <div
           v-for="(option, index) in filteredOptions"
           :id="optionId(index)"
@@ -77,7 +77,8 @@
 
 <script setup lang="tsx">
 import { Check, ChevronDown, X } from "@lucide/vue";
-import { computed, nextTick, ref, useAttrs, useId, watch, type CSSProperties, type StyleValue } from "vue";
+import { computed, inject, nextTick, ref, useAttrs, useId, watch, type CSSProperties, type StyleValue } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
 import FnTag from "../tag/fn-tag.vue";
 import { countVisibleTags } from "./select-tag-layout";
 import type { FnOptionValue, FnSelectOption } from "./types";
@@ -91,11 +92,13 @@ const props = withDefaults(defineProps<{
   minWidth?: number | string;
   clearable?: boolean;
   disabled?: boolean;
+  label?: string;
   placeholder?: string;
 }>(), { modelValue: undefined, options: () => [], placeholder: "请选择", wrap: true });
 const emit = defineEmits<{ "update:modelValue": [value: FnOptionValue | FnOptionValue[]] }>();
 
 const attrs = useAttrs();
+const fieldLabel = inject(fnFieldLabelKey, undefined);
 const field = ref<HTMLElement>();
 const content = ref<HTMLElement>();
 const inputProbe = ref<HTMLElement>();
@@ -411,6 +414,7 @@ watch(() => props.disabled, disabled => { if (disabled) close(); });
     color: inherit;
     background: transparent;
     font: inherit;
+    font-size: inherit;
     text-overflow: ellipsis;
     &::placeholder { color: var(--fn-color-text-tertiary, #8a95a6); }
     &:disabled { cursor: not-allowed; }

@@ -3,6 +3,7 @@
     class="fn-switch"
     type="button"
     role="switch"
+    :aria-label="label || fieldLabel"
     :aria-checked="modelValue"
     :disabled="disabled"
     @click="toggle"
@@ -10,10 +11,14 @@
 </template>
 
 <script setup lang="tsx">
-const props = withDefaults(defineProps<{ modelValue?: boolean; disabled?: boolean }>(), {
+import { inject } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
+
+const props = withDefaults(defineProps<{ modelValue?: boolean; disabled?: boolean; label?: string }>(), {
   modelValue: false,
   disabled: false,
 });
+const fieldLabel = inject(fnFieldLabelKey, undefined);
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];

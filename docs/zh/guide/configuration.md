@@ -7,7 +7,7 @@
 | `columns` | 按字段组织配置。`cell`、`search`、`form` 分别控制表格单元格、搜索和表单。`type` 为这三个分支提供[字段默认配置](./column-types.md)。 |
 | `request` | `pageRequest` 加载分页数据，可按需提供 `addRequest`、`editRequest` 和 `delRequest`。 |
 | `table`、`pagination` | 配置行标识、密度和分页。 |
-| `rowSelect` | 配置行选择及选中的行键。 |
+| `rowSelect` | 配置选择列显隐、选择方式及选中的行键。 |
 | `form`、`addForm`、`editForm` | 配置公共表单与新增、编辑模式的差异。打开表单时，模式配置覆盖公共配置。 |
 | `actionbar`、`toolbar`、`rowHandle` | 配置操作栏、工具栏和行操作。 |
 

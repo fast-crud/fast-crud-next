@@ -8,7 +8,7 @@
       :type="nativeType"
       :disabled="disabled || loading"
       :aria-busy="loading || undefined"
-      :aria-label="!text ? tooltipTitle : undefined"
+      :aria-label="text || tooltipTitle"
       :title="tooltipTitle"
       @click="handleClick"
     >

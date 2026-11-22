@@ -1,10 +1,14 @@
 <template>
-  <textarea v-if="multiline" class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" @input="handleInput" @blur="$emit('blur', $event)" />
-  <input v-else class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" :type="type" @input="handleInput" @blur="$emit('blur', $event)" />
+  <textarea v-if="multiline" class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" :aria-label="label || fieldLabel || placeholder" @input="handleInput" @blur="$emit('blur', $event)" />
+  <input v-else class="fn-input" :value="modelValue" :disabled="disabled" :placeholder="placeholder" :aria-label="label || fieldLabel || placeholder" :type="type" @input="handleInput" @blur="$emit('blur', $event)" />
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ modelValue?: string | number; disabled?: boolean; placeholder?: string; type?: string; multiline?: boolean }>(), { type: "text" });
+import { inject } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
+
+const props = withDefaults(defineProps<{ modelValue?: string | number; disabled?: boolean; label?: string; placeholder?: string; type?: string; multiline?: boolean }>(), { type: "text" });
+const fieldLabel = inject(fnFieldLabelKey, undefined);
 const emit = defineEmits<{ "update:modelValue": [value: string | number | undefined]; blur: [event: FocusEvent] }>();
 
 function handleInput(event: Event): void {

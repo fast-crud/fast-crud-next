@@ -3,7 +3,7 @@ import { markRaw, reactive } from "vue";
 import { FnButton, FnCrud, FnInput, isFnComputeValue, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type ServiceRecord } from "./api";
 const crudState = reactive<FnCrudState<ServiceRecord>>({
-  id: "shared-basic-services", heading: { title: "基础列表示例", description: "通过服务数据演示搜索、分页、增删改查和列设置。" }, table: { rowKey: "id", minWidth: 820 }, rowHandle: { width: 150 }, rowSelect: { crossPage: true },
+  id: "shared-basic-services", heading: { title: "基础列表示例", description: "搜索服务名称，或点击「新增」创建服务。勾选多条记录后，打开「批量操作」删除。" }, table: { rowKey: "id", minWidth: 820 }, rowHandle: { width: 150 }, rowSelect: { crossPage: true },
   columns: {
     id: { key: "id", title: "编号", cell: { width: 80 } },
     name: { key: "name", title: "服务名称", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索服务名称" } }, form: { rules: [{ required: true, message: "请输入服务名称" }] }, cell: { order: 1 } },
@@ -39,12 +39,10 @@ function toggleStatusSetting(): void {
 }
 </script>
 <template>
-  <div class="crud-page view-stack">
+  <div class="crud-page">
       <FnCrud v-bind="crudState" />
   </div>
 </template>
 
 <style lang="less">
-.view-stack {
-}
 </style>

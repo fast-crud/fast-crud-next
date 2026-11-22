@@ -5,6 +5,7 @@ import { createDiscreteApi, NAvatar, NButton, NDropdown, NLayout, NLayoutContent
 import { ChevronDown, Languages, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "@lucide/vue";
 import { adminLanguageOptions, adminPreferences, adminText, setAdminLanguage, toggleAdminTheme } from "@fast-crud/fn-admin-shared/preferences";
 import { adminMenuConfig, type AdminPageConfig } from "../router/config";
+import DemoSource from "@fast-crud/fn-admin-shared/components/DemoSource.vue";
 
 const route = useRoute(); const router = useRouter(); const { message } = createDiscreteApi(["message"]);
 const collapsed = ref(false);
@@ -21,7 +22,10 @@ function toMenuOptions(config: AdminPageConfig[]): MenuOption[] {
 const menuOptions = computed(() => toMenuOptions(adminMenuConfig));
 const selectedKey = computed(() => route.path);
 const expandedKeys = ref<string[]>(["crud"]);
-watch(() => route.path, path => { if (path.startsWith("/crud/")) expandedKeys.value = ["crud"]; });
+watch(() => route.path, path => {
+  const category = path.match(/^\/crud\/([^/]+)\//)?.[1];
+  if (category) expandedKeys.value = [...new Set([...expandedKeys.value, "crud", `crud-${category}`])];
+}, { immediate: true });
 const pageTitle = computed(() => {
   const [zh, en] = route.meta.title as [string, string] | undefined || ["工作台", "Dashboard"];
   return adminText(zh, en);
@@ -32,14 +36,18 @@ function handleUserAction(key: string) { if (key === "logout") message.info("演
 </script>
 <template>
         <div class="admin-app" :class="{ 'admin-app--dark': adminPreferences.dark, dark: adminPreferences.dark }"><NLayout has-sider position="absolute" class="admin-layout">
-        <NLayoutSider bordered collapse-mode="width" :collapsed-width="64" :width="236" :collapsed="collapsed" class="admin-sider">
+        <NLayoutSider bordered collapse-mode="width" :collapsed-width="64" :width="236" :collapsed="collapsed" class="admin-sider" content-class="admin-sider-content">
           <div class="brand" @click="navigate('/dashboard')"><div class="brand-mark">F</div><div v-if="!collapsed" class="brand-copy"><strong>Fn Admin</strong><span>Naive Console</span></div></div>
-          <NMenu :value="selectedKey" :options="menuOptions" :expanded-keys="expandedKeys" @update:value="navigate" @update:expanded-keys="expandedKeys = $event" /><div v-if="!collapsed" class="sider-foot"><span class="status-dot"></span>{{ adminText('服务运行正常', 'All services operational') }}</div>
+          <div class="admin-menu-scroll">
+            <NMenu :value="selectedKey" :options="menuOptions" :expanded-keys="expandedKeys" @update:value="navigate" @update:expanded-keys="expandedKeys = $event" />
+          </div>
+          <div v-if="!collapsed" class="sider-foot"><span class="status-dot"></span>{{ adminText('服务运行正常', 'All services operational') }}</div>
         </NLayoutSider>
-        <NLayout class="admin-main"><NLayoutHeader bordered class="admin-header"><div class="header-left"><NButton quaternary circle :aria-label="adminText('折叠菜单', 'Collapse menu')" @click="collapsed = !collapsed"><component :is="collapsed ? PanelLeftOpen : PanelLeftClose" :size="17" /></NButton><div><span class="breadcrumb-root">{{ adminText('控制台', 'Console') }}</span><span class="breadcrumb-separator">/</span><strong>{{ pageTitle }}</strong></div></div><NSpace align="center" :size="14"><NTag size="small" type="info" :bordered="false">{{ adminText('本地演示', 'Local demo') }}</NTag><NDropdown trigger="click" :options="adminLanguageOptions" :value="adminPreferences.language" @select="setAdminLanguage">
-          <NButton quaternary size="small" :aria-label="adminText('切换语言', 'Switch language')" aria-haspopup="menu"><Languages :size="16" />{{ adminText('中文', 'EN') }}<ChevronDown :size="14" /></NButton>
-        </NDropdown><NButton quaternary circle :aria-label="adminText('切换明暗主题', 'Toggle color theme')" @click="toggleAdminTheme"><component :is="adminPreferences.dark ? Sun : Moon" :size="16" /></NButton><NDropdown :options="userOptions" @select="handleUserAction"><button class="user-trigger" type="button"><NAvatar round size="small" color="var(--n-primary-color, #18a058)">A</NAvatar><span>{{ adminText('管理员', 'Administrator') }}</span><ChevronDown :size="14" class="chevron" /></button></NDropdown></NSpace></NLayoutHeader><NLayoutContent class="admin-content" content-style="height:calc(100vh - 68px);padding:0;display:flex;flex-direction:column;min-height:0;"><RouterView /></NLayoutContent></NLayout>
+        <NLayout class="admin-main"><NLayoutHeader bordered class="admin-header"><div class="header-left"><NButton quaternary circle :title="adminText('折叠菜单', 'Collapse menu')" @click="collapsed = !collapsed"><component :is="collapsed ? PanelLeftOpen : PanelLeftClose" :size="17" /></NButton><div><span class="breadcrumb-root">{{ adminText('控制台', 'Console') }}</span><span class="breadcrumb-separator">/</span><strong>{{ pageTitle }}</strong></div></div><NSpace align="center" :size="14"><NTag size="small" type="info" :bordered="false">{{ adminText('本地演示', 'Local demo') }}</NTag><NDropdown trigger="click" :options="adminLanguageOptions" :value="adminPreferences.language" @select="setAdminLanguage">
+          <NButton quaternary size="small" :title="adminText('切换语言', 'Switch language')"><Languages :size="16" />{{ adminText('中文', 'EN') }}<ChevronDown :size="14" /></NButton>
+        </NDropdown><NButton quaternary circle :title="adminText('切换明暗主题', 'Toggle color theme')" @click="toggleAdminTheme"><component :is="adminPreferences.dark ? Sun : Moon" :size="16" /></NButton><NDropdown :options="userOptions" @select="handleUserAction"><button class="user-trigger" type="button"><NAvatar round size="small" color="var(--n-primary-color, #18a058)">A</NAvatar><span>{{ adminText('管理员', 'Administrator') }}</span><ChevronDown :size="14" class="chevron" /></button></NDropdown></NSpace></NLayoutHeader><NLayoutContent class="admin-content" content-style="height:calc(100vh - 68px);padding:0;display:flex;flex-direction:column;min-height:0;"><RouterView /></NLayoutContent></NLayout>
 </NLayout></div>
+  <DemoSource :key="route.path" :path="route.path" />
 </template>
 <style lang="less">
 .admin-app {
@@ -66,13 +74,15 @@ function handleUserAction(key: string) { if (key === "logout") message.info("演
   }
 
   .admin-layout { height: 100vh; }
-  .admin-sider { display: flex; flex-direction: column; background: #fff; }
-  .brand { display: flex; align-items: center; gap: 11px; height: 68px; padding: 0 18px; border-bottom: 1px solid #e6ebf2; cursor: pointer; }
+  .admin-sider { background: #fff; }
+  .admin-sider-content { display: flex; flex-direction: column; }
+  .brand { display: flex; flex-shrink: 0; align-items: center; gap: 11px; height: 68px; padding: 0 18px; border-bottom: 1px solid #e6ebf2; cursor: pointer; }
   .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; color: white; background: var(--n-primary-color, #18a058); font-size: 18px; font-weight: 800; }
   .brand-copy { display: grid; gap: 2px; }
   .brand-copy strong { font-size: 15px; }
   .brand-copy span { color: #8a96a8; font-size: 11px; }
-  .sider-foot { margin-top: auto; padding: 16px 20px; border-top: 1px solid #e6ebf2; color: #728096; font-size: 12px; }
+  .admin-menu-scroll { flex: 1; min-height: 0; overflow: hidden auto; overscroll-behavior-y: contain; }
+  .sider-foot { flex-shrink: 0; padding: 16px 20px; border-top: 1px solid #e6ebf2; color: #728096; font-size: 12px; }
   .status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--n-success-color, #20b486); }
   .admin-main { background: transparent; }
   .admin-header { display: flex; height: 68px; align-items: center; justify-content: space-between; padding: 0 28px; background: rgba(255, 255, 255, .9); backdrop-filter: blur(8px); }

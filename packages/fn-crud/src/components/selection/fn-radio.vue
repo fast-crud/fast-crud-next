@@ -6,16 +6,20 @@
     :value="value"
     :checked="Object.is(modelValue, value)"
     :disabled="disabled"
+    :aria-label="label || fieldLabel"
     v-bind="$attrs"
     @change="change"
   />
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
+import { inject } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
 import type { FnOptionValue } from "./types";
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<{ modelValue?: FnOptionValue; value: FnOptionValue; name?: string; disabled?: boolean }>(), { modelValue: undefined, disabled: false });
+const props = withDefaults(defineProps<{ modelValue?: FnOptionValue; value: FnOptionValue; name?: string; label?: string; disabled?: boolean }>(), { modelValue: undefined, disabled: false });
+const fieldLabel = inject(fnFieldLabelKey, undefined);
 const emit = defineEmits<{ "update:modelValue": [value: FnOptionValue]; change: [value: FnOptionValue, event: Event] }>();
 
 function change(event: Event): void {

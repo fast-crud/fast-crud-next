@@ -36,6 +36,7 @@
 | `cell.resizable` | 默认允许 | 设为 `false` 时关闭拖宽。 |
 | `cell.sortable` | `boolean`，默认关闭 | 设为 `true` 时开启该列的表头排序。 |
 | `cell.ellipsis` | 布尔值 | 显示单行省略内容。 |
+| `cell.tooltip` | 字符串或 `(ctx: FnRowContext<Row>) => string \| undefined`，默认不启用 | 悬停或键盘聚焦时显示单元格提示。 |
 | `cell.setting` | `{ show?: boolean, disabled?: boolean }` | 隐藏该列的设置项，或禁止在面板中修改该列。 |
 | `cell.render` | `(ctx: FnRowContext<Row>) => VNodeChild` | 自定义内容，优先于组件渲染。 |
 | `cell.component` | 组件配置对象 | 通过 `name` 指定组件，`vModel` 默认使用 `modelValue`。更新会写回当前行。 |
@@ -44,6 +45,27 @@
 | `cell.slots.default` | 渲染回调，收到当前行上下文 | 替换单元格内容，优先于 `cell.render`。 |
 
 列宽、顺序、固定、显隐还可能被保存的[用户偏好](./table.md)覆盖。
+
+### 单元格提示
+
+将以下列配置放入 `FnCrud` 或 `FnTable` 的 `columns`。字符串用于整列共用的说明，回调接收当前行的 `FnRowContext`，可以按行生成提示。
+
+```ts
+const columns = {
+  name: {
+    key: 'name',
+    title: '服务名称',
+    cell: { width: 230, ellipsis: true, tooltip: ({ row }) => row.name },
+  },
+  owner: {
+    key: 'owner',
+    title: '负责人',
+    cell: { tooltip: '该服务的维护负责人' },
+  },
+} satisfies Record<string, FnCrudColumn<{ name: string; owner: string }>>
+```
+
+`FnCrudColumn` 从 `@fast-crud/fast-crud-next` 导入。提示适用于默认文本、`cell.render`、`cell.component` 和 `cell.slots.default`。回调返回 `undefined` 或空字符串时，关闭当前行的自定义提示。与 `cell.ellipsis` 一起使用时，有内容的自定义提示将替代浏览器的 `title` 提示。在 [Admin 请求 Mock](../demos/admin.md) 的 `/crud/basis/request-mock` 悬停「服务名称」或用 Tab 聚焦，即可查看完整名称。
 
 ## 在行上下文里计算
 

@@ -6,6 +6,7 @@
       type="checkbox"
       :checked="modelValue"
       :disabled="disabled"
+      :aria-label="label || text || fieldLabel"
       v-bind="$attrs"
       @change="change"
     />
@@ -17,10 +18,12 @@
 
 <script setup lang="tsx">
 import { Check, Minus } from "@lucide/vue";
-import { useTemplateRef, watchPostEffect } from "vue";
+import { inject, useTemplateRef, watchPostEffect } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<{ modelValue?: boolean; disabled?: boolean; indeterminate?: boolean; label?: string }>(), { modelValue: false, disabled: false, indeterminate: false });
+const props = withDefaults(defineProps<{ modelValue?: boolean; disabled?: boolean; indeterminate?: boolean; label?: string; text?: string }>(), { modelValue: false, disabled: false, indeterminate: false });
+const fieldLabel = inject(fnFieldLabelKey, undefined);
 const emit = defineEmits<{ "update:modelValue": [value: boolean]; change: [value: boolean, event: Event] }>();
 const input = useTemplateRef<HTMLInputElement>("input");
 

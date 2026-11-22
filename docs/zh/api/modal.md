@@ -32,7 +32,7 @@ const note = ref('')
 | 属性或事件 | 用法 |
 | --- | --- |
 | `v-model:open` | 绑定打开状态，组件关闭时会触发 `update:open`。 |
-| `title`、`width`、`draggable` | 设置标题、宽度和是否允许拖动。宽度支持数字像素值和 CSS 字符串。 |
+| `title`、`width`、`draggable` | 设置标题、宽度和是否允许拖动。弹窗使用标题作为可访问名称，`#title` 插槽也适用。宽度支持数字像素值和 CSS 字符串。 |
 | `confirmLoading` | 控制默认确认按钮的加载状态，并作为插槽上下文的 `loading` 提供。 |
 | `confirm`、`reset` | 点击对应默认按钮时发出。页面可在监听器中实现自己的处理。 |
 | `closed` | 关闭过渡结束后发出，适合清除上一次编辑的临时值。 |

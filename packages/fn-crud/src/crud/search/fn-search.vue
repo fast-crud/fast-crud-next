@@ -8,6 +8,7 @@
       v-bind="getComponent(column)"
       :model-value="searchState.form[column.key]"
       scope="table-search"
+      :field-label="column.title"
       @update:model-value="updateField(column.key, $event)"
       @press-enter="submit"
     />
@@ -17,20 +18,22 @@
   </form>
 </template>
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { computed, inject, type Component } from "vue";
 import { RotateCcw, Search } from "@lucide/vue";
 import FnComponentRender from "../../components/render/fn-component-render.ts";
 import FnButton from "../../components/button/fn-button.vue";
+import FnInput from "../../components/input/fn-input.vue";
 import FnRender from "../../components/render/fn-render.ts";
 import type { FnButtonItem, FnSearchProps, FnSearchColumn, FnSearchColumnResolved, FnSearchContext } from "../../types/index.ts";
 import { useCompute } from "../use/use-compute";
 import { fnCrudSearchKey } from "../../components/provider/context.ts";
 const props = defineProps<FnSearchProps>();
 const { resolveComputedValue } = useCompute();
-const searchState = inject(fnCrudSearchKey);
-if (!searchState) {
+const injectedSearchState = inject(fnCrudSearchKey);
+if (!injectedSearchState) {
   throw new Error("FnSearch 必须在 FnCrud 内使用");
 }
+const searchState = injectedSearchState;
 const context = computed<FnSearchContext>(() => ({ type: "search", form: searchState.form, columns: props.columns, reset, search: searchState.search }));
 const resolvedProps = computed(
   () =>
@@ -62,17 +65,12 @@ const contextualButtonProps = computed(() => Object.fromEntries(Object.entries(b
     })),
   },
 ])));
-function getComponent(column: FnSearchColumnResolved): Record<string, any> {
-  const resolvedComponent = resolveComputedValue(column.component || {}, context.value) as Record<string, any>;
-  const component = { ...resolvedComponent };
-  if (column.width) {
-    let width = column.width;
-    if (typeof width === "number") {
-      width = `${width}px`;
-    }
-    component.style = { ...component.style, width };
-  }
-  return component;
+function getComponent(column: FnSearchColumnResolved): { name: string | Component; [key: string]: any } {
+  const resolvedComponent = resolveComputedValue(column.component || {}, context.value);
+  const component = { ...resolvedComponent, name: resolvedComponent.name ?? FnInput };
+  if (!column.width) return component;
+  const width = typeof column.width === "number" ? `${column.width}px` : column.width;
+  return { ...component, style: { ...resolvedComponent.style, width } };
 }
 function submit(): void {
   searchState.search();

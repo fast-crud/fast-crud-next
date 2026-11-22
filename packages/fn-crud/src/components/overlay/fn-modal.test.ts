@@ -4,10 +4,22 @@ import { createRequire } from "node:module";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "typescript";
 import { describe, it, expect, vi } from "vitest";
-import { reactive } from "vue";
+import { createSSRApp, reactive } from "vue";
+import { renderToString } from "vue/server-renderer";
 import { useMerge } from "../use/use-merge";
 
 const filename = fileURLToPath(new URL("./fn-modal.vue", import.meta.url));
+
+it("从弹窗标题关联对话框，并为图标操作提供名称", async () => {
+  const { default: FnModal } = await import("./fn-modal.vue");
+  const html = await renderToString(createSSRApp(FnModal, { open: true, title: "编辑订单" }));
+  const titleId = html.match(/role="dialog"[^>]*aria-labelledby="([^"]+)"/)?.[1];
+
+  expect(titleId).toBeTruthy();
+  expect(html.replace(/<!--.*?-->/g, "")).toContain(`id="${titleId}" class="fn-modal-title">编辑订单`);
+  expect(html).toContain('aria-label="关闭"');
+  expect(html).toContain('aria-label="最大化"');
+});
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
 const script = compileScript(descriptor, { id: "fn-modal-test", fs: { fileExists: existsSync, readFile: path => readFileSync(path, "utf8") } });
 const compiled = ts.transpileModule(script.content, { compilerOptions: { module: ts.ModuleKind.CommonJS } });

@@ -15,9 +15,9 @@ const selectInput = { name: markRaw(FnSelect) };
 
 function dictChoices(name: Component, multiple = false) {
   const control = markRaw(name);
-  return ({ dict, title }: Readonly<FnCrudColumn>): FnCrudColumnTypeOptions => {
+  return ({ dict }: Readonly<FnCrudColumn>): FnCrudColumnTypeOptions => {
     const options = dict?.getOptions();
-    const component = { name: control, options, "aria-label": title };
+    const component = { name: control, options };
     return {
       cell: { component: { name: dictTag, options } },
       search: { component: { ...component, ...selectInput, multiple, clearable: true } },

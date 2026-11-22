@@ -31,12 +31,14 @@
       </button>
     </div>
     <div class="fn-pagination-options">
-      <label v-if="showSizeChanger" class="fn-pagination-size">
-        <select aria-label="每页条数" :value="pageSize" @change="changePageSize(($event.target as HTMLSelectElement).value)">
-          <option v-for="option in pageSizeOptions" :key="option" :value="Number(option)">{{ option }} 条/页</option>
-        </select>
-        <ChevronDown :size="13" />
-      </label>
+      <FnSelect
+        v-if="showSizeChanger"
+        class="fn-pagination-size"
+        aria-label="每页条数"
+        :model-value="pageSize"
+        :options="sizeOptions"
+        @update:model-value="changePageSize"
+      />
       <form v-if="showQuickJumper" class="fn-pagination-jump" @submit.prevent="submitJump">
         <span>跳至</span>
         <input v-model="jumpInput" type="number" min="1" :max="pageCount" aria-label="跳转到页码" @keyup.enter="submitJump" />
@@ -46,10 +48,12 @@
   </nav>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { computed, ref } from "vue";
-import { ChevronDown, ChevronLeft, ChevronRight } from "@lucide/vue";
+import { ChevronLeft, ChevronRight } from "@lucide/vue";
 import type { CSSProperties } from "vue";
+import FnSelect from "../../components/selection/fn-select.vue";
+import type { FnOptionValue } from "../../components/selection/types";
 import type { FnPaginationProps } from "../../types/index.ts";
 
 const props = withDefaults(defineProps<FnPaginationProps>(), {
@@ -66,6 +70,7 @@ const emit = defineEmits<{ change: [current: number, pageSize: number] }>();
 
 const total = computed(() => Math.max(0, props.total || 0));
 const pageSize = computed(() => Math.max(1, props.pageSize));
+const sizeOptions = computed(() => props.pageSizeOptions.map(option => ({ value: Number(option), label: `${option} 条/页` })));
 const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
 const activePage = computed(() => Math.min(Math.max(1, props.current), pageCount.value));
 const pageItems = computed<Array<number | "ellipsis">>(() => {
@@ -87,10 +92,9 @@ function changePage(current: number, nextPageSize: number): void {
   const nextPage = Math.min(Math.max(1, current), Math.max(1, Math.ceil(total.value / nextPageSize)));
   emit("change", nextPage, nextPageSize);
 }
-function changePageSize(value: string): void {
-  const nextPageSize = Number(value);
-  if (Number.isFinite(nextPageSize) && nextPageSize > 0) {
-    emit("change", 1, nextPageSize);
+function changePageSize(value: FnOptionValue | FnOptionValue[]): void {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0 && value !== pageSize.value) {
+    emit("change", 1, value);
   }
 }
 function jumpToPage(value: number): void {
@@ -118,7 +122,6 @@ function submitJump(): void {
   .fn-pagination-summary,
   .fn-pagination-controls,
   .fn-pagination-options,
-  .fn-pagination-size,
   .fn-pagination-jump {
     display: inline-flex;
     align-items: center;
@@ -190,28 +193,7 @@ function submitJump(): void {
     gap: 10px;
   }
   .fn-pagination-size {
-    position: relative;
-    select {
-      height: 26px;
-      appearance: none;
-      padding: 0 26px 0 9px;
-      border: 1px solid var(--fn-color-border);
-      border-radius: var(--fn-border-radius);
-      color: inherit;
-      background: transparent;
-      cursor: pointer;
-      font: inherit;
-      outline: none;
-      &:focus-visible {
-        border-color: var(--fn-pagination-primary);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--fn-pagination-primary) 16%, transparent);
-      }
-    }
-    svg {
-      position: absolute;
-      right: 8px;
-      pointer-events: none;
-    }
+    width: 8em;
   }
   .fn-pagination-jump {
     gap: 5px;

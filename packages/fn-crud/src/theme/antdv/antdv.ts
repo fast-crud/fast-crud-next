@@ -1,6 +1,6 @@
 import type { FnThemeTokenName, FnThemeTokens } from "../types";
 
-type AntdvThemeTokens = Partial<Record<FnThemeTokenName | "colorTextBase" | "fontSizeSM" | "borderRadiusSM", string | number>>;
+type AntdvThemeTokens = Partial<Record<FnThemeTokenName | "colorTextBase" | "colorBgSpotlight" | "colorTextLightSolid" | "fontSizeSM" | "borderRadiusSM" | "borderRadiusLG", string | number>>;
 
 export function mapAntdvThemeToFnTokens(tokens: AntdvThemeTokens): FnThemeTokens {
   const fnTokens: FnThemeTokens = {};
@@ -14,6 +14,8 @@ export function mapAntdvThemeToFnTokens(tokens: AntdvThemeTokens): FnThemeTokens
   if (tokens.colorBgBase) fnTokens.colorBgBase = tokens.colorBgBase;
   if (tokens.colorBgContainer) fnTokens.colorBgContainer = tokens.colorBgContainer;
   if (tokens.colorBgElevated) fnTokens.colorBgElevated = tokens.colorBgElevated;
+  if (tokens.colorBgSpotlight) fnTokens.tooltipBg = tokens.colorBgSpotlight;
+  if (tokens.colorTextLightSolid) fnTokens.tooltipText = tokens.colorTextLightSolid;
   if (tokens.colorFillAlter) fnTokens.colorFillAlter = tokens.colorFillAlter;
   if (tokens.colorFillSecondary) fnTokens.colorFillSecondary = tokens.colorFillSecondary;
   if (tokens.colorBorder) fnTokens.colorBorder = tokens.colorBorder;
@@ -23,10 +25,12 @@ export function mapAntdvThemeToFnTokens(tokens: AntdvThemeTokens): FnThemeTokens
   if (tokens.colorWarning) fnTokens.colorWarning = tokens.colorWarning;
   if (tokens.fontSizeSM) fnTokens.tagFontSize = tokens.fontSizeSM;
   if (tokens.borderRadiusSM !== undefined) fnTokens.tagBorderRadius = tokens.borderRadiusSM;
+  if (tokens.borderRadiusSM !== undefined) fnTokens.feedbackCloseBorderRadius = tokens.borderRadiusSM;
+  if (tokens.borderRadiusLG !== undefined) fnTokens.feedbackBorderRadius = tokens.borderRadiusLG;
   for (const key of ["colorInfo", "colorSuccessBg", "colorSuccessBorder", "colorWarningBg", "colorWarningBorder", "colorErrorBg", "colorErrorBorder", "colorInfoBg", "colorInfoBorder"] as const) {
     if (tokens[key] !== undefined) fnTokens[key] = tokens[key];
   }
-  if (tokens.borderRadius) fnTokens.borderRadius = tokens.borderRadius;
+  if (tokens.borderRadius !== undefined) fnTokens.borderRadius = tokens.borderRadius;
   if (tokens.controlHeight) fnTokens.controlHeight = tokens.controlHeight;
 
   return fnTokens;

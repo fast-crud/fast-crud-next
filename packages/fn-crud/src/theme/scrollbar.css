@@ -1,0 +1,28 @@
+:where(.fn-config-provider *, .fn-table-scroll)::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:where(.fn-config-provider *, .fn-table-scroll)::-webkit-scrollbar-track,
+:where(.fn-config-provider *, .fn-table-scroll)::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+:where(.fn-config-provider *, .fn-table-scroll)::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fn-color-text-tertiary) 65%, transparent);
+  background-clip: padding-box;
+}
+
+:where(.fn-config-provider *, .fn-table-scroll)::-webkit-scrollbar-thumb:hover {
+  background: var(--fn-color-primary);
+  background-clip: padding-box;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :where(.fn-config-provider *, .fn-table-scroll) {
+    scrollbar-color: var(--fn-color-text-tertiary) transparent;
+    scrollbar-width: thin;
+  }
+}

@@ -2,10 +2,10 @@
   <form class="fn-form" v-bind="formProps" :style="formStyle" @submit.prevent="save">
     <div class="fn-form-grid" :style="{ gap: `${gutter}px` }">
       <div v-for="column in formColumns" :key="column.key" class="fn-form-column" :style="{ gridColumn: `span ${column.span ?? 12}` }">
-        <FnFormItem v-if="column.show !== false" :label="column.title" :error="errors[column.key]" :help="column.helper" :html-for="column.key" v-bind="column.itemProps">
+        <FnFormItem v-if="column.show !== false" :label="column.title" :error="errors[column.key]" :help="column.helper" :html-for="column.controlId" v-bind="column.itemProps">
           <slot :name="column.key" :column="column" :form="formState" :value="formState[column.key]">
-            <FnComponentRender v-if="column.component" :name="column.component.name!" v-bind="column.component" v-model:model-value="formState[column.key]" scope="form" :field-key="column.key" />
-            <FnInput v-else :id="column.key" v-model="formState[column.key]" @update:model-value="validateField(column.key)" @blur="validateField(column.key)" />
+            <FnComponentRender v-if="column.component" :name="column.component.name!" v-bind="column.component" :id="column.controlId" v-model:model-value="formState[column.key]" scope="form" :field-key="column.key" />
+            <FnInput v-else :id="column.controlId" v-model="formState[column.key]" @update:model-value="validateField(column.key)" @blur="validateField(column.key)" />
           </slot>
         </FnFormItem>
       </div>
@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, reactive } from "vue";
+import { computed, provide, reactive, useId, useSlots } from "vue";
 import FnComponentRender from "../render/fn-component-render.ts";
 import FnInput from "../input/fn-input.vue";
 import FnFormItem from "./fn-form-item.vue";
@@ -24,7 +24,7 @@ import { useCompute } from "../../crud/use/use-compute";
 import type { FnFormColumn } from "../../types/index.ts";
 import type { FnFormContext, FnFormProps } from "./types";
 
-type ResolvedFormColumn = Omit<FnFormColumn, "title" | "show"> & { title?: string; show?: boolean };
+type ResolvedFormColumn = Omit<FnFormColumn, "title" | "show"> & { title?: string; show?: boolean; controlId: string };
 const { resolveComputedValue } = useCompute();
 
 const props = withDefaults(
@@ -58,9 +58,15 @@ const initialValues = {
   ...props.initialForm,
 };
 const formState = reactive({ ...initialValues });
+const formId = useId();
+const slots = useSlots();
 const formColumns = computed<ResolvedFormColumn[]>(() =>
   Object.entries(props.columns)
-    .map(([key, column]) => ({ ...resolveComputedValue(column, { type: "form", form: formState, mode: mode.value }), key }) as ResolvedFormColumn)
+    .map(([key, column]) => {
+      const resolved = resolveComputedValue(column, { type: "form", form: formState, mode: mode.value });
+      const controlId = resolved.itemProps?.htmlFor ?? resolved.component?.id ?? (slots[key] ? key : `${formId}-${key}`);
+      return { ...resolved, key, controlId } as ResolvedFormColumn;
+    })
     .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
 );
 const formStyle = computed(() => ({ ...((props.formProps.style as Record<string, string>) || {}), "--fn-form-label-width": (props.labelCol?.style?.width as string) || "100px" }));

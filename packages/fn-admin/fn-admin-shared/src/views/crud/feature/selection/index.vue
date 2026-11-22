@@ -3,10 +3,11 @@ import { computed, markRaw, reactive, ref } from "vue";
 import { FnButtonBase, FnCrud, FnInput, type FnCrudExpose, type FnCrudState, useFnCrud } from "@fast-crud/fast-crud-next";
 import { api, type ChangeRequest } from "./api";
 const crud = ref<FnCrudExpose<ChangeRequest>>();
+const showRowSelection = ref(true);
 const state = reactive({
   id: "shared-selection-change-requests",
-  heading: { title: "跨页选择示例", description: "跨页保留已选变更，并对所选记录执行批量发布。" },
-  rowSelect: { crossPage: true, selectedRowKeys: [] },
+  heading: { title: "跨页选择示例", description: "在两页各勾选一条记录，确认选中数累加，再点击「批量发布」或从「批量操作」中选择「批量删除」。" },
+  rowSelect: { show: showRowSelection, crossPage: true, selectedRowKeys: [] },
   columns: {
     id: { key: "id", title: "变更单", cell: { width: 90 } },
     title: { key: "title", title: "变更内容", search: { component: { name: markRaw(FnInput) as any, vModel: "modelValue", placeholder: "搜索变更内容" }, width: 230 }, form: { rules: [{ required: true, message: "请输入变更内容" }] }, cell: { order: 1 } },
@@ -34,6 +35,7 @@ async function publishSelected(): Promise<void> { await api.publish(selectedKeys
   <div class="crud-page showcase-page">
       <FnCrud ref="crud" v-bind="state">
         <template #actionRight="{ selectedRowKeys }">
+          <FnButtonBase type="default" :text="showRowSelection ? '隐藏选择列' : '显示选择列'" @click="showRowSelection = !showRowSelection" />
           <span>已选 {{ selectedRowKeys.length }} 条</span>
           <FnButtonBase type="default" text="批量发布" :disabled="!selectedRowKeys.length" @click="publishSelected" />
         </template>

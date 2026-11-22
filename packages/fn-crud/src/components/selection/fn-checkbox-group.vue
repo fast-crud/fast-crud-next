@@ -1,8 +1,9 @@
 <template>
-  <div class="fn-checkbox-group" role="group">
+  <div class="fn-checkbox-group" role="group" :aria-label="label || fieldLabel">
     <label v-for="option in visibleOptions" :key="typeof option.value + ':' + option.value" class="fn-checkbox-group-option">
       <FnCheckbox
         :model-value="selectedValues.includes(option.value)"
+        :text="option.label"
         :disabled="disabled || option.disabled"
         @update:model-value="toggle(option.value, $event)"
       />
@@ -12,16 +13,19 @@
 </template>
 
 <script setup lang="tsx">
-import { computed } from "vue";
+import { computed, inject } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
 import FnCheckbox from "./fn-checkbox.vue";
 import type { FnOptionValue, FnSelectOption } from "./types";
 
 const props = withDefaults(defineProps<{
   modelValue?: FnOptionValue | FnOptionValue[];
   options?: FnSelectOption[];
+  label?: string;
   disabled?: boolean;
 }>(), { options: () => [] });
 const emit = defineEmits<{ "update:modelValue": [value: FnOptionValue[]] }>();
+const fieldLabel = inject(fnFieldLabelKey, undefined);
 const selectedValues = computed(() => {
   const value = props.modelValue;
   if (Array.isArray(value)) return value;

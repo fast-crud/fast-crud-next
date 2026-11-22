@@ -2,7 +2,7 @@ import type { ComputedRef, InjectionKey } from "vue";
 import { provide, unref, type MaybeRef } from "vue";
 import { translateFnCrud, type FnCrudI18n, type FnCrudLocale } from "../../locale";
 import type { FnCrudColumnType, FnCrudOptions, FnCrudSearchState, FnTableProps } from "../../types/index.ts";
-import { createFnNotification } from "../feedback/fn-notification.ts";
+import { createFnFeedbackQueue } from "../feedback/fn-feedback.ts";
 
 export interface FnFeedbackApi {
   success(options: any): void;
@@ -21,14 +21,12 @@ export interface FnUiServices {
 }
 
 export class UiContext {
-  readonly notificationItems: ReturnType<typeof createFnNotification>["items"];
-  private services: FnUiServices;
-
-  constructor() {
-    const defaults = createFnNotification();
-    this.notificationItems = defaults.items;
-    this.services = defaults.services;
-  }
+  private readonly notificationQueue = createFnFeedbackQueue();
+  private readonly messageQueue = createFnFeedbackQueue();
+  readonly notificationItems = this.notificationQueue.items;
+  readonly messageItems = this.messageQueue.items;
+  readonly dismissNotification = this.notificationQueue.remove;
+  private services: FnUiServices = { notification: this.notificationQueue.api, message: this.messageQueue.api };
 
   getServices(): FnUiServices {
     return this.services;

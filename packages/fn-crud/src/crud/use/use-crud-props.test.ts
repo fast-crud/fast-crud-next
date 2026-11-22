@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { createRowSelectionColumn, useActionbarProps, usePaginationProps, useResolvedColumns, useRowHandleProps, useSearchProps, useTabsProps } from "./use-crud-props";
 import { isFnComputeValue, useCompute } from "./use-compute";
 import type { FnCrudOptions, FnRowContext } from "../../types/index";
@@ -73,7 +73,26 @@ it("搜索列覆盖深度合并 component 并在合并后解析叶子 compute", 
   expect(isFnComputeValue(searchColumn)).toBe(true);
   if (!isFnComputeValue(searchColumn)) return;
   expect(searchColumn.computeFn({ type: "search", form: { locked: true } })).toEqual({
+    title: "名称",
     component: { name: "FnInput", props: { clearable: true }, placeholder: "搜索名称", disabled: true },
+  });
+});
+
+it("从表格字段继承搜索项标题并支持搜索配置覆盖", () => {
+  const props: FnCrudOptions = {
+    columns: {
+      product: { key: "product", title: "套餐" },
+      status: { key: "status", title: "状态" },
+    },
+    search: { columns: { product: {}, status: { title: "套餐状态" } } },
+    request: { pageRequest: vi.fn() },
+  };
+  const searchProps = useSearchProps(props, useResolvedColumns(props)).value;
+  const { resolveComputedValue } = useCompute();
+
+  expect(resolveComputedValue(searchProps.columns, { type: "search" })).toMatchObject({
+    product: { title: "套餐" },
+    status: { title: "套餐状态" },
   });
 });
 
@@ -199,10 +218,20 @@ it("行选择列默认不固定，可按 rowSelect.fixed 配置固定", () => {
   expect(getFixed(createColumn("left"))).toBe("left");
 });
 
-it("当前 pageSize 不在选项中时仍将其加入选择项", () => {
+it("当前 pageSize 不在选项中时追加到末尾", () => {
   const pagination = usePaginationProps({ columns: {}, request: { pageRequest: vi.fn() } }, { current: 1, pageSize: 5, total: 3 }, vi.fn()).value;
 
-  expect(pagination.pageSizeOptions).toEqual(["5", "10", "20", "50", "100"]);
+  expect(pagination.pageSizeOptions).toEqual(["10", "20", "50", "100", "5"]);
+});
+
+it("切换每页条数后保留配置的选项顺序", () => {
+  const props: FnCrudOptions = { columns: {}, request: { pageRequest: vi.fn() }, pagination: { pageSizeOptions: ["50", "10", "20"] } };
+  const page = reactive({ current: 1, pageSize: 10, total: 100 });
+  const pagination = usePaginationProps(props, page, vi.fn());
+
+  expect(pagination.value.pageSizeOptions).toEqual(["50", "10", "20"]);
+  page.pageSize = 20;
+  expect(pagination.value.pageSizeOptions).toEqual(["50", "10", "20"]);
 });
 
 it("pagination props 将页码变化交给传入的分页行为", () => {

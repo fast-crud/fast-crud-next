@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import './index'
+import { createCrudApi } from './crud-api'
 import { requestMock } from './http'
 import type { ServiceRecord } from './types'
 
@@ -20,7 +21,22 @@ describe('axios mock adapter CRUD endpoints', () => {
   it('adds, updates, and deletes a record through the copied buildMock routes', async () => {
     const added = await requestMock<ServiceRecord>({ method: 'post', url: '/mock/FnCrudServices/add', data: { name: '接口 mock 测试', owner: '平台组' } })
     await requestMock({ method: 'post', url: '/mock/FnCrudServices/update', data: { id: added.id, status: '运行中' } })
-    await requestMock({ method: 'post', url: '/mock/FnCrudServices/delete', params: { id: added.id } })
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    try {
+      const deletion = createCrudApi<ServiceRecord>('FnCrudServices').delRequest(added.id)
+      expect(log).toHaveBeenCalledWith('[CRUD Mock] 请求 POST /mock/FnCrudServices/delete', {
+        params: { id: added.id },
+        data: {},
+      })
+      const result = await deletion
+      expect(log).toHaveBeenCalledWith('[CRUD Mock] 响应 POST /mock/FnCrudServices/delete', {
+        code: 0,
+        msg: 'success',
+        data: result,
+      })
+    } finally {
+      log.mockRestore()
+    }
 
     const page = await requestMock<{ records: ServiceRecord[]; total: number }>({ method: 'get', url: '/mock/FnCrudServices/page', data: { page: { offset: 0, limit: 20 }, query: { name: '接口 mock 测试' } } })
     expect(page.total).toBe(0)

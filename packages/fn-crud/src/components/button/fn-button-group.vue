@@ -6,7 +6,7 @@
       type="button"
       :class="{ active: Object.is(modelValue, option.value) }"
       :disabled="disabled || option.disabled"
-      :aria-label="option.ariaLabel || option.label || option.title || String(option.value)"
+      :aria-label="option.label || option.title || String(option.value)"
       :aria-pressed="Object.is(modelValue, option.value)"
       :title="option.title || option.label"
       @click="select(option.value)"
@@ -25,7 +25,6 @@ export interface FnButtonGroupOption {
   value: string | number;
   label?: string;
   title?: string;
-  ariaLabel?: string;
   icon?: Component;
   disabled?: boolean;
 }

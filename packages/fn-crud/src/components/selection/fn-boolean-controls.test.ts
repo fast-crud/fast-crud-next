@@ -2,6 +2,7 @@ import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { expect, it } from "vitest";
 import FnCheckbox from "./fn-checkbox.vue";
+import FnRadio from "./fn-radio.vue";
 import FnSwitch from "./fn-switch.vue";
 
 it("把复选框标签与原生输入关联，并保留输入属性", async () => {
@@ -16,17 +17,23 @@ it("把复选框标签与原生输入关联，并保留输入属性", async () =
 });
 
 it("省略标签时保持无文字复选框结构", async () => {
-  const html = await renderToString(createSSRApp(FnCheckbox, { "aria-label": "选择行" }));
+  const html = await renderToString(createSSRApp(FnCheckbox, { text: "选择行" }));
 
   expect(html).toMatch(/^<span\b.*<input\b[^>]*aria-label="选择行"/);
   expect(html).not.toContain("fn-checkbox-label");
+});
+
+it("用选项文案命名单选控件", async () => {
+  const html = await renderToString(createSSRApp(FnRadio, { value: "left", label: "左对齐" }));
+
+  expect(html).toContain('aria-label="左对齐"');
 });
 
 it.each([true, false])("渲染开关的布尔状态 %s 和禁用状态", async (modelValue) => {
   const html = await renderToString(createSSRApp(FnSwitch, {
     modelValue,
     disabled: true,
-    "aria-label": "启用通知",
+    label: "启用通知",
   }));
 
   expect(html).toContain('type="button"');

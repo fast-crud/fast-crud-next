@@ -55,7 +55,7 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
           icon: defaultCrudButtonIcons.batch,
           text: computed(() => t("fnCrud.crud.actionbar.batch")),
           type: "default",
-          show: true,
+          show: computed(() => state.rowSelect?.show || true),
           order: 0,
           buttonType: "dropdown",
           items: [{ key: "delete", label: computed(() => t("fnCrud.crud.actionbar.batchDelete")), icon: defaultCrudButtonIcons.delete, danger: true }],
@@ -77,9 +77,11 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
       onChange: selectedRowKeys => {
         state.rowSelect!.selectedRowKeys = [...selectedRowKeys];
       },
+      show: true,
       fixed: "left",
     },
     table: {
+      show: true,
       size: 13,
       "onUpdate:density": density => {
         state.table!.density = density;
@@ -89,6 +91,7 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
       },
     },
     pagination: {
+      show: true,
       "onUpdate:current": current => {
         state.pagination!.current = current;
       },

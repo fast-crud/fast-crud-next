@@ -1,11 +1,11 @@
 <template>
   <Transition name="fn-modal" appear @after-leave="emit('closed')">
   <div v-if="props.open" class="fn-modal-mask" @mousedown.self="close">
-    <div ref="modalElementRef" :class="['fn-modal', { 'fn-modal-maximized': fullscreenState }]" :style="{ width: fullscreenState ? '100%' : typeof width === 'number' ? `${width}px` : width }" v-bind="$attrs">
+    <div ref="modalElementRef" :class="['fn-modal', { 'fn-modal-maximized': fullscreenState }]" :style="{ width: fullscreenState ? '100%' : typeof width === 'number' ? `${width}px` : width }" role="dialog" aria-modal="true" :aria-labelledby="title || slots?.title ? titleId : undefined" v-bind="$attrs">
       <div ref="headerRef" class="fn-modal-titlebar">
         <div class="fn-modal-title-group">
           <FnRender v-if="slots?.headerLeft" :render="slots.headerLeft" :get-context="getSlotContext" />
-          <div class="fn-modal-title">
+          <div :id="titleId" class="fn-modal-title">
             <FnRender v-if="slots?.title" :render="slots.title" :get-context="getSlotContext" />
             <template v-else>{{ title }}</template>
           </div>
@@ -15,11 +15,11 @@
 
         <div class="fn-modal-titlebar-actions">
           <FnRender v-if="slots?.headerActionLeft" :render="slots.headerActionLeft" :get-context="getSlotContext" />
-          <button type="button" title="最大化" @click.stop="toggleMaximized">
+          <button type="button" :title="maximizeText" :aria-label="maximizeText" @click.stop="toggleMaximized">
             <Minimize2 v-if="fullscreenState" :size="16" />
             <Maximize2 v-else :size="16" />
           </button>
-          <button type="button" title="关闭" @click.stop="close">
+          <button type="button" :title="closeText" :aria-label="closeText" @click.stop="close">
             <X :size="16" />
           </button>
           <FnRender v-if="slots?.headerActionRight" :render="slots.headerActionRight" :get-context="getSlotContext" />
@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { Maximize2, Minimize2, X } from "@lucide/vue";
-import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from "vue";
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, useId, useSlots, watch } from "vue";
 import FnButton from "../button/fn-button.vue";
 import FnRender from "../render/fn-render.ts";
 import type { FnModalProps } from "./types";
@@ -82,6 +82,9 @@ const emit = defineEmits<{
   closed: [];
 }>();
 const fullscreenState = ref(false);
+const titleId = useId();
+const closeText = "关闭";
+const maximizeText = computed(() => fullscreenState.value ? "还原窗口" : "最大化");
 function getSlotContext() {
   return { close, confirm: () => emit("confirm"), loading: props.confirmLoading };
 }

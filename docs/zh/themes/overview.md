@@ -30,6 +30,20 @@ FnCrud 使用 `--fn-*` CSS 变量。应用可直接覆写 token，也可以选�
 
 三套 [Admin](../demos/admin.md) 分别展示初始化方式。页面仍由 `FnConfigProvider` 提供 FnCrud 的弹窗与通知上下文。
 
+## Tooltip 的配色
+
+`FnTooltip` 和表格的 `cell.tooltip` 默认使用黑底白字。`--fn-tooltip-bg` 同时控制浮层和箭头的背景，`--fn-tooltip-text` 控制文字颜色。在应用的全局样式中为 `body` 设置这些变量，即可覆盖挂载到 `body` 的 Tooltip 配色。
+
+## 消息与通知的样式
+
+内置 Message 和 Notification 随主题适配器更新圆角、背景和状态色。
+
+- **Ant Design Vue** 使用 `borderRadiusLG` 作为卡片圆角，通知关闭按钮使用 `borderRadiusSM`。
+- **Element Plus** 的 Message 使用基础圆角和各状态的浅底色。Notification 使用通知圆角，默认 `8px`，可在根元素覆盖 `--el-notification-radius`。
+- **Naive UI** 使用 `borderRadius` 和 `popoverColor`，状态图标使用对应的主题色。
+
+应用也可直接设置 `--fn-feedback-border-radius` 和 `--fn-feedback-bg`。[消息与通知示例](../demos/admin.md#从哪里看起)
+
 ## Ant Design Vue
 
 在 `ConfigProvider` 的后代组件中读取 token。下面的桥接组件可包住页面内容。
@@ -67,7 +81,7 @@ useElementTheme()
 </template>
 ```
 
-FnCrud 从 Element Plus 的 `--el-*` 变量读取对应颜色、圆角和控件高度。应用自己的主题切换需要更新宿主变量。例如宿主将主题变量定义在根元素的 `.dark` 模式下时，也在根元素切换该 class。
+FnCrud 从 Element Plus 的 `--el-*` 变量读取对应颜色、圆角和控件高度。Element Plus Admin 加载 `element-plus/theme-chalk/dark/css-vars.css`，并在根元素切换 `.dark`，让页面和浮层共享同一套暗色变量。
 
 ## Naive UI
 

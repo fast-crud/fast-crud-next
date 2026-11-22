@@ -7,7 +7,7 @@
     </template>
     <template #content="{ close }">
       <div class="fn-table-header-filter-panel" @click.stop>
-        <FnCheckboxGroup v-model="selection" :options="options" :aria-label="label" />
+        <FnCheckboxGroup v-model="selection" :options="options" :label="label" />
         <div class="fn-table-header-filter-actions">
           <FnButtonBase type="default" text="重置" @click="submit([], close)" />
           <FnButtonBase text="确认" @click="submit(selection, close)" />

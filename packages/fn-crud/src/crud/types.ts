@@ -1,7 +1,7 @@
 import type { ComputedRef, CSSProperties, Ref, VNodeChild } from "vue";
 import type { FnButtonProps } from "../components/button/types";
 import type { FnFormContext, FnFormContextRef, FnFormDialogOptions } from "../components/form/types";
-import type { FnDialogContext } from "../components/overlay/types";
+import type { FnDialogContext, FnModalProps } from "../components/overlay/types";
 import type { FnComponentProps, FnSlots } from "../components/render/types";
 import type { FnOptionValue, FnSelectOption } from "../components/selection/types";
 
@@ -124,6 +124,7 @@ export interface FnTableColumn<Row = any> {
   class?: string;
   align?: "left" | "center" | "right";
   ellipsis?: boolean;
+  tooltip?: string | ((ctx: FnRowContext<Row>) => string | undefined);
   fixed?: "left" | "right";
   order?: number;
   setting?: FnColumnSettingControl;
@@ -206,6 +207,7 @@ export interface FnPaginationTarget {
 }
 
 export interface FnRowSelectOptions {
+  show?: boolean;
   title?: string;
   type?: "single" | "multiple";
   fixed?: "left" | "right" | null;
@@ -230,6 +232,7 @@ export interface FnTableProps {
   loading?: boolean;
   minWidth?: number | string;
   rowKey?: string | ((row: FnTableRow) => string | number);
+  onRowClick?: (row: FnTableRow, index: number) => void;
   emptyText?: string;
   slots?: FnSlots;
 }
@@ -296,6 +299,7 @@ export interface FnTableSelectProps<Row = FnTableRow> {
   crudOptions: FnCrudOptions<Row>;
   dict: FnDictStore;
   title?: string;
+  dialog?: Omit<FnModalProps, "open">;
   placeholder?: string;
   disabled?: boolean;
   allowClear?: boolean;
@@ -334,6 +338,7 @@ export interface FnTableLayoutRow {
 export type FnTablePropsRef = Ref<FnTableProps>;
 
 export interface FnSearchColumn {
+  title?: string;
   show?: boolean;
   order?: number;
   component?: Record<string, any>;

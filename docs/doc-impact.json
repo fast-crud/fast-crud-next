@@ -60,6 +60,10 @@
   "packages/fn-crud/src/components/provider/": [
     "guide/installation.md"
   ],
+  "packages/fn-crud/src/components/feedback/": [
+    "api/components.md",
+    "demos/admin.md"
+  ],
   "packages/fn-crud/src/components/button/": [
     "api/actions.md"
   ],
@@ -84,6 +88,10 @@
     "agent-index.md"
   ],
   "packages/fn-admin/*/src/router/**": [
+    "demos/admin.md"
+  ],
+  "packages/fn-admin/fn-admin-shared/src/views/components/feedback/": [
+    "api/components.md",
     "demos/admin.md"
   ],
   "packages/fn-admin/fn-admin-shared/src/views/crud/basis/request-mock/": [

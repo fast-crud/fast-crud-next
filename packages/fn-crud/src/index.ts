@@ -1,4 +1,5 @@
 import "./theme/tokens.css";
+import "./theme/scrollbar.css";
 
 export { default as FnCrud } from "./crud/fn-crud.vue";
 export { default as FnTable } from "./crud/table/fn-table.vue";

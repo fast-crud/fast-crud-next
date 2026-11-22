@@ -8,9 +8,9 @@
 
 - 本仓库是 Fast Crud Next 当前的开发工作区。除非任务明确要求，否则所有实现都留在本仓库。
 - 项目是独立的 Vue 3 + TypeScript CRUD 组件开发与演示项目。
-- `src/crud` 维护 FnCrud 及其本地 UI 基础组件。不要依赖 Fast Crud 或 `@certd/ui-client`。
-- 不添加 Ant Design Vue。基础表格、表单、搜索、弹窗和工具栏应使用本地 Fn 组件或原生 HTML 控件；可选主题适配器必须保持独立，不得由基础入口加载。
-- demo 数据和页面展示放在 `src/App.vue`；可复用的组件行为放在 `src/crud`。
+- `packages/fn-crud/src` 维护 FnCrud 核心、表单、表格、Provider、主题及本地 UI 基础组件。不要依赖 Fast Crud 或 `@certd/ui-client`。
+- FnCrud 核心不引入 Ant Design Vue 等宿主 UI 框架。基础表格、表单、搜索、弹窗和工具栏应使用本地 Fn 组件或原生 HTML 控件。可选主题适配器必须保持独立，按需通过各自入口加载。
+- `packages/fn-crud` 只维护可复用组件。演示应用入口、页面和示例数据放在 `packages/fn-admin` 对应的应用或共享包中。
 
 ## 设计原则
 
@@ -18,6 +18,13 @@
 - 配置处理分为两个连续阶段：先使用 `useMerge().merge` 深度合并各来源，再由拥有正确上下文的组件解析 `compute(...)` 等动态值。动态性优先放在叶子属性；只有对象结构本身随上下文变化时才整体计算。
 - 组件按职责分工：状态由一个组件持有，回调由对应领域组件执行，组合组件负责映射配置与协调生命周期。不要让多个组件重复维护状态或重复解释同一份配置。
 - API 的返回值和事件应准确表达生命周期与数据语义。需要等待子组件挂载才能构造有效 context 时，等待后返回该 context；按钮回调负责动作，不用 Promise 返回值替代已有的 context。
+
+## 自定义组件主题
+
+- 仓库内所有自定义组件都必须继承当前宿主 UI 主题，包括 Fn 基础组件、CRUD 组件、Admin 页面组件及挂载到其他 DOM 节点的浮层。主色、语义状态色、文字、背景、边框、圆角等视觉属性应使用宿主主题 token，随主题配置和明暗模式切换实时更新。
+- FnCrud 组件优先复用现有 `--fn-*` 变量。需要新的主题值时，在独立主题适配器映射宿主 token，并为未接入适配器的应用提供 Fn 默认主题值。Admin 自定义组件可直接使用宿主提供的主题 token。组件样式中的主题相关值统一由这些 token 提供。
+- 消息、通知、弹窗、下拉菜单等浮层须确保渲染节点能取得当前主题。新增或修改组件样式时，验证涉及的宿主 UI 在亮色、暗色及自定义主题下的表现。
+- `packages/fn-crud/src` 的样式使用本地 Fn 组件类和主题变量，禁止使用 `.ant-*`、`.n-*`、`.el-*` 等第三方 UI 组件类选择器覆盖样式。
 
 ## 工具使用边界
 
@@ -39,15 +46,15 @@
 - 读取或写入对象嵌套路径时优先使用 `lodash-es/get` 和 `lodash-es/set`，不要手写 `split('.')` 配合循环或 `reduce` 遍历路径；普通记录键、配置键和数组索引访问不属于路径操作，不需要强行替换。
 - 组件库已有图标使用 `@lucide/vue`。
 - 所有 Vue 组件样式统一使用 `<style lang="less">`，并用 Less 大括号嵌套结构编写；默认不使用 `scoped`。选择器应尽量嵌套在组件名对应的根 class 下，避免无根 class 的全局规则；Teleport/Portal、Transition 状态等根节点外渲染的内容，可使用有明确组件前缀的独立根 class。确需使用 `scoped` 时应说明原因；可复用组件需要保留日间和夜间主题表现。
-- CRUD state 使用单一数据源：通过 `reactive<FnCrudState>()` 创建，调用 `useFnCrud(state)` 初始化，并将同一份 state 通过 `v-bind` 传给 FnCrud。
-- `useFnCrud` 负责构建一套 `crudOptions`，并通过 `v-bind="crudOptions"` 传给 FnCrud；FnCrud 在内部为各内置子组件分别计算 props，再通过 `v-bind` 传给对应子组件。不要在 FnCrud 模板中逐项展开传递子组件 props；除控制显隐所需的 `v-if` 等条件外，子组件配置应集中在对应的 `xxxProps` 中。
-- 配置合并是 FnCrud 的核心逻辑，不限于表单：涉及配置对象合并时优先使用 `useMerge().merge` 做深度合并，避免浅展开丢失嵌套配置；它会保留数组覆盖、Ref 和叶子 `compute(...)` 等动态值语义。`useFnCrud` 按默认值、全局 `commonOptions`、局部 state 的优先级合并 `crudOptions`；FnCrud 的各 `xxxProps` 再组合所属配置与内置回调、运行时状态和插槽，并将完整 props 集中传给对应子组件。新增或调整配置时应明确来源优先级及回调保留规则，避免调用方拆开向组件传递多份配置。
+- CRUD state 使用单一数据源。通过 `reactive<FnCrudState>()` 创建 state，调用 `useFnCrud({ state })` 初始化，并将同一份 state 通过 `v-bind` 传给 FnCrud。可按需传入 `crudRef`。
+- `useFnCrud` 将合并后的配置写入并返回同一份响应式 state。FnCrud 在内部为各内置子组件分别计算 props，再通过 `v-bind` 传给对应子组件。除控制显隐所需的 `v-if` 等条件外，子组件配置应集中在对应的 `xxxProps` 中。
+- 配置合并是 FnCrud 的核心逻辑，不限于表单：涉及配置对象合并时优先使用 `useMerge().merge` 做深度合并，避免浅展开丢失嵌套配置；它会保留数组覆盖、Ref 和叶子 `compute(...)` 等动态值语义。`useFnCrud` 按默认值、全局 `commonOptions`、局部 state 的优先级合并配置；FnCrud 的各 `xxxProps` 再组合所属配置与内置回调、运行时状态和插槽，并将完整 props 集中传给对应子组件。新增或调整配置时应明确来源优先级及回调保留规则，避免调用方拆开向组件传递多份配置。
 - 表单配置是上述合并逻辑的一个具体场景：打开新增/编辑表单时，以公共 `form` 为基础合并对应的 `addForm` / `editForm`，模式配置覆盖公共配置，得到单份表单选项后通过一个 options 对象传给 FnFormDialog；默认请求处理直接作为 `onSubmit`，允许用户配置覆盖；动态值由 FnFormDialog 使用当前 form context 解析。
 - Actionbar 和 Toolbar 各由对应的内置组件负责渲染与内部行为：使用 FnActionbar 承载 actionbar 配置，Toolbar 内部处理按钮和列设置。不要在 FnCrud 中自行遍历 Toolbar 按钮或渲染列设置，也不要为 Actionbar、Toolbar 转发或渲染没有用途的默认 slot。
-- 项目尚未正式发布，公开配置和行为变更无需保留旧字段或内部兼容兜底；应直接迁移仓库内调用方、示例和测试到最清晰的新接口。用户可观察或修改的运行时状态应归入对应的 `crudState` 领域配置，并由 `useFnCrud(state)` 安装写回回调，避免组件内部维护重复数据源。
-- 表格选择状态的唯一数据源为 `crudState.rowSelect.selectedRowKeys`；`useFnCrud(state)` 初始化空数组并安装 `onChange` 写回，FnCrud 不另存一份选择 keys。
+- 项目尚未正式发布，公开配置和行为变更无需保留旧字段或内部兼容兜底；应直接迁移仓库内调用方、示例和测试到最清晰的新接口。用户可观察或修改的运行时状态应归入对应的 `crudState` 领域配置，并由 `useFnCrud({ state })` 安装写回回调，避免组件内部维护重复数据源。
+- 表格选择状态的唯一数据源为 `crudState.rowSelect.selectedRowKeys`；`useFnCrud({ state })` 初始化空数组并安装 `onChange` 写回，FnCrud 不另存一份选择 keys。
 - 使用 `installFnCrud({ commonOptions: () => options })` 注册全局默认项；不要为每个列表复制一份可变用户 state。
-- 可被用户或内部组件修改的配置通常由 `crudState` 持有，并由 `useFnCrud(state)` 安装写回回调；组件通过语义明确的更新事件或回调表达修改，不要求强行使用 `v-model`。
+- 可被用户或内部组件修改的配置通常由 `crudState` 持有，并由 `useFnCrud({ state })` 安装写回回调；组件通过语义明确的更新事件或回调表达修改，不要求强行使用 `v-model`。
 - 列设置偏好（显隐、固定、顺序和用户调整后的宽度）是独立于开发者 `columns[key].cell` 的用户数据源，由 `FnCrud` 内部 `ref` 持有并持久化。表格列由开发者配置与用户偏好合并，用户偏好优先；不要通过 `useFnCrud` 改写开发者列配置，也不要在未调整宽度时保存宽度覆盖。
 - `pageSize` 和 `density` 的用户偏好同样由 `FnCrud` 内部状态持有，通过 computed 与开发者配置合并。用户修改时触发 `pagination` / `table` 的 `update` 回调并保存偏好；`useFnCrud` 的自动写回应保留并调用使用者传入的回调。
 - 更新事件应贴合数据结构。列设置事件由 `FnCrud` 内部处理；列宽通过 `FnTable` 的 `column-resize({ key, width })` 事件更新内部用户偏好。其他用户可修改配置仍按其领域的单一数据源处理，避免把事件逐层转发到 FnCrud 再中转写入。

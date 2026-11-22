@@ -11,8 +11,8 @@ import { FnButtonGroup, FnCheckbox, FnRadio } from "@fast-crud/fast-crud-next";
 `FnCheckbox` 使用布尔值 `v-model`，支持 `disabled`、`indeterminate` 和原生 input 属性。`change` 事件参数为 `(checked, event)`。
 
 ```vue
-<FnCheckbox v-model="visible" aria-label="显示服务名称" />
-<FnCheckbox :model-value="someVisible" :indeterminate="someVisible && !allVisible" aria-label="全选" />
+<FnCheckbox v-model="visible" label="显示服务名称" />
+<FnCheckbox :model-value="someVisible" :indeterminate="someVisible && !allVisible" text="全选" />
 ```
 
 ## 单选框
@@ -20,22 +20,22 @@ import { FnButtonGroup, FnCheckbox, FnRadio } from "@fast-crud/fast-crud-next";
 `FnRadio` 使用 `modelValue` 和 `value` 比较选中项。需要互斥的一组单选框应传入相同的 `name`；`change` 参数为 `(value, event)`。
 
 ```vue
-<FnRadio v-model="alignment" name="alignment" value="left" aria-label="左对齐" />
-<FnRadio v-model="alignment" name="alignment" value="right" aria-label="右对齐" />
+<FnRadio v-model="alignment" name="alignment" value="left" label="左对齐" />
+<FnRadio v-model="alignment" name="alignment" value="right" label="右对齐" />
 ```
 
 ## 按钮组
 
-`FnButtonGroup` 接收 `options`、必填的无障碍组名 `label` 和当前 `modelValue`。每个选项可配置 `value`、可见文本 `label`、tooltip `title`、`ariaLabel`、Lucide `icon` 和 `disabled`。
+`FnButtonGroup` 接收 `options`、必填的无障碍组名 `label` 和当前 `modelValue`。每个选项可配置 `value`、可见文本 `label`、提示文案 `title`、Lucide `icon` 和 `disabled`。纯图标选项使用 `title` 作为无障碍名称。
 
 ```vue
 <FnButtonGroup
   v-model="fixed"
   label="名称列固定位置"
   :options="[
-    { value: 'left', title: '固定到左侧', ariaLabel: '固定到左侧', icon: ChevronLeft },
-    { value: '', title: '取消固定', ariaLabel: '取消固定', icon: X },
-    { value: 'right', title: '固定到右侧', ariaLabel: '固定到右侧', icon: ChevronRight },
+    { value: 'left', title: '固定到左侧', icon: ChevronLeft },
+    { value: '', title: '取消固定', icon: X },
+    { value: 'right', title: '固定到右侧', icon: ChevronRight },
   ]"
 />
 ```

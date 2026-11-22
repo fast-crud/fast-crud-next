@@ -5,40 +5,53 @@
       <table :style="tableStyle">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column.key" :class="[columnClasses(column), { 'fn-table-column-sortable': column.sortable === true }]" :style="columnStyle(column, column.key)" :title="column.title" :aria-sort="column.sortable === true && sort.prop === column.key ? (sort.asc ? 'ascending' : 'descending') : undefined" @click="sortColumn(column)">
+            <th v-for="column in columns" :key="column.key"
+              :class="[columnClasses(column), { 'fn-table-column-sortable': column.sortable === true }]"
+              :style="columnStyle(column, column.key)" :title="column.title"
+              :aria-sort="column.sortable === true && sort.prop === column.key ? (sort.asc ? 'ascending' : 'descending') : undefined"
+              @click="sortColumn(column)">
               <span class="fn-table-heading-content">
                 <span class="fn-table-heading-label">
                   <FnRender v-if="column.slots?.header" :render="column.slots.header" :ctx="{ column }" />
                   <template v-else>
-                  {{ column.title }}
+                    {{ column.title }}
                   </template>
                 </span>
                 <span v-if="column.sortable === true || column.filter" class="fn-table-heading-actions">
-                  <ArrowDown v-if="column.sortable === true" class="fn-table-sort-indicator" :size="14" :stroke-width="1.5" aria-hidden="true" />
-                  <FnTableHeaderFilter v-if="column.filter" :options="column.filter.options" :value="filterValues?.[column.key]" :title="column.title ?? column.key" @change="emit('filter-change', { key: column.key, values: $event })" />
+                  <ArrowDown v-if="column.sortable === true" class="fn-table-sort-indicator" :size="14"
+                    :stroke-width="1.5" aria-hidden="true" />
+                  <FnTableHeaderFilter v-if="column.filter" :options="column.filter.options"
+                    :value="filterValues?.[column.key]" :title="column.title ?? column.key"
+                    @change="emit('filter-change', { key: column.key, values: $event })" />
                 </span>
               </span>
-              <span v-if="column.resizable !== false" class="fn-table-resize-handle" title="调节列宽度" @pointerdown.stop="startResize($event, column)" @click.stop />
+              <span v-if="column.resizable !== false" class="fn-table-resize-handle" title="调节列宽度"
+                @pointerdown.stop="startResize($event, column)" @click.stop />
             </th>
           </tr>
         </thead>
         <tbody>
-          <FnTableRowComponent v-for="(row, index) in data" :key="getRowKey(row, index)" :row="row" :index="index" :columns="columns" :slots="slots" :get-component-ref="key => getCellComponentRef(row, key)" :set-component-ref="(key, instance) => setCellComponentRef(row, key, instance)"  :column-classes="columnClasses" :column-style="columnStyle" />
+          <FnTableRowComponent v-for="(row, index) in data" :key="getRowKey(row, index)" :row="row" :index="index"
+            :columns="columns" :slots="slots" :get-component-ref="key => getCellComponentRef(row, key)"
+            :set-component-ref="(key, instance) => setCellComponentRef(row, key, instance)"
+            :column-classes="columnClasses" :column-style="columnStyle" :on-row-click="onRowClick" />
           <tr v-if="!data.length">
             <td :colspan="columns.length" class="fn-table-empty">
-              <FnRender v-if="slots?.empty" :render="slots.empty" :ctx="{ columns, loading }" /><template v-else>{{ emptyText || "暂无数据" }}</template>
+              <FnRender v-if="slots?.empty" :render="slots.empty" :ctx="{ columns, loading }" /><template v-else>{{
+                emptyText || "暂无数据" }}</template>
             </td>
           </tr>
         </tbody>
       </table>
-      <div v-if="resizeIndicatorLeft !== null" class="fn-table-resize-indicator" :style="{ left: `${resizeIndicatorLeft}px` }" aria-hidden="true"></div>
+      <div v-if="resizeIndicatorLeft !== null" class="fn-table-resize-indicator"
+        :style="{ left: `${resizeIndicatorLeft}px` }" aria-hidden="true"></div>
     </div>
     <FnRender v-if="slots?.bottom" :render="slots.bottom" :ctx="{ data, loading }" />
     <Transition name="fn-table-loading">
-    <div v-if="loading" class="fn-table-loading" role="status" aria-live="polite">
-      <span class="fn-table-spinner" aria-hidden="true"></span>
-      <span>加载中...</span>
-    </div>
+      <div v-if="loading" class="fn-table-loading" role="status" aria-live="polite">
+        <span class="fn-table-spinner" aria-hidden="true"></span>
+        <span>加载中...</span>
+      </div>
     </Transition>
   </div>
 </template>
@@ -267,9 +280,11 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
   --fn-table-font-size: 14px;
   --fn-table-header-font-size: 14px;
   --fn-table-cell-padding-y: 12px;
+
   &[data-density="compact"] {
     --fn-table-cell-padding-y: 6px;
   }
+
   position: relative;
   display: flex;
   min-height: 0;
@@ -300,38 +315,8 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     border-top: 1px solid var(--fn-color-border-secondary);
     border-bottom: 1px solid var(--fn-color-border-secondary);
     margin: 0;
-
-    &::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border: 2px solid transparent;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--fn-color-text-tertiary) 65%, transparent);
-      background-clip: padding-box;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background: var(--fn-color-primary);
-      background-clip: padding-box;
-    }
-
-    &::-webkit-scrollbar-corner {
-      background: transparent;
-    }
   }
-  @supports not selector(::-webkit-scrollbar) {
-    .fn-table-scroll {
-      scrollbar-color: var(--fn-color-text-tertiary) transparent;
-      scrollbar-width: thin;
-    }
-  }
+
   .fn-table-resize-indicator {
     position: absolute;
     z-index: 5;
@@ -341,6 +326,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     background: var(--fn-color-primary);
     pointer-events: none;
   }
+
   table {
     width: 100%;
     height: fit-content;
@@ -369,7 +355,10 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       cursor: default;
     }
 
-    .fn-table-checkbox { width: 16px; height: 16px; }
+    .fn-table-checkbox {
+      width: 16px;
+      height: 16px;
+    }
 
     th {
       position: sticky;
@@ -456,18 +445,26 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       overflow: hidden;
     }
   }
+
   .fn-table-cell,
   .fn-table-cell .fn-button {
     font-size: var(--fn-table-font-size);
   }
+
   .fn-table-cell-buttons {
     display: inline-flex;
     align-items: center;
     gap: 8px;
   }
+
   tbody tr:hover td {
     background: var(--fn-table-row-hover-bg);
   }
+
+  .fn-table-row-clickable {
+    cursor: pointer;
+  }
+
   .fn-table-fixed-left,
   .fn-table-fixed-right {
     position: sticky;
@@ -475,12 +472,15 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
     isolation: isolate;
     background: var(--fn-color-bg-container);
   }
+
   .fn-table-fixed-left {
     left: 0;
   }
+
   .fn-table-fixed-right {
     right: 0;
   }
+
   .fn-table-fixed-left-shadow {
     overflow: visible;
 
@@ -499,6 +499,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       pointer-events: none;
     }
   }
+
   .fn-table-fixed-right-shadow {
     overflow: visible;
 
@@ -517,16 +518,19 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       pointer-events: none;
     }
   }
+
   th.fn-table-fixed-left,
   th.fn-table-fixed-right {
     z-index: 3;
     background: linear-gradient(var(--fn-color-fill-alter), var(--fn-color-fill-alter)), var(--fn-color-bg-container);
   }
+
   .fn-table-empty {
     padding: 42px !important;
     color: var(--fn-color-text-tertiary);
     text-align: center !important;
   }
+
   .dark & {
     color: var(--fn-color-text);
 
@@ -578,6 +582,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
   }
 
   table {
+
     th.fn-table-column-sorted[aria-sort],
     th.fn-table-column-sortable:hover {
       background: linear-gradient(var(--fn-color-fill-secondary), var(--fn-color-fill-secondary)), var(--fn-color-bg-container);
@@ -587,7 +592,7 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       cursor: pointer;
     }
 
-    tbody tr:not(:hover) > td.fn-table-column-sorted {
+    tbody tr:not(:hover)>td.fn-table-column-sorted {
       background: var(--fn-table-row-hover-bg);
     }
   }
@@ -603,9 +608,13 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
 }
 
 @keyframes fn-table-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .fn-table-loading {
+
   &-enter-active,
   &-leave-active {
     transition: opacity 120ms ease;

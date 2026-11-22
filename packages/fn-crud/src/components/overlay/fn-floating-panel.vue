@@ -172,14 +172,13 @@ watch(panel, (element, _, onCleanup) => {
   white-space: normal;
 
   &--tooltip {
-    --fn-tooltip-bg: #171717;
     max-width: min(280px, calc(100vw - 16px));
     overflow: visible;
     max-height: none;
     padding: 8px 12px;
     border: 0;
     background: var(--fn-tooltip-bg);
-    color: #fff;
+    color: var(--fn-tooltip-text);
     font-size: 14px;
     line-height: 22px;
 

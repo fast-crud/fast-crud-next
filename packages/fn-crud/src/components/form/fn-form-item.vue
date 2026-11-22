@@ -12,8 +12,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
-defineProps<{ label?: string; error?: string; help?: string; htmlFor?: string }>();
+<script setup lang="tsx">
+import { provide, toRef } from "vue";
+import { fnFieldLabelKey } from "../render/context.ts";
+
+const props = defineProps<{ label?: string; error?: string; help?: string; htmlFor?: string }>();
+provide(fnFieldLabelKey, toRef(props, "label"));
 </script>
 
 <style lang="less">

@@ -4,6 +4,8 @@
 
 优先用 `columns[key].search`。如果搜索项没有对应的表格字段，可写在 `search.columns[key]`。两处配置同名字段时，`search.columns[key]` 覆盖列的搜索配置。
 
+Fn 搜索控件默认用字段标题作为可访问名称。搜索项可通过 `title` 设置专用名称，独立搜索项也使用该属性命名。省略搜索项的 `component.name` 时，使用 `FnInput`。
+
 | 路径 | 类型或默认行为 | 用途 |
 | --- | --- | --- |
 | `search.show` | 默认显示 | 控制整条搜索区域。 |

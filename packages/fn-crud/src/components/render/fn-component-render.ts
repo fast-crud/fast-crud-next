@@ -1,5 +1,6 @@
-import { defineComponent, h, inject, resolveComponent, toRaw, type Component } from "vue";
+import { defineComponent, h, inject, provide, resolveComponent, toRaw, toRef, type Component } from "vue";
 import { fnFormContextKey } from "../form/context.ts";
+import { fnFieldLabelKey } from "./context.ts";
 
 export default defineComponent({
   name: "FnComponentRender",
@@ -10,10 +11,13 @@ export default defineComponent({
     modelValue: { type: null as unknown as () => any },
     scope: String,
     fieldKey: String,
+    fieldLabel: String,
   },
   emits: ["update:modelValue"],
   setup(props, { attrs, emit, slots }) {
     const formContext = inject(fnFormContextKey, undefined);
+    const fieldLabel = inject(fnFieldLabelKey, undefined);
+    provide(fnFieldLabelKey, toRef(() => props.fieldLabel ?? fieldLabel?.value));
     return () => {
       const component = typeof props.name === "string" ? resolveComponent(props.name) : toRaw(props.name);
       const modelProp = props.vModel || "modelValue";

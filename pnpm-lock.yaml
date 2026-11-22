@@ -198,6 +198,12 @@ importers:
       '@fast-crud/fast-crud-next':
         specifier: workspace:*
         version: link:../../fn-crud
+      '@shikijs/langs':
+        specifier: 4.6.0
+        version: 4.6.0
+      '@shikijs/themes':
+        specifier: 4.6.0
+        version: 4.6.0
       axios:
         specifier: ^1.21.1
         version: 1.21.1
@@ -207,6 +213,9 @@ importers:
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
+      shiki:
+        specifier: 4.6.0
+        version: 4.6.0
       vue:
         specifier: ^3.5.44
         version: 3.5.45(typescript@6.0.3)

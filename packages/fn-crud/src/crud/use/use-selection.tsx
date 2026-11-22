@@ -26,7 +26,7 @@ export function createRowSelectionColumn(options: {
       class: "fn-table-selection-column",
       slots: {
         header: () => isSingle ? null : <FnCheckbox
-          aria-label={options.rowSelect.title || "选择当前页"}
+          text={options.rowSelect.title || "选择当前页"}
           modelValue={options.pageKeys.length > 0 && selectedCount === options.pageKeys.length}
           indeterminate={selectedCount > 0 && selectedCount < options.pageKeys.length}
           disabled={options.pageKeys.length === 0}
@@ -39,12 +39,12 @@ export function createRowSelectionColumn(options: {
             name={options.radioName}
             modelValue={options.selectedRowKeys[0]}
             value={options.getRecordId(row, index)}
-            aria-label={`选择第 ${index + 1} 条记录`}
+            label={`选择第 ${index + 1} 条记录`}
             onChange={() => options.changeSelection({ type: "row", row, index, selected: true })}
           />
         : <FnCheckbox
             class="fn-table-checkbox"
-            aria-label={`选择第 ${index + 1} 条记录`}
+            text={`选择第 ${index + 1} 条记录`}
             modelValue={options.selectedRowKeys.includes(options.getRecordId(row, index))}
             onChange={selected => options.changeSelection({ type: "row", row, index, selected })}
           />,
@@ -116,7 +116,7 @@ export function useSelection(props: FnCrudOptions, data: Ref<FnTableRow[]>) {
   }
 
   const selectionColumn = computed(() => {
-    if (!props.rowSelect) return undefined;
+    if (!props.rowSelect || props.rowSelect.show === false) return undefined;
     const pageKeys = data.value.map((row, index) => getRecordId(row, index));
     return createRowSelectionColumn({
       rowSelect: props.rowSelect,

@@ -1,6 +1,6 @@
 # 全局安装与语言
 
-在应用入口、挂载 Vue 应用前调用 `installFnCrud`。列表由 `useFnCrud({ state })` 初始化，弹窗与通知服务由 `FnConfigProvider` 提供。
+在应用入口、挂载 Vue 应用前调用 `installFnCrud`。列表由 `useFnCrud({ state })` 初始化，弹窗、短消息与通知服务由 `FnConfigProvider` 提供。[Message 和 Notification](../api/components.md#message-和-notification)
 
 ```ts
 import { installFnCrud } from '@fast-crud/fast-crud-next'
@@ -21,6 +21,24 @@ installFnCrud({
 | `commonOptions` | CRUD 配置工厂 | 无 | 内置默认值、全局配置、当前列表配置依次深度合并，后者优先。 |
 
 使用内置翻译时，可传入响应式 `locale` 实现动态切换。参阅[快速开始](./getting-started.md)和[主题集成](../themes/overview.md)。
+
+## 默认滚动条
+
+`FnConfigProvider` 内的原生滚动容器默认使用与 `FnTable` 相同的细滚动条。滑块和悬停颜色分别跟随 `--fn-color-text-tertiary` 和 `--fn-color-primary`，容器自己的滚动条样式优先生效。
+
+```vue
+<script setup lang="tsx">
+import { FnConfigProvider } from '@fast-crud/fast-crud-next'
+</script>
+
+<template>
+  <FnConfigProvider>
+    <div style="max-height: 120px; overflow: auto">
+      <p v-for="item in 20" :key="item">记录 {{ item }}</p>
+    </div>
+  </FnConfigProvider>
+</template>
+```
 
 ## 与 vue-i18n 共用实例
 

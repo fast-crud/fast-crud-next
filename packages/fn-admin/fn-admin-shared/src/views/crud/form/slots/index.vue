@@ -7,7 +7,7 @@ const slotLabel = (name: string) => <span class="slot-label">{name}</span>;
 
 const crudState = reactive<FnCrudState<WorkflowRecord>>({
   id: "shared-form-slots-workflows",
-  heading: { title: "CRUD 插槽示例", description: "查看表格数据上下文，以及表单标题、内容和页脚插槽。" },
+  heading: { title: "CRUD 插槽示例", description: "打开新增表单并输入流程名称，查看标题区如何更新，再通过自定义页脚提交。" },
   columns: {
     id: { key: "id", title: "编号", cell: { width: 90 } },
     name: {

@@ -8,7 +8,7 @@
       </span>
     </div>
     <Teleport to="body">
-      <FnModal v-model:open="open" class="fn-table-select-dialog" role="dialog" aria-modal="true" :aria-label="title" :title="title" :width="920" :buttons="dialogButtons" @confirm="confirm">
+      <FnModal v-bind="dialogProps" v-model:open="open" class="fn-table-select-dialog" @confirm="confirm">
         <div class="fn-table-select-content"><FnCrud v-bind="tableOptions" /></div>
         <template #footerLeft><span class="fn-table-select-summary">{{ draft ? `已选择：${getLabel(draft)}` : "请选择一条记录" }}</span></template>
       </FnModal>
@@ -22,10 +22,12 @@ import { Search, X } from "@lucide/vue";
 import FnCrud from "../fn-crud.vue";
 import FnModal from "../../components/overlay/fn-modal.vue";
 import { useFnUiServices } from "../../components/use/use-fn-ui-services";
-import type { FnCrudOptions, FnTablePageQuery, FnTablePageResult, FnTableRow, FnTableSelectProps } from "../../types/index.ts";
+import { useMerge } from "../../components/use/use-merge";
+import type { FnCrudOptions, FnModalProps, FnTablePageQuery, FnTablePageResult, FnTableRow, FnTableSelectProps } from "../../types/index.ts";
 
 const props = withDefaults(defineProps<FnTableSelectProps>(), { title: "选择记录", placeholder: "请选择", disabled: false, allowClear: true });
 const { notification } = useFnUiServices();
+const { merge } = useMerge();
 const emit = defineEmits<{
   "update:modelValue": [value: string | number | undefined];
   change: [value: string | number | undefined, row: FnTableRow | undefined];
@@ -35,6 +37,11 @@ const selected = ref<FnTableRow>();
 const draft = ref<FnTableRow>();
 const pageRows = new Map<string, FnTableRow>();
 const hasValue = computed(() => props.modelValue !== undefined && props.modelValue !== null && props.modelValue !== "");
+function selectRow(row: FnTableRow): void {
+  if (getKey(row) !== undefined) {
+    draft.value = row;
+  }
+}
 function getKey(row: FnTableRow): string | number | undefined {
   const value = row[props.dict.value || "id"];
   if (typeof value === "string" || typeof value === "number") {
@@ -91,12 +98,17 @@ const tableOptions = computed<FnCrudOptions<FnTableRow>>(() => ({
   rowSelect: {
     type: "single",
     crossPage: false,
+    selectedRowKeys: draft.value ? [getKey(draft.value)].filter((key): key is string | number => key !== undefined) : [],
     onChange: keys => {
       draft.value = pageRows.get(String(keys[0]));
     },
   },
   rowHandle: { show: false },
-  table: { ...props.crudOptions.table, rowKey: props.dict.value || "id" },
+  table: {
+    ...props.crudOptions.table,
+    rowKey: props.dict.value || "id",
+    onRowClick: selectRow,
+  },
   columns: props.crudOptions.columns,
   request: {
     pageRequest: async (query: FnTablePageQuery): Promise<FnTablePageResult<FnTableRow>> => {
@@ -115,7 +127,11 @@ const tableOptions = computed<FnCrudOptions<FnTableRow>>(() => ({
     },
   },
 }));
-const dialogButtons = computed(() => ({ reset: { show: false }, confirm: { disabled: !draft.value } }));
+const dialogProps = computed<FnModalProps>(() => merge(
+  {},
+  { title: props.title, buttons: { reset: { show: false }, confirm: { disabled: !draft.value } } },
+  props.dialog
+));
 function openDialog(): void {
   if (props.disabled) {
     return;

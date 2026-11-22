@@ -16,7 +16,7 @@ const compiled = ts.transpileModule(script.content, { compilerOptions: { module:
 const require = createRequire(import.meta.url);
 const module = { exports: {} as any };
 const loadDependency = (name: string) => {
-  if (["./fn-table-cell.vue", "../../components/render/fn-render.ts", "../../components/selection/fn-checkbox.vue", "../../components/selection/fn-radio.vue"].includes(name)) return {};
+  if (["./fn-table-cell.tsx", "../../components/render/fn-render.ts", "../../components/selection/fn-checkbox.vue", "../../components/selection/fn-radio.vue"].includes(name)) return {};
   if (name === "../use/use-compute") return { useCompute };
   return require(name);
 };

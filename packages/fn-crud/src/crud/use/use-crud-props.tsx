@@ -48,10 +48,10 @@ export function useSearchProps(props: FnCrudOptions, columns: Ref<FnCrudOptions[
   return computed(() => {
     const source: Record<string, FnDynamic<FnSearchColumn>> = { ...props.search?.columns };
     for (const [key, column] of Object.entries(columns.value)) {
-      if (column.search) {
-        const override = source[key];
+      const override = source[key];
+      if (column.search || override) {
         const { search: merged } = merge({}, { search: column.search }, { search: override });
-        source[key] = compute(context => resolveComputedValue(merged, context) as FnSearchColumn);
+        source[key] = compute(context => ({ title: column.title, ...resolveComputedValue(merged, context) }) as FnSearchColumn);
       }
     }
     const slots = { ...props.search?.slots };
@@ -234,7 +234,7 @@ export function usePaginationProps(props: FnCrudOptions, page: { current: number
     current: page.current,
     pageSize: page.pageSize,
     total: page.total,
-    pageSizeOptions: Array.from(new Set([String(page.pageSize), ...(props.pagination?.pageSizeOptions || ["10", "20", "50", "100"])])),
+    pageSizeOptions: Array.from(new Set([...(props.pagination?.pageSizeOptions || ["10", "20", "50", "100"]), String(page.pageSize)])),
     simple: props.pagination?.simple ?? false,
     showSizeChanger: props.pagination?.showSizeChanger ?? true,
     showQuickJumper: props.pagination?.showQuickJumper ?? false,

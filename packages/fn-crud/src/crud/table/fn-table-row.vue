@@ -1,12 +1,13 @@
 <template>
-  <tr>
+  <tr :class="{ 'fn-table-row-clickable': props.onRowClick }" @click="props.onRowClick?.(props.row, props.index)">
     <template v-if="rowSlot">
       <td :colspan="columns.length"><FnRender :render="rowSlot" :ctx="{ row, index }" /></td>
     </template>
     <template v-else>
-      <td v-for="column in resolvedColumns" :key="column.key" :class="props.columnClasses(column)" :style="props.columnStyle(column, column.key)" :title="column.ellipsis ? String(getCellValue(row, column) ?? '') : undefined">
-        <FnRender v-if="column.slots?.default" :render="column.slots.default" :ctx="rowContext" />
-        <FnTableCell v-else :column="column" :context="rowContext" :value="getCellValue(row, column)" @component-ref="setComponentRef(column.key, $event)" />
+      <td v-for="column in resolvedColumns" :key="column.key" :class="props.columnClasses(column)"
+        :style="props.columnStyle(column, column.key)"
+        :title="column.ellipsis && !column.tooltipContent ? String(getCellValue(row, column) ?? '') : undefined">
+        <FnTableCell :column="column" :context="rowContext" :value="getCellValue(row, column)" :tooltip="column.tooltipContent" @component-ref="setComponentRef(column.key, $event)" />
       </td>
     </template>
   </tr>
@@ -18,7 +19,7 @@ import { computed } from "vue";
 import FnRender from "../../components/render/fn-render.ts";
 import type { FnDynamic, FnRenderSlot, FnRowContext, FnTableColumn, FnTableRow } from "../../types/index.ts";
 import { useCompute } from "../use/use-compute";
-import FnTableCell from "./fn-table-cell.vue";
+import FnTableCell from "./fn-table-cell.tsx";
 
 interface FnTableRowColumn extends FnTableColumn<FnTableRow> {
   key: string;
@@ -32,6 +33,7 @@ const props = defineProps<{
   rowSlot?: FnRenderSlot;
   columnClasses: (column: FnTableRowColumn) => Array<string | undefined>;
   columnStyle: (column: FnTableRowColumn, key: string) => Record<string, any>;
+  onRowClick?: (row: FnTableRow, index: number) => void;
 }>();
 
 const { resolveComputedValue } = useCompute();
@@ -46,7 +48,9 @@ const rowContext = computed<FnRowContext>(() => ({
 
 const resolvedColumns = computed(() => props.columns.map(column => {
   const cell = resolveComputedValue(column.sourceCell, rowContext.value) as FnTableColumn<FnTableRow>;
-  return { ...column, ...cell, key: column.key, title: cell.title ?? column.title };
+  const tooltip = cell.show === false ? undefined : cell.tooltip;
+  const tooltipContent = typeof tooltip === "function" ? tooltip(rowContext.value) : tooltip;
+  return { ...column, ...cell, key: column.key, title: cell.title ?? column.title, tooltipContent };
 }));
 
 function getCellValue(row: FnTableRow, column: FnTableRowColumn): unknown {
@@ -61,3 +65,20 @@ function setComponentRef(key: string, instance: unknown): void {
   }
 }
 </script>
+
+<style lang="less">
+.fn-table-cell {
+  min-width: 0;
+
+  .fn-table-cell-trigger {
+    min-width: 0;
+  }
+
+  &--ellipsis,
+  &--ellipsis .fn-table-cell-trigger {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+</style>

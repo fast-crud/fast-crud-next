@@ -309,9 +309,29 @@ it("行选择作为 table.columns 的普通 render 列生成", () => {
   const column = setup.table.tableProps.value.columns.__fn_selection_column;
   const rendered = column.cell.render({ type: "row", row: { id: 1 }, form: { id: 1 }, index: 0 });
 
-  expect(column.cell).toMatchObject({ width: 44, resizable: false });
+  expect(column.cell).toMatchObject({ width: 56, resizable: false });
   expect(column.cell.fixed).toBeUndefined();
-  expect(rendered.props).toMatchObject({ modelValue: false, "aria-label": "选择第 1 条记录" });
+  expect(rendered.props).toMatchObject({ modelValue: false, text: "选择第 1 条记录" });
+});
+
+it("FnCrud 通过 rowSelect.show 切换选择列并保留已选行", () => {
+  const show = ref(false);
+  const state = reactive({
+    columns: {},
+    request: { pageRequest: vi.fn() },
+    rowSelect: { show, selectedRowKeys: ["12"] },
+  });
+  useFnCrud({ state });
+  const setup = module.exports.default.setup(state, { emit: () => {}, expose: () => {} });
+  setup.table.data.value = [{ id: 12 }];
+
+  expect(setup.table.tableProps.value.columns).not.toHaveProperty("__fn_selection_column");
+  expect(setup.getSelectedRowKeys()).toEqual(["12"]);
+
+  show.value = true;
+  const column = setup.table.tableProps.value.columns.__fn_selection_column;
+  const row = setup.table.data.value[0];
+  expect(column.cell.render({ type: "row", row, form: row, index: 0 }).props.modelValue).toBe(true);
 });
 
 it("FnCrud 通过 onChange 将用户选择写回 crudState.rowSelect.selectedRowKeys", () => {

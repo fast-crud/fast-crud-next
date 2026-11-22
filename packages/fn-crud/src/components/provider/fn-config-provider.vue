@@ -1,5 +1,5 @@
 <template>
-    <FnModalProvider>
+    <FnModalProvider class="fn-config-provider">
       <FnNotificationHost />
       <slot />
     </FnModalProvider>

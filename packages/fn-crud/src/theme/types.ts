@@ -7,6 +7,8 @@ export type FnThemeTokenName =
   | "colorBgBase"
   | "colorBgContainer"
   | "colorBgElevated"
+  | "tooltipBg"
+  | "tooltipText"
   | "colorFillAlter"
   | "colorFillSecondary"
   | "colorBorder"
@@ -26,6 +28,9 @@ export type FnThemeTokenName =
   | "colorInfoBg"
   | "colorInfoBorder"
   | "borderRadius"
+  | "feedbackBorderRadius"
+  | "feedbackCloseBorderRadius"
+  | "feedbackBg"
   | "controlHeight";
 
 export type FnThemeTokens = Partial<Record<FnThemeTokenName, string | number>>;

@@ -15,7 +15,7 @@
 | `pagination.current` | `number`，初始默认 `1` | 初始页码。搜索或排序会回到第 1 页。 |
 | `pagination.show` | 布尔值，默认 `true` | 在 `useFnCrud` 初始化的列表上控制分页区域。 |
 | `pagination.pageSize` | `number`，默认 `10` | 每页条数，用户保存的偏好优先。 |
-| `pagination.pageSizeOptions` | `string[]`，默认 `['10', '20', '50', '100']` | 分页大小选项，当前值自动加入。 |
+| `pagination.pageSizeOptions` | `string[]`，默认 `['10', '20', '50', '100']` | `FnSelect` 按配置顺序展示每页条数。当前值缺失时追加到末尾。 |
 | `pagination.showSizeChanger` | 布尔值，默认 `true` | 显示更改每页条数的入口。 |
 | `pagination.showQuickJumper` | 布尔值，默认 `false` | 显示跳页输入。 |
 | `pagination.simple` | 布尔值，默认 `false` | 使用简洁分页。 |
@@ -44,17 +44,38 @@ columns: {
 
 确认后，`FnTable` 发出 `filter-change`，参数为 `{ key, values }`。独立使用 `FnTable` 时，通过 `filterValues` 传入已应用的条件。使用 `FnCrud` 时，条件按列键写入 `searchForm`，回到第一页并查询，`table.onFilterChange` 可监听变更。点击面板中的「重置」会清除该列条件并立即查询。
 
-重新打开筛选面板时，复选框显示当前已应用的条件。关闭面板会丢弃未确认的改动。在 Admin 的 `/crud/basis/request-mock` 可试用「状态」列筛选，并悬停或聚焦「服务名称」列的文本，通过 `FnTooltip` 查看被省略的长名称。
+重新打开筛选面板时，复选框显示当前已应用的条件。关闭面板会丢弃未确认的改动。在 Admin 的 `/crud/basis/request-mock` 可试用「状态」列筛选，并悬停或聚焦「服务名称」列的文本，通过 [`cell.tooltip`](./columns.md#单元格提示)查看被省略的长名称。
+
+## 表格选择器弹窗
+
+`FnTableSelect` 在字段中打开可搜索的单选表格，并通过 `dialog` 传入弹窗配置。`dialog` 支持 `FnModal` 的公开属性，配置值会覆盖默认标题和内置按钮配置，未配置的弹窗属性继续使用 `FnModal` 默认值。
+
+~~~vue
+<FnTableSelect
+  v-model="form.ownerId"
+  :dict="ownerDict"
+  :crud-options="ownerCrudOptions"
+  :dialog="{
+    width: '70vw',
+    draggable: false,
+    title: '选择负责人',
+  }"
+/>
+~~~
+
+常用配置包括 `width`（数字按像素处理，也支持 CSS 字符串）、`draggable`、`footer`、`title` 和 `buttons`。`dialog.buttons` 会与内置按钮深度合并，`reset` 默认隐藏，`confirm` 默认在没有暂存记录时禁用。
 
 ## 行选择
 
 | 路径 | 类型或默认值 | 用途 |
 | --- | --- | --- |
+| `rowSelect.show` | `boolean`，默认 `true` | 控制选择列显隐。隐藏时保留已选行键，重新显示后可继续选择。 |
 | `rowSelect.type` | `'single' \| 'multiple'`，默认多选 | 选择方式。 |
 | `rowSelect.selectedRowKeys` | `Array<string \| number>`，默认 `[]` | 初始选中及当前的选中键。 |
 | `rowSelect.crossPage` | 布尔值，默认关闭 | 保留非当前页的选中键。 |
 | `rowSelect.fixed` | `'left' \| 'right' \| null`，默认 `'left'` | 设置选择列固定位置，`null` 取消固定。 |
 | `rowSelect.onChange` | 接收行键数组的回调 | 用户选择变化或清空时调用。当前实现写回字符串键。 |
+| `table.onRowClick` | 接收 `(row, index)` 的回调 | 用户单击数据行时调用。 |
 
 ```ts
 rowSelect: {
