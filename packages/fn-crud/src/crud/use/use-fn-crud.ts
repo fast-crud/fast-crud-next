@@ -55,7 +55,7 @@ export function useFnCrud<Row = any>({ state, crudRef, i18n }: UseFnCrudOptions<
           icon: defaultCrudButtonIcons.batch,
           text: computed(() => t("fnCrud.crud.actionbar.batch")),
           type: "default",
-          show: computed(() => state.rowSelect?.show || true),
+          show: computed(() => state.rowSelect?.show ?? true),
           order: 0,
           buttonType: "dropdown",
           items: [{ key: "delete", label: computed(() => t("fnCrud.crud.actionbar.batchDelete")), icon: defaultCrudButtonIcons.delete, danger: true }],

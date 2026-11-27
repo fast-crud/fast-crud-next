@@ -94,6 +94,10 @@
     "api/components.md",
     "demos/admin.md"
   ],
+  "packages/fn-admin/fn-admin-shared/src/views/components/": [
+    "api/components.md",
+    "demos/admin.md"
+  ],
   "packages/fn-admin/fn-admin-shared/src/views/crud/basis/request-mock/": [
     "recipes/paging.md",
     "recipes/mutations.md",

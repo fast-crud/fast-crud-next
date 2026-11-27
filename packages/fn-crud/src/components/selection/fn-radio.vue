@@ -1,15 +1,18 @@
 <template>
-  <input
-    class="fn-radio"
-    type="radio"
-    :name="name"
-    :value="value"
-    :checked="Object.is(modelValue, value)"
-    :disabled="disabled"
-    :aria-label="label || fieldLabel"
-    v-bind="$attrs"
-    @change="change"
-  />
+  <span class="fn-radio-control" :class="{ 'is-disabled': disabled, 'is-checked': Object.is(modelValue, value) }">
+    <input
+      class="fn-radio"
+      type="radio"
+      :name="name"
+      :value="value"
+      :checked="Object.is(modelValue, value)"
+      :disabled="disabled"
+      :aria-label="label || fieldLabel"
+      v-bind="$attrs"
+      @change="change"
+    />
+    <span class="fn-radio-icon" aria-hidden="true"></span>
+  </span>
 </template>
 
 <script setup lang="tsx">
@@ -33,30 +36,58 @@ function change(event: Event): void {
 <style lang="less">
 .fn-radio {
   box-sizing: border-box;
-  width: 16px;
-  height: 16px;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   flex: none;
   margin: 0;
   appearance: none;
-  border: 1px solid var(--fn-color-border, #c5ceda);
+  border: 0;
   border-radius: 50%;
-  background: var(--fn-color-bg-container, #fff);
+  background: transparent;
   cursor: pointer;
-  vertical-align: middle;
-  &:checked { border-color: var(--fn-color-primary, #1677ff); }
-  &:checked::after {
-    display: block;
-    width: 8px;
-    height: 8px;
-    margin: 3px;
-    border-radius: 50%;
-    background: var(--fn-color-primary, #1677ff);
-    content: "";
-  }
   &:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--fn-color-primary, #1677ff) 50%, transparent);
     outline-offset: 2px;
   }
-  &:disabled { background: var(--fn-color-fill-secondary, #f2f4f7); cursor: not-allowed; }
+  &:disabled { cursor: not-allowed; }
+}
+
+.fn-radio-control {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  vertical-align: middle;
+
+  .fn-radio-icon {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--fn-color-border, #c5ceda);
+    border-radius: 50%;
+    background: var(--fn-color-bg-container, #fff);
+    pointer-events: none;
+  }
+
+  &.is-checked .fn-radio-icon {
+    border-color: var(--fn-color-primary, #1677ff);
+
+    &::after {
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--fn-color-primary, #1677ff);
+      content: "";
+    }
+  }
+
+  &.is-disabled .fn-radio-icon {
+    background: var(--fn-color-fill-secondary, #f2f4f7);
+    opacity: 0.7;
+  }
 }
 </style>

@@ -14,12 +14,17 @@
             </template>
             <template v-for="child in page.children" :key="child.key">
               <el-sub-menu v-if="child.children" :index="child.key">
-                <template #title>{{ adminText(...child.title) }}</template>
+                <template #title>
+                  <el-icon v-if="child.icon"><component :is="child.icon" /></el-icon>
+                  <span>{{ adminText(...child.title) }}</span>
+                </template>
                 <el-menu-item v-for="item in child.children" :key="item.key" :index="item.path || item.key" :disabled="item.disabled">
+                  <el-icon v-if="item.icon"><component :is="item.icon" /></el-icon>
                   {{ adminText(...item.title) }}
                 </el-menu-item>
               </el-sub-menu>
               <el-menu-item v-else :index="child.path || child.key" :disabled="child.disabled">
+                <el-icon v-if="child.icon"><component :is="child.icon" /></el-icon>
                 {{ adminText(...child.title) }}
               </el-menu-item>
             </template>

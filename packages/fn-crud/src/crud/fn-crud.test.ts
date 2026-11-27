@@ -326,6 +326,7 @@ it("FnCrud 通过 rowSelect.show 切换选择列并保留已选行", () => {
   setup.table.data.value = [{ id: 12 }];
 
   expect(setup.table.tableProps.value.columns).not.toHaveProperty("__fn_selection_column");
+  expect(setup.actionbarProps.value.buttons.batch.show).toBe(false);
   expect(setup.getSelectedRowKeys()).toEqual(["12"]);
 
   show.value = true;

@@ -35,7 +35,7 @@ const tagStyle = computed(() => {
   display: inline-block;
   box-sizing: border-box;
   max-width: 100%;
-  margin-inline-end: 8px;
+  // margin-inline-end: 8px;
   padding-inline: 7px;
   border: 1px solid var(--fn-tag-border, var(--fn-color-border, #d9d9d9));
   border-radius: var(--fn-tag-border-radius, 4px);

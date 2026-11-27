@@ -21,6 +21,10 @@
 
 Fn 基础字段控件在 CRUD 表单、搜索区和表格单元格中会使用对应的字段标题。独立使用时，控件从自身的标签、提示或按钮文案生成无障碍名称。
 
+## 在表单中组合组件
+
+Admin 的 `/crud/component/*` 展示常见字段组件在 `FnCrud` 表单中的使用方式。文本、按钮、下拉、单选、复选、开关和表格选择分别对应独立页面。`FnTableSelect` 通过表单字段的 `component` 配置传入 `dict`、`crudOptions` 和 `dialog`，单击弹窗中的数据行后点击确认完成选择。
+
 ## Message 和 Notification
 
 在 `FnConfigProvider` 的子组件中调用 `useFnUiServices()`。内置 `message` 从视口顶部居中滑入，适合简短的操作反馈。`notification` 从右上角滑入，卡片包含状态图标、标题和可选说明。点击卡片右上角可关闭该条通知，下方卡片会自动上移补位。系统开启减少动态效果时，卡片直接显示或移除。

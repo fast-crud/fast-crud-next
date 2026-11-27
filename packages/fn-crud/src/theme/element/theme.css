@@ -45,7 +45,7 @@
 }
 
 :root[data-fn-theme="element"] .fn-message-item[data-type="error"] {
-  --fn-message-background: var(--el-color-error-light-9);
-  --fn-message-border: var(--el-color-error-light-8);
-  --fn-message-text: var(--el-color-error);
+  --fn-message-background: var(--el-color-danger-light-9);
+  --fn-message-border: var(--el-color-danger-light-8);
+  --fn-message-text: var(--el-color-danger);
 }

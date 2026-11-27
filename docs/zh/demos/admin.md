@@ -16,7 +16,7 @@
 
 三套 Admin 的「CRUD 示例」菜单按页面目录分为「基础」「字典」「功能」「表单」。也可以把下表中的路由追加到所选应用的本地地址。
 
-同时展开四个分类后，可以在左侧菜单内向下滚动到「组件对比」。滚动时侧栏顶部的品牌栏和底部信息保持可见，右侧内容保持在原位。菜单和表格同在 `FnConfigProvider` 下，共用[默认滚动条样式](../guide/installation.md#默认滚动条)。
+展开「CRUD 示例」和「组件」分类后，可以在左侧菜单内访问表单组件与组件对比页面。滚动时侧栏顶部的品牌栏和底部信息保持可见，右侧内容保持在原位。菜单和表格同在 `FnConfigProvider` 下，共用[默认滚动条样式](../guide/installation.md#默认滚动条)。
 
 | 路由 | 打开后可以做什么 |
 | --- | --- |
@@ -32,12 +32,19 @@
 | `/crud/basis/quick-search` | 快捷搜索（`search.buttons`）。点击「仅看待处理」，再清空搜索条件。 |
 | `/crud/feature/fixed-columns` | 左右固定列（`cell.fixed`）。横向滚动，确认名称和状态保留在表格两侧。 |
 | `/crud/feature/column-preferences` | 列配置偏好（列设置与持久化）。调整列顺序、显隐和宽度，刷新页面后查看保存结果。 |
-| `/crud/feature/single-selection` | 单选记录（`rowSelect.type`）和 `FnTableSelect`。表格选择器支持单击行暂存记录，再确认提交。 |
+| `/crud/feature/single-selection` | 单选记录（`rowSelect.type`）。依次选择两行，确认当前只保留后一条记录。 |
 | `/crud/feature/row-actions` | 行操作菜单（`rowHandle.buttons`）。在「更多」中复制当前行，确认新增表单带入原行数据。 |
 | `/crud/feature/compact-pagination` | 简洁分页（`pagination.simple`）。输入页码并回车，跳到指定页。 |
 | `/crud/feature/header-filters` | 组合表头筛选（`cell.filter.options`）。在区域和状态的表头应用筛选，再重置其中一列。 |
 | `/crud/form/modes` | 新增与编辑配置（`addForm`、`editForm`）。分别打开新增和编辑表单，对比标题与确认按钮。 |
 | `/crud/form/validation` | 表单校验与布局（`form.rules`、`form.span`）。清空名称或输入非邮箱值，提交后查看字段校验提示。 |
+| `/crud/component/text` | 文本输入组件，在 CRUD 表单中查看文本字段。 |
+| `/crud/component/button` | 按钮组件，在 CRUD 操作栏和页面中查看按钮操作。 |
+| `/crud/component/select` | 下拉选择组件，在 CRUD 表单中查看字典下拉。 |
+| `/crud/component/radio` | 单选组组件，在 CRUD 表单中查看字典单选。 |
+| `/crud/component/checkbox` | 复选组组件，在 CRUD 表单中查看字典复选。 |
+| `/crud/component/switch` | 开关组件，在 CRUD 表单中查看 `FnSwitch`。 |
+| `/crud/component/table-select` | 表格选择组件，在 CRUD 表单中单击表格行选择负责人。 |
 | `/components/table-buttons` | 对照各宿主 UI 框架的原生表格和按钮表现。 |
 | `/components/feedback` | 在「消息与通知」中触发四种状态。点击「显示三条通知」，再关闭中间一条，查看下方卡片的补位动画。[Message 和 Notification](../api/components.md#message-和-notification) |
 
@@ -63,7 +70,7 @@
 
 CRUD 示例和「消息与通知」页面右下角都有贴边的半透明「查看源码」短条，打开后可查看该页带语法高亮的 `index.vue`。源码弹窗挂载到 `body`。代码配色跟随 Admin 的明暗主题。Vite 在构建时通过 `import.meta.glob` 和 `?raw` 将源码编入独立模块，源码和高亮器在打开弹窗时按需加载。部署构建产物即可使用这一功能。
 
-三套宿主应用位于 `packages/fn-admin` 下。共享 CRUD 页面位于 `packages/fn-admin/fn-admin-shared/src/views/crud`。把路由去掉 `/crud/` 前缀即可定位目录，例如 `/crud/basis/request-mock` 对应下面的结构。
+三套宿主应用位于 `packages/fn-admin` 下。共享 CRUD 页面和组件示例分别位于 `packages/fn-admin/fn-admin-shared/src/views/crud`、`packages/fn-admin/fn-admin-shared/src/views/components`。组件示例路由位于 `/crud/component/*`。
 
 ```text
 views/crud/basis/request-mock/

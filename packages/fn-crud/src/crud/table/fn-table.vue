@@ -349,6 +349,22 @@ function getRowKey(row: FnTableRowRecord, index: number): string | number {
       padding-right: 8px;
       padding-left: 8px;
       text-align: center;
+
+      .fn-table-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 16px;
+        line-height: 1;
+
+        .fn-table-checkbox,
+        .fn-radio-control,
+        .fn-checkbox-control {
+          display: block;
+          margin: 0 auto;
+          vertical-align: middle;
+        }
+      }
     }
 
     .fn-table-column-unresizable {
